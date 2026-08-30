@@ -28,6 +28,28 @@ void main() {
     await db.close();
   });
 
+  test('chonNgay thang truoc doi tuan Home', () async {
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    kho.chonNgay(DateTime(2026, 7, 15));
+    expect(kho.selected, DateTime(2026, 7, 15));
+    expect(kho.tuan.first.ngay, DateTime(2026, 7, 13));
+    expect(kho.tuan.last.ngay, DateTime(2026, 7, 19));
+    expect(kho.dongNgay, 'Thứ Tư, 15 tháng 7');
+    expect(kho.nTrenM, '0/1 ngày 15/7');
+  });
+
+  test('chonVaTick doi selected roi tick dung ngay', () async {
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    await kho.themPreset(ten: Chuoi.doc20Trang);
+    final h = kho.hang.first.habit;
+    await kho.chonVaTick(h, DateTime(2026, 7, 15));
+    expect(kho.selected, DateTime(2026, 7, 15));
+    expect(kho.hang.first.ticked, isTrue);
+    expect(kho.hang.last.ticked, isFalse);
+    expect(kho.nTick, 1);
+    expect(kho.tuan.first.ngay, DateTime(2026, 7, 13));
+  });
+
   test('themPreset song song mot ten mot hang', () async {
     final r = await Future.wait([
       kho.themPreset(ten: Chuoi.day6Gio),
@@ -128,5 +150,26 @@ void main() {
     await tester.tap(find.text(Chuoi.huy));
     await tester.pumpAndSettle();
     expect(kho.hang.length, 1);
+  });
+
+  testWidgets('o thang doi selectedDate, Back Home theo ngay do', (tester) async {
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(Key('chi-tiet-${kho.hang.single.habit.id}')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.chevron_left));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('o-ngay-2026-07-15')));
+    await tester.pumpAndSettle();
+    expect(kho.selected, DateTime(2026, 7, 15));
+
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    expect(find.text('Thứ Tư, 15 tháng 7'), findsOneWidget);
+    expect(find.text('1/1 ngày 15/7'), findsOneWidget);
+    expect(find.text(Chuoi.day6Gio), findsOneWidget);
   });
 }

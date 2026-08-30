@@ -139,19 +139,7 @@ class Kho extends ChangeNotifier {
               0,
         ),
     ];
-
-    final cacNgay = Ngay.tuan(homNay);
-    tuan = [
-      for (final d in cacNgay)
-        ChamTuan(
-          ngay: d,
-          tick: hang.where((h) => ticksCua(h.habit.id).contains(Ngay.iso(d))).length,
-          tong: habits.length,
-          laHomNay: Ngay.cungNgay(d, homNay),
-          tuongLai: Ngay.sau(d, homNay),
-          dangXem: Ngay.cungNgay(d, selected),
-        ),
-    ];
+    _veTuan();
 
     final p = await db.docProfile();
     targetKg = p.targetKg;
@@ -161,22 +149,22 @@ class Kho extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> chonNgay(DateTime d) async {
+  void chonNgay(DateTime d) {
     if (Ngay.sau(d, homNay)) return;
     selected = Ngay.cat(d);
-    final isoSel = Ngay.iso(selected);
-    hang = [
-      for (final h in hang)
-        h.copyWith(ticked: ticksCua(h.habit.id).contains(isoSel)),
-    ];
-    tuan = [
-      for (final c in tuan) c.copyWith(dangXem: Ngay.cungNgay(c.ngay, selected)),
-    ];
+    _dongBoHangVaTuan();
     notifyListeners();
   }
 
   /// UI đổi ngay, ghi Drift sau. Ghi tuần tự theo (habit, ngày).
   Future<void> toggle(HangHabitView h) => toggleNgay(h.habit, selected);
+
+  /// Ô tháng: đổi selectedDate rồi tick/hoàn tác đúng ngày đó.
+  Future<void> chonVaTick(Habit habit, DateTime ngay) {
+    if (Ngay.sau(ngay, homNay)) return Future.value();
+    selected = Ngay.cat(ngay);
+    return toggleNgay(habit, ngay);
+  }
 
   Future<void> toggleNgay(Habit habit, DateTime ngay) {
     if (Ngay.sau(ngay, homNay)) return Future.value();
@@ -188,7 +176,7 @@ class Kho extends ChangeNotifier {
     } else {
       set.remove(iso);
     }
-    _apDungLenHang(habit.id);
+    _dongBoHangVaTuan();
     notifyListeners();
 
     final khoa = '${habit.id}-$iso';
@@ -199,26 +187,29 @@ class Kho extends ChangeNotifier {
     return viec;
   }
 
-  void _apDungLenHang(int habitId) {
+  void _dongBoHangVaTuan() {
     final isoSel = Ngay.iso(selected);
     final prefix = Ngay.prefixThang(selected);
     hang = [
       for (final h in hang)
-        if (h.habit.id == habitId)
-          h.copyWith(
-            ticked: ticksCua(habitId).contains(isoSel),
-            xThang: ticksCua(habitId).where((s) => s.startsWith(prefix)).length,
-          )
-        else
-          h,
+        h.copyWith(
+          ticked: ticksCua(h.habit.id).contains(isoSel),
+          xThang: ticksCua(h.habit.id).where((s) => s.startsWith(prefix)).length,
+        ),
     ];
+    _veTuan();
+  }
+
+  void _veTuan() {
     tuan = [
-      for (final c in tuan)
-        c.copyWith(
-          tick: hang
-              .where((h) => ticksCua(h.habit.id).contains(Ngay.iso(c.ngay)))
-              .length,
+      for (final d in Ngay.tuan(selected))
+        ChamTuan(
+          ngay: d,
+          tick: hang.where((h) => ticksCua(h.habit.id).contains(Ngay.iso(d))).length,
           tong: hang.length,
+          laHomNay: Ngay.cungNgay(d, homNay),
+          tuongLai: Ngay.sau(d, homNay),
+          dangXem: Ngay.cungNgay(d, selected),
         ),
     ];
   }

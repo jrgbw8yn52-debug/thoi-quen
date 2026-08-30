@@ -45,7 +45,7 @@ class _ThanState extends State<_Than> {
   @override
   void initState() {
     super.initState();
-    _thang = Ngay.dauThang(widget.kho.homNay);
+    _thang = Ngay.dauThang(widget.kho.selected);
   }
 
   Future<void> _xoa() async {
@@ -206,10 +206,11 @@ class _ThanState extends State<_Than> {
               child: _LuoiThang(
                 thang: _thang,
                 homNay: homNay,
+                selected: kho.selected,
                 ticks: ticks,
                 onChon: (d) {
                   HapticFeedback.selectionClick();
-                  kho.toggleNgay(h, d);
+                  kho.chonVaTick(h, d);
                 },
               ),
             ),
@@ -225,12 +226,14 @@ class _LuoiThang extends StatelessWidget {
   const _LuoiThang({
     required this.thang,
     required this.homNay,
+    required this.selected,
     required this.ticks,
     required this.onChon,
   });
 
   final DateTime thang;
   final DateTime homNay;
+  final DateTime selected;
   final Set<String> ticks;
   final ValueChanged<DateTime> onChon;
 
@@ -244,6 +247,7 @@ class _LuoiThang extends StatelessWidget {
         _ONgay(
           ngay: d,
           homNay: homNay,
+          dangXem: Ngay.cungNgay(d, selected),
           bat: ticks.contains(Ngay.iso(d)),
           onTap: Ngay.sau(d, homNay) ? null : () => onChon(d),
         ),
@@ -262,12 +266,14 @@ class _ONgay extends StatelessWidget {
   const _ONgay({
     required this.ngay,
     required this.homNay,
+    required this.dangXem,
     required this.bat,
     required this.onTap,
   });
 
   final DateTime ngay;
   final DateTime homNay;
+  final bool dangXem;
   final bool bat;
   final VoidCallback? onTap;
 
@@ -276,6 +282,7 @@ class _ONgay extends StatelessWidget {
     final hom = Ngay.cungNgay(ngay, homNay);
     final tuongLai = onTap == null;
     return InkWell(
+      key: Key('o-ngay-${Ngay.iso(ngay)}'),
       onTap: onTap,
       customBorder: const CircleBorder(),
       child: Center(
@@ -288,15 +295,15 @@ class _ONgay extends StatelessWidget {
             shape: BoxShape.circle,
             color: bat ? Mau.reu : Colors.transparent,
             border: Border.all(
-              color: hom ? Mau.muc : (bat ? Mau.reu : Mau.vien),
-              width: hom ? 2 : 1,
+              color: dangXem || hom ? Mau.muc : (bat ? Mau.reu : Mau.vien),
+              width: dangXem || hom ? 2 : 1,
             ),
           ),
           child: Text(
             '${ngay.day}',
             style: TextStyle(
               fontSize: 13,
-              fontWeight: hom ? FontWeight.w700 : FontWeight.w500,
+              fontWeight: dangXem || hom ? FontWeight.w700 : FontWeight.w500,
               color: tuongLai
                   ? Mau.vien
                   : (bat ? Mau.giay : Mau.muc),

@@ -87,7 +87,8 @@ Không bảng foods. Không macro.
 - Dòng ngày: `Thứ …, d tháng m` (vi, tự viết, không phụ thuộc locale máy).
 - `n/m hôm nay` khi đang xem hôm nay. Ngày khác: `n/m ngày d/m`.
 - Hàng habit: tên + `x/N tháng này`. Cả hàng tick ngày đang xem; tap lại hoàn tác; không dialog.
-- Dải 7 chấm tuần (Thứ Hai → CN). Hôm nay đậm. Ngày đã qua trong tuần tap được (xem/sửa tick ngày đó). Ngày tương lai không tap.
+- Dải 7 chấm tuần của **ngày đang xem** (Thứ Hai → CN), không kẹt tuần hiện tại. Hôm nay đậm. Ngày đã qua trong tuần đang xem tap được. Ngày tương lai không tap.
+- Một `selectedDate` dùng chung: chấm tuần Home và ô ngày trên màn một habit đều đổi `selectedDate`. Back về Home hiện mọi habit của ngày đó (kể cả tháng trước). Tick/hoàn tác theo đúng ngày đó.
 - Chip đầu trang: chưa cân → `Thêm cân`. Có cân + đích → `Cân kg · còn x kg` (còn = cân − đích, giả định giảm). Có cân chưa đích → `Cân kg`. Tap mở tab Cơ thể. Không hiện kcal thừa/thiếu trên Home.
 - Tối đa 8 habit.
 - First-run (0 habit): chip `Dậy 6 giờ` / `Vận động` / `Đọc 20 trang` + `Tự đặt tên`. Không carousel. Không seed rượu/porn. Không tự insert trước khi tap.
