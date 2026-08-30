@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'chuoi.dart';
 import 'kho.dart';
 import 'man/cai_dat.dart';
-import 'man/co_the.dart';
 import 'man/hom_nay.dart';
+import 'man/tien_do.dart';
 import 'mau.dart';
 
 class VoApp extends StatelessWidget {
@@ -39,8 +39,8 @@ class VoApp extends StatelessWidget {
               index: kho.tab,
               children: [
                 ManHomNay(kho: kho),
-                ManCoThe(kho: kho),
-                const ManCaiDat(),
+                ManTienDo(kho: kho),
+                ManCaiDat(kho: kho),
               ],
             ),
             bottomNavigationBar: NavigationBar(
@@ -53,9 +53,9 @@ class VoApp extends StatelessWidget {
                   label: Chuoi.homNay,
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.monitor_weight_outlined),
-                  selectedIcon: Icon(Icons.monitor_weight),
-                  label: Chuoi.coThe,
+                  icon: Icon(Icons.insights_outlined),
+                  selectedIcon: Icon(Icons.insights),
+                  label: Chuoi.tienDo,
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.tune),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -288,6 +290,71 @@ class AppDatabase extends _$AppDatabase {
     if (phut < 1 || phut > 300) return;
     await (update(habits)..where((h) => h.id.equals(id))).write(
       HabitsCompanion(phutMacDinh: Value(phut)),
+    );
+  }
+
+  static const tenBanSao = 'thoi-quen-ban-sao.sqlite';
+
+  Future<String> duongBanSao() async {
+    final d = await getApplicationDocumentsDirectory();
+    return '${d.path}/$tenBanSao';
+  }
+
+  Future<void> xuatVao(String path) async {
+    final f = File(path);
+    if (await f.exists()) await f.delete();
+    final esc = path.replaceAll("'", "''");
+    await customStatement("VACUUM INTO '$esc'");
+  }
+
+  Future<String> xuatBanSao() async {
+    final path = await duongBanSao();
+    await xuatVao(path);
+    return path;
+  }
+
+  Future<bool> coBanSao() async {
+    return File(await duongBanSao()).exists();
+  }
+
+  Future<void> khoiPhucTu(String path) async {
+    final esc = path.replaceAll("'", "''");
+    await customStatement("ATTACH DATABASE '$esc' AS src");
+    try {
+      await customStatement('DELETE FROM ticks');
+      await customStatement('DELETE FROM habits');
+      await customStatement('DELETE FROM weigh_ins');
+      await customStatement('DELETE FROM profile');
+      await customStatement('INSERT INTO habits SELECT * FROM src.habits');
+      await customStatement('INSERT INTO ticks SELECT * FROM src.ticks');
+      await customStatement('INSERT INTO weigh_ins SELECT * FROM src.weigh_ins');
+      await customStatement('INSERT INTO profile SELECT * FROM src.profile');
+    } finally {
+      await customStatement('DETACH DATABASE src');
+    }
+  }
+
+  Future<void> khoiPhucBanSao() async {
+    final path = await duongBanSao();
+    if (!await File(path).exists()) {
+      throw StateError('missing');
+    }
+    await khoiPhucTu(path);
+  }
+
+  Future<void> xoaHet() async {
+    await delete(ticks).go();
+    await delete(habits).go();
+    await delete(weighIns).go();
+    await (update(profiles)..where((p) => p.id.equals(1))).write(
+      const ProfilesCompanion(
+        sex: Value(null),
+        heightCm: Value(null),
+        dob: Value(null),
+        activity: Value(1.2),
+        targetKg: Value(null),
+        tenGoi: Value(null),
+      ),
     );
   }
 }

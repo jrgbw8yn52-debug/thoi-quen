@@ -45,6 +45,8 @@ class ChamTuan {
   final bool tuongLai;
   final bool dangXem;
 
+  double get phan => tong == 0 ? 0 : tick / tong;
+
   ChamTuan copyWith({int? tick, int? tong, bool? dangXem}) {
     return ChamTuan(
       ngay: ngay,
@@ -55,6 +57,24 @@ class ChamTuan {
       dangXem: dangXem ?? this.dangXem,
     );
   }
+}
+
+class CotThang {
+  const CotThang({
+    required this.ngay,
+    required this.tick,
+    required this.tong,
+    required this.dangXem,
+    required this.tuongLai,
+  });
+
+  final DateTime ngay;
+  final int tick;
+  final int tong;
+  final bool dangXem;
+  final bool tuongLai;
+
+  double get phan => tong == 0 ? 0 : tick / tong;
 }
 
 class Kho extends ChangeNotifier {
@@ -97,6 +117,42 @@ class Kho extends ChangeNotifier {
   String get nTrenM {
     if (xemHomNay) return Chuoi.nTrenMHomNay(nTick, mHabit);
     return Chuoi.nTrenMNgay(nTick, mHabit, selected);
+  }
+
+  int get phanTramNgay {
+    if (mHabit == 0) return 0;
+    return ((nTick / mHabit) * 100).round();
+  }
+
+  List<CotThang> get cotThang {
+    final tong = mHabit;
+    return [
+      for (final d in Ngay.cacNgayThang(selected))
+        CotThang(
+          ngay: d,
+          tick: _tickCuaNgay(d),
+          tong: tong,
+          dangXem: Ngay.cungNgay(d, selected),
+          tuongLai: Ngay.sau(d, homNay),
+        ),
+    ];
+  }
+
+  int _tickCuaNgay(DateTime d) {
+    final iso = Ngay.iso(d);
+    var n = 0;
+    for (final h in hang) {
+      if (ticksCua(h.habit.id).contains(iso)) n++;
+    }
+    return n;
+  }
+
+  WeighIn? canCua(DateTime d) {
+    final iso = Ngay.iso(d);
+    for (final c in dsCan) {
+      if (c.ngay == iso) return c;
+    }
+    return null;
   }
 
   String get chuChipCan {
@@ -321,8 +377,13 @@ class Kho extends ChangeNotifier {
     await tai();
   }
 
-  void moCoThe() {
+  void moTienDo() {
     tab = 1;
+    notifyListeners();
+  }
+
+  void moCaiDat() {
+    tab = 2;
     notifyListeners();
   }
 
@@ -331,10 +392,12 @@ class Kho extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> ghiCan(String raw) async {
+  Future<bool> ghiCan(String raw, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
     final kg = So.parseKg(raw);
     if (kg == null) return false;
-    await db.ghiCan(homNay, kg);
+    await db.ghiCan(d, kg);
     await tai();
     return true;
   }
@@ -381,6 +444,24 @@ class Kho extends ChangeNotifier {
 
   Future<void> suaPhutMacDinh(int id, int phut) async {
     await db.suaPhutMacDinh(id, phut);
+    await tai();
+  }
+
+  Future<bool> xuatBanSao() async {
+    await db.xuatBanSao();
+    return true;
+  }
+
+  Future<bool> khoiPhucBanSao() async {
+    if (!await db.coBanSao()) return false;
+    await db.khoiPhucBanSao();
+    await tai();
+    return true;
+  }
+
+  Future<void> xoaDuLieu() async {
+    await db.xoaHet();
+    selected = homNay;
     await tai();
   }
 }

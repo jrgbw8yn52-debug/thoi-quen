@@ -2,7 +2,7 @@
 abstract final class Chuoi {
   static const tenApp = 'Thói quen';
   static const homNay = 'Hôm nay';
-  static const coThe = 'Cơ thể';
+  static const tienDo = 'Tiến độ';
   static const caiDat = 'Cài đặt';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';
@@ -49,6 +49,31 @@ abstract final class Chuoi {
   static const saiSo = 'sai số ±200–400';
   static const kcalBuoi = 'Kcal buổi';
   static const phut = 'phút';
+  static const hoSoChiSo = 'Hồ sơ & chỉ số';
+  static const xuatBanSao = 'Xuất bản sao';
+  static const khoiPhuc = 'Khôi phục';
+  static const xoaDuLieu = 'Xoá dữ liệu';
+  static const phienBan = 'Phiên bản 0.1.0';
+  static const haiMayLech = 'Hai máy cùng ghi sẽ lệch. Chỉ một máy ghi.';
+  static const thayToanBo = 'Thay toàn bộ dữ liệu trên máy này. Không gộp.';
+  static const daXuat = 'Đã xuất bản sao trên máy này.';
+  static const khongCoBanSao = 'Không có bản sao.';
+  static const ghiThemCan = 'Ghi thêm cân để thấy đường';
+  static const canKg = 'Cân kg';
+  static const tuanNhan = 'Tuần';
+  static const itVanDong = 'Ít · 1,2';
+  static const nheVanDong = 'Nhẹ · 1,375';
+  static const vuaVanDong = 'Vừa · 1,55';
+  static const nhieuVanDong = 'Nhiều · 1,725';
+  static const ratNhieuVanDong = 'Rất nhiều · 1,9';
+
+  static const heSoNhan = [
+    itVanDong,
+    nheVanDong,
+    vuaVanDong,
+    nhieuVanDong,
+    ratNhieuVanDong,
+  ];
   static const mifflin = 'Mifflin 1990 (BMR)';
   static const whoA = 'WHO châu Á (mốc BMI)';
   static const compendium = 'Compendium of Physical Activities (MET)';
@@ -105,4 +130,8 @@ abstract final class Chuoi {
   }
 
   static String thang(int m) => 'Tháng $m';
+
+  static String phanTram(int p) => '$p%';
+
+  static String nTrenM(int n, int m) => '$n/$m';
 }

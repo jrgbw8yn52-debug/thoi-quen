@@ -7,7 +7,7 @@ Không IndexedDB. Không account. Không iCloud/Drive làm nguồn.
 
 Sandbox / mạng / AI / preview web: **tắt** trừ khi người dùng hỏi.
 
-Cổng hiện tại: **4 xong** (kcal MET lúc đọc trên một habit). Không làm xuất VACUUM / App Store cho đến khi được bảo.
+Cổng hiện tại: **IA 3 tab**. Không App Store.
 
 ---
 
@@ -101,7 +101,7 @@ Không bảng foods. Không macro.
 - Khóa ghi: ngày cách hôm nay > 7 ngày (và ngày tương lai) chỉ đọc — không tick, không hoàn tác, không thêm habit.
 - Thêm thói quen dưới list, theo ngày đang xem. Habit mới tự tick đúng ngày đó. Không backfill ngày khác.
 - Một `selectedDate` dùng chung. Back về Home hiện mọi habit của ngày đó (kể cả tháng trước).
-- Chip đầu trang: chưa cân → `Thêm cân`. Có cân + đích → `Cân kg · còn x kg` (còn = cân − đích, giả định giảm). Có cân chưa đích → `Cân kg`. Tap mở tab Cơ thể. Không hiện kcal thừa/thiếu trên Home.
+- Chip đầu trang: chưa cân → `Thêm cân`. Có cân + đích → `Cân kg · còn x kg`. Tap mở tab **Tiến độ**. Không hiện kcal thừa/thiếu trên Home.
 - Tối đa 8 habit.
 - First-run (0 habit): chip `Dậy 6 giờ` / `Vận động` / `Đọc 20 trang` + `Tự đặt tên`. Không carousel. Không seed rượu/porn. Không tự insert trước khi tap.
 - Một tên = một hàng. Chip đã chọn không tạo thêm. Tap liên tiếp không nhân bản. `gopTenTrung()` lúc mở DB.
@@ -119,32 +119,34 @@ Dải 28–31 ngày của tháng đang xem (chỉ màn này, không đưa lên H
 Sửa / Xoá. Confirm xoá đúng câu: `Xoá khỏi máy này? Không lấy lại được.`
 Nếu có MET: hiện kcal buổi (tính lúc đọc) — cổng 5.
 
-### 4) Cơ thể — cổng 4
-Cân hôm nay, cân đích, sparkline (≥2 lần cân), BMI mốc Á 23 / 27,5, BMR Mifflin–St Jeor 1990 lúc đọc,
-TDEE = BMR × hệ số, không persist BMI/BMR/TDEE/kcal.
+### 4) Tiến độ + Cài đặt
+Tab: **Hôm nay | Tiến độ | Cài đặt**. Không tab Cơ thể. Không clone Wao. Không P/C/F. Không Health.
+
+**Tiến độ** (cùng `selectedDate` với Home):
+1. Ngày đang xem: % hoàn thành + `n/m`. Vòng.
+2. Tuần chứa ngày đó: 7 cột % T2→CN. Tap cột → `selectedDate`.
+3. Tháng chứa ngày đó: một hàng cột % theo ngày (không lưới habit×31). Tap cột → `selectedDate`.
+4. Cân: sparkline + vạch đích. Ô Cân kg + Lưu (không xóa ô). <2 mốc: `Ghi thêm cân để thấy đường`.
+Ngày >7 ngày trước: chỉ xem, không tick, không ghi cân mới.
+
+**Cài đặt**
+- `Dữ liệu chỉ trên máy này.` + `Hai máy cùng ghi sẽ lệch. Chỉ một máy ghi.`
+- Hồ sơ & chỉ số: form + BMI/BMR/TDEE cuối trang. Lưu cân không xóa ô. Nhãn hoạt động Việt.
+- Xuất bản sao (`VACUUM INTO`) / Khôi phục (thay toàn bộ, không gộp) / Xoá dữ liệu / Nguồn / Phiên bản 0.1.0.
+
+BMI mốc Á: <18,5 thiếu · 18,5–22,9 bình thường · 23–27,4 thừa · ≥27,5 béo.
+BMR Mifflin 1990 lúc đọc. TDEE = BMR × hệ số, không persist.
 Cạnh TDEE: `sai số ±200–400`.
-Thiếu chiều cao hoặc cân hoặc ngày sinh hoặc giới → ẩn số, hiện `Thiếu dữ liệu` / `Thêm cân`. Không bịa 70 kg.
+Thiếu chiều cao hoặc cân hoặc ngày sinh hoặc giới → ẩn số. Không bịa 70 kg.
+Disclaimer: `Ước tính, không thay lời bác sĩ. Không chẩn đoán hay điều trị.`
 
-Disclaimer dưới số và first-run Cơ thể:
-`Ước tính, không thay lời bác sĩ. Không chẩn đoán hay điều trị.`
-
-Một tap Nguồn:
-- Mifflin 1990 (BMR)
-- WHO châu Á (mốc BMI)
-- Compendium of Physical Activities (MET)
-- Hệ số hoạt động TDEE: **không** nằm trong paper Mifflin — ghi riêng.
-
-Kcal tập: `0.0175 × MET × kg × phút`. kg = cân gần nhất. Thiếu cân → không tính.
+Kcal tập: `0.0175 × MET × kg × phút`. Thiếu cân → không tính.
 
 BMR:
 - Nam: `10*kg + 6.25*cm − 5*tuổi + 5`
 - Nữ: `10*kg + 6.25*cm − 5*tuổi − 161`
 
-### 5) Cài đặt — cổng 6, chưa đủ
-Cổng 2: dòng cố định `Dữ liệu chỉ trên máy này.`
-Cổng 6: Xuất một tệp `VACUUM INTO` sqlite (habits + ticks + profile + weigh_ins).
-Khôi phục = thay toàn bộ. Cảnh báo: `Thay toàn bộ dữ liệu trên máy này. Không gộp.`
-Thêm: `Hai máy cùng ghi sẽ lệch. Chỉ một máy ghi.`
+---
 
 ---
 
@@ -183,7 +185,9 @@ Sau khi sửa bảng: bump `schemaVersion`, viết `onUpgrade`, chạy lại bui
 - `lib/ngay.dart` — ngày local `yyyy-MM-dd`, tuần bắt đầu Thứ Hai.
 - `lib/db/database.dart` — bảng + AppDatabase.
 - `lib/man/hom_nay.dart` — Home.
-- `lib/man/co_the.dart` — Cơ thể (mỏng ở cổng 2).
+- `lib/man/tien_do.dart` — % ngày/tuần/tháng + cân.
+- `lib/man/ho_so.dart` — hồ sơ & chỉ số trong Cài đặt.
+- `lib/man/cai_dat.dart` — xuất / khôi phục / xoá / nguồn.
 - `lib/man/cai_dat.dart` — Cài đặt (mỏng ở cổng 2).
 - `lib/ten.dart` — chuẩn hoá tên, một tên = một hàng.
 - `lib/man/them_habit.dart` — thêm / sửa, stepper N.

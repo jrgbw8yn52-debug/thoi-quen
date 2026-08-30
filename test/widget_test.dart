@@ -105,17 +105,22 @@ void main() {
     await fut;
   });
 
-  testWidgets('chip can mo tab Co the, ghi can cap nhat chip', (tester) async {
+  testWidgets('chip can mo tab Tien do, ghi can cap nhat chip', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(Chuoi.themCan));
+    await tester.tap(find.text(Chuoi.tienDo));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.canHomNay), findsOneWidget);
+    expect(kho.tab, 1);
+    expect(find.text(Chuoi.ghiThemCan), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField).first, '72,5');
-    await tester.tap(find.text(Chuoi.luu).first);
+    await tester.enterText(find.byType(TextField), '72,5');
+    await tester.tap(find.text(Chuoi.luu));
     await tester.pumpAndSettle();
+    expect(find.text(Chuoi.ghiThemCan), findsOneWidget);
 
     await tester.tap(find.text(Chuoi.homNay));
     await tester.pumpAndSettle();
@@ -209,17 +214,42 @@ void main() {
   testWidgets('Co the: disclaimer, thieu du lieu, khong bia 70, Nguon', (tester) async {
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(Chuoi.coThe));
+    await tester.tap(find.text(Chuoi.caiDat));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.uocTinh), findsOneWidget);
-    expect(find.text(Chuoi.themCan), findsWidgets);
+    expect(find.text(Chuoi.hoSoChiSo), findsOneWidget);
+    expect(find.text(Chuoi.xuatBanSao), findsOneWidget);
+    expect(find.text(Chuoi.phienBan), findsOneWidget);
+
+    await tester.tap(find.text(Chuoi.hoSoChiSo));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.uocTinh), findsWidgets);
+    expect(find.text(Chuoi.itVanDong), findsOneWidget);
     expect(find.text('70'), findsNothing);
     expect(find.text(Chuoi.bmi), findsNothing);
 
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.nguon));
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.mifflin), findsOneWidget);
     expect(find.text(Chuoi.whoA), findsOneWidget);
     expect(find.text(Chuoi.heSoKhongMifflin), findsOneWidget);
+  });
+
+  testWidgets('Tien do: cot tuan doi selectedDate, Home theo', (tester) async {
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.tienDo));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.phanTram(100)), findsOneWidget);
+    expect(find.text('1/1'), findsOneWidget);
+
+    await tester.tap(find.text('T2').last);
+    await tester.pumpAndSettle();
+    expect(kho.selected, DateTime(2026, 8, 24));
+    await tester.tap(find.text(Chuoi.homNay));
+    await tester.pumpAndSettle();
+    expect(find.text('Thứ Hai, 24 tháng 8 2026'), findsOneWidget);
   });
 }

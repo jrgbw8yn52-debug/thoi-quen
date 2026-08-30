@@ -41,7 +41,7 @@ class ManHomNay extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-            child: ChipCan(chu: kho.chuChipCan, onTap: kho.moCoThe),
+            child: ChipCan(chu: kho.chuChipCan, onTap: kho.moTienDo),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
