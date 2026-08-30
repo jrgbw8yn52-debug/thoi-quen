@@ -7,7 +7,14 @@ Không IndexedDB. Không account. Không iCloud/Drive làm nguồn.
 
 Sandbox / mạng / AI / preview web: **tắt** trừ khi người dùng hỏi.
 
-Cổng hiện tại: **4 xong**. Không làm cổng 5 cho đến khi được bảo chạy tiếp.
+Cổng hiện tại: **4 xong** (kcal MET lúc đọc trên một habit). Không làm xuất VACUUM / App Store cho đến khi được bảo.
+
+---
+
+## Giao diện
+
+Nền `#0c0d0b`. Mặt `#161714`. Chữ `#e7e4dc`. Thép `#b9c0b8`. Xong `#3d9a7a`. Cảnh báo `#c45c4a`.
+Toàn app. Không neon, không tím, không vàng gold. Hàng ≥ 44pt.
 
 ---
 
@@ -70,6 +77,9 @@ Một hàng `id = 1`.
 - dob TEXT NULL `yyyy-MM-dd`
 - activity REAL DEFAULT 1.2 (chỉ 1.2 / 1.375 / 1.55 / 1.725 / 1.9)
 - target_kg REAL NULL
+- ten_goi TEXT NULL
+
+`schemaVersion` = 2. Cột `ten_goi` thêm bằng migration.
 
 Không cột bmr / tdee / bmi / kcal.
 

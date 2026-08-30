@@ -76,6 +76,7 @@ class Kho extends ChangeNotifier {
   double? heightCm;
   String? dob;
   double activity = 1.2;
+  String? tenGoi;
   bool dangTai = true;
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
@@ -122,6 +123,27 @@ class Kho extends ChangeNotifier {
 
   double? get tdeeDoc => CongThuc.tdee(bmrDoc, activity);
 
+  String? get bmiNhan => CongThuc.bmiNhan(bmiDoc);
+
+  String? get nhipDoc => CongThuc.nhip(canMoi?.kg, targetKg);
+
+  String? get conToiDich {
+    final c = canMoi;
+    final t = targetKg;
+    if (c == null || t == null) return null;
+    final d = c.kg - t;
+    if (d.abs() <= 0.05) return Chuoi.chipCanDat(So.kg(c.kg));
+    return Chuoi.conToiDich(So.kg(d.abs()));
+  }
+
+  double? kcalTapCua(Habit h, {int? phut}) {
+    return CongThuc.kcalTap(
+      met: h.met,
+      kg: canMoi?.kg,
+      phut: phut ?? h.phutMacDinh,
+    );
+  }
+
   bool daCoTen(String ten) {
     final k = Ten.khoa(ten);
     if (k.isEmpty) return false;
@@ -167,6 +189,7 @@ class Kho extends ChangeNotifier {
     heightCm = p.heightCm;
     dob = p.dob;
     activity = p.activity;
+    tenGoi = p.tenGoi;
     dsCan = await db.dsCan();
     canMoi = dsCan.isEmpty ? null : dsCan.first;
     dangTai = false;
@@ -347,5 +370,17 @@ class Kho extends ChangeNotifier {
     await db.suaProfile(targetKg: Value(kg));
     await tai();
     return true;
+  }
+
+  Future<bool> suaTenGoi(String raw) async {
+    final t = raw.trim();
+    await db.suaProfile(tenGoi: Value(t.isEmpty ? null : t));
+    await tai();
+    return true;
+  }
+
+  Future<void> suaPhutMacDinh(int id, int phut) async {
+    await db.suaPhutMacDinh(id, phut);
+    await tai();
   }
 }

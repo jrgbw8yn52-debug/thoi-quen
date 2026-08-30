@@ -43,6 +43,7 @@ class Profiles extends Table {
   TextColumn get dob => text().nullable()();
   RealColumn get activity => real().withDefault(const Constant(1.2))();
   RealColumn get targetKg => real().nullable()();
+  TextColumn get tenGoi => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -68,7 +69,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -90,7 +91,11 @@ class AppDatabase extends _$AppDatabase {
             ),
           );
         },
-        onUpgrade: (m, from, to) async {},
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.addColumn(profiles, profiles.tenGoi);
+          }
+        },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
           await gopTenTrung();
@@ -265,6 +270,7 @@ class AppDatabase extends _$AppDatabase {
     Value<String?> dob = const Value.absent(),
     Value<double> activity = const Value.absent(),
     Value<double?> targetKg = const Value.absent(),
+    Value<String?> tenGoi = const Value.absent(),
   }) async {
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       ProfilesCompanion(
@@ -273,7 +279,15 @@ class AppDatabase extends _$AppDatabase {
         dob: dob,
         activity: activity,
         targetKg: targetKg,
+        tenGoi: tenGoi,
       ),
+    );
+  }
+
+  Future<void> suaPhutMacDinh(int id, int phut) async {
+    if (phut < 1 || phut > 300) return;
+    await (update(habits)..where((h) => h.id.equals(id))).write(
+      HabitsCompanion(phutMacDinh: Value(phut)),
     );
   }
 }

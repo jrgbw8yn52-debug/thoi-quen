@@ -775,6 +775,15 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _tenGoiMeta = const VerificationMeta('tenGoi');
+  @override
+  late final GeneratedColumn<String> tenGoi = GeneratedColumn<String>(
+    'ten_goi',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -783,6 +792,7 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     dob,
     activity,
     targetKg,
+    tenGoi,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -829,6 +839,12 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         targetKg.isAcceptableOrUnknown(data['target_kg']!, _targetKgMeta),
       );
     }
+    if (data.containsKey('ten_goi')) {
+      context.handle(
+        _tenGoiMeta,
+        tenGoi.isAcceptableOrUnknown(data['ten_goi']!, _tenGoiMeta),
+      );
+    }
     return context;
   }
 
@@ -862,6 +878,10 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         DriftSqlType.double,
         data['${effectivePrefix}target_kg'],
       ),
+      tenGoi: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ten_goi'],
+      ),
     );
   }
 
@@ -878,6 +898,7 @@ class Profile extends DataClass implements Insertable<Profile> {
   final String? dob;
   final double activity;
   final double? targetKg;
+  final String? tenGoi;
   const Profile({
     required this.id,
     this.sex,
@@ -885,6 +906,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     this.dob,
     required this.activity,
     this.targetKg,
+    this.tenGoi,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -903,6 +925,9 @@ class Profile extends DataClass implements Insertable<Profile> {
     if (!nullToAbsent || targetKg != null) {
       map['target_kg'] = Variable<double>(targetKg);
     }
+    if (!nullToAbsent || tenGoi != null) {
+      map['ten_goi'] = Variable<String>(tenGoi);
+    }
     return map;
   }
 
@@ -918,6 +943,9 @@ class Profile extends DataClass implements Insertable<Profile> {
       targetKg: targetKg == null && nullToAbsent
           ? const Value.absent()
           : Value(targetKg),
+      tenGoi: tenGoi == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tenGoi),
     );
   }
 
@@ -933,6 +961,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       dob: serializer.fromJson<String?>(json['dob']),
       activity: serializer.fromJson<double>(json['activity']),
       targetKg: serializer.fromJson<double?>(json['targetKg']),
+      tenGoi: serializer.fromJson<String?>(json['tenGoi']),
     );
   }
   @override
@@ -945,6 +974,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       'dob': serializer.toJson<String?>(dob),
       'activity': serializer.toJson<double>(activity),
       'targetKg': serializer.toJson<double?>(targetKg),
+      'tenGoi': serializer.toJson<String?>(tenGoi),
     };
   }
 
@@ -955,6 +985,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     Value<String?> dob = const Value.absent(),
     double? activity,
     Value<double?> targetKg = const Value.absent(),
+    Value<String?> tenGoi = const Value.absent(),
   }) => Profile(
     id: id ?? this.id,
     sex: sex.present ? sex.value : this.sex,
@@ -962,6 +993,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     dob: dob.present ? dob.value : this.dob,
     activity: activity ?? this.activity,
     targetKg: targetKg.present ? targetKg.value : this.targetKg,
+    tenGoi: tenGoi.present ? tenGoi.value : this.tenGoi,
   );
   Profile copyWithCompanion(ProfilesCompanion data) {
     return Profile(
@@ -971,6 +1003,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       dob: data.dob.present ? data.dob.value : this.dob,
       activity: data.activity.present ? data.activity.value : this.activity,
       targetKg: data.targetKg.present ? data.targetKg.value : this.targetKg,
+      tenGoi: data.tenGoi.present ? data.tenGoi.value : this.tenGoi,
     );
   }
 
@@ -982,13 +1015,15 @@ class Profile extends DataClass implements Insertable<Profile> {
           ..write('heightCm: $heightCm, ')
           ..write('dob: $dob, ')
           ..write('activity: $activity, ')
-          ..write('targetKg: $targetKg')
+          ..write('targetKg: $targetKg, ')
+          ..write('tenGoi: $tenGoi')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, sex, heightCm, dob, activity, targetKg);
+  int get hashCode =>
+      Object.hash(id, sex, heightCm, dob, activity, targetKg, tenGoi);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -998,7 +1033,8 @@ class Profile extends DataClass implements Insertable<Profile> {
           other.heightCm == this.heightCm &&
           other.dob == this.dob &&
           other.activity == this.activity &&
-          other.targetKg == this.targetKg);
+          other.targetKg == this.targetKg &&
+          other.tenGoi == this.tenGoi);
 }
 
 class ProfilesCompanion extends UpdateCompanion<Profile> {
@@ -1008,6 +1044,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   final Value<String?> dob;
   final Value<double> activity;
   final Value<double?> targetKg;
+  final Value<String?> tenGoi;
   const ProfilesCompanion({
     this.id = const Value.absent(),
     this.sex = const Value.absent(),
@@ -1015,6 +1052,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     this.dob = const Value.absent(),
     this.activity = const Value.absent(),
     this.targetKg = const Value.absent(),
+    this.tenGoi = const Value.absent(),
   });
   ProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -1023,6 +1061,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     this.dob = const Value.absent(),
     this.activity = const Value.absent(),
     this.targetKg = const Value.absent(),
+    this.tenGoi = const Value.absent(),
   });
   static Insertable<Profile> custom({
     Expression<int>? id,
@@ -1031,6 +1070,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Expression<String>? dob,
     Expression<double>? activity,
     Expression<double>? targetKg,
+    Expression<String>? tenGoi,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1039,6 +1079,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       if (dob != null) 'dob': dob,
       if (activity != null) 'activity': activity,
       if (targetKg != null) 'target_kg': targetKg,
+      if (tenGoi != null) 'ten_goi': tenGoi,
     });
   }
 
@@ -1049,6 +1090,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Value<String?>? dob,
     Value<double>? activity,
     Value<double?>? targetKg,
+    Value<String?>? tenGoi,
   }) {
     return ProfilesCompanion(
       id: id ?? this.id,
@@ -1057,6 +1099,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       dob: dob ?? this.dob,
       activity: activity ?? this.activity,
       targetKg: targetKg ?? this.targetKg,
+      tenGoi: tenGoi ?? this.tenGoi,
     );
   }
 
@@ -1081,6 +1124,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     if (targetKg.present) {
       map['target_kg'] = Variable<double>(targetKg.value);
     }
+    if (tenGoi.present) {
+      map['ten_goi'] = Variable<String>(tenGoi.value);
+    }
     return map;
   }
 
@@ -1092,7 +1138,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
           ..write('heightCm: $heightCm, ')
           ..write('dob: $dob, ')
           ..write('activity: $activity, ')
-          ..write('targetKg: $targetKg')
+          ..write('targetKg: $targetKg, ')
+          ..write('tenGoi: $tenGoi')
           ..write(')'))
         .toString();
   }
@@ -1936,6 +1983,7 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<String?> dob,
   Value<double> activity,
   Value<double?> targetKg,
+  Value<String?> tenGoi,
 });
 typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<int> id,
@@ -1944,6 +1992,7 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<String?> dob,
   Value<double> activity,
   Value<double?> targetKg,
+  Value<String?> tenGoi,
 });
 
 class $$ProfilesTableFilterComposer
@@ -1982,6 +2031,11 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<double> get targetKg => $composableBuilder(
     column: $table.targetKg,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tenGoi => $composableBuilder(
+    column: $table.tenGoi,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2024,6 +2078,11 @@ class $$ProfilesTableOrderingComposer
     column: $table.targetKg,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get tenGoi => $composableBuilder(
+    column: $table.tenGoi,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProfilesTableAnnotationComposer
@@ -2052,6 +2111,9 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<double> get targetKg =>
       $composableBuilder(column: $table.targetKg, builder: (column) => column);
+
+  GeneratedColumn<String> get tenGoi =>
+      $composableBuilder(column: $table.tenGoi, builder: (column) => column);
 }
 
 class $$ProfilesTableTableManager
@@ -2088,6 +2150,7 @@ class $$ProfilesTableTableManager
                 Value<String?> dob = const Value.absent(),
                 Value<double> activity = const Value.absent(),
                 Value<double?> targetKg = const Value.absent(),
+                Value<String?> tenGoi = const Value.absent(),
               }) => ProfilesCompanion(
                 id: id,
                 sex: sex,
@@ -2095,6 +2158,7 @@ class $$ProfilesTableTableManager
                 dob: dob,
                 activity: activity,
                 targetKg: targetKg,
+                tenGoi: tenGoi,
               ),
           createCompanionCallback:
               ({
@@ -2104,6 +2168,7 @@ class $$ProfilesTableTableManager
                 Value<String?> dob = const Value.absent(),
                 Value<double> activity = const Value.absent(),
                 Value<double?> targetKg = const Value.absent(),
+                Value<String?> tenGoi = const Value.absent(),
               }) => ProfilesCompanion.insert(
                 id: id,
                 sex: sex,
@@ -2111,6 +2176,7 @@ class $$ProfilesTableTableManager
                 dob: dob,
                 activity: activity,
                 targetKg: targetKg,
+                tenGoi: tenGoi,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

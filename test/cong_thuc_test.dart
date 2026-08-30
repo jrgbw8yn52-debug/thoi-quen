@@ -22,12 +22,25 @@ void main() {
     expect(CongThuc.bmr(sex: 'nam', kg: 65, cm: 170, tuoi: null), isNull);
   });
 
-  test('BMI mốc Á 23 / 27,5', () {
-    final bmi = CongThuc.bmi(65, 170)!;
-    expect(bmi, closeTo(65 / (1.7 * 1.7), 0.01));
-    expect(bmi < CongThuc.mocA275, isTrue);
-    expect(CongThuc.mocA23, 23);
-    expect(CongThuc.mocA275, 27.5);
+  test('BMI nhãn Á', () {
+    expect(CongThuc.bmiNhan(18.4), 'thiếu');
+    expect(CongThuc.bmiNhan(18.5), 'bình thường');
+    expect(CongThuc.bmiNhan(22.9), 'bình thường');
+    expect(CongThuc.bmiNhan(23), 'thừa');
+    expect(CongThuc.bmiNhan(27.4), 'thừa');
+    expect(CongThuc.bmiNhan(27.5), 'béo');
+    expect(CongThuc.bmiNhan(null), isNull);
+  });
+
+  test('kcal tap 0.0175 MET kg phut, thieu can thi khong tinh', () {
+    expect(CongThuc.kcalTap(met: 5.5, kg: 65, phut: 30), closeTo(0.0175 * 5.5 * 65 * 30, 0.01));
+    expect(CongThuc.kcalTap(met: 5.5, kg: null, phut: 30), isNull);
+  });
+
+  test('nhip 0,25-0,5 kg/tuan', () {
+    expect(CongThuc.nhip(70, 70), 'Đã đạt cân đích.');
+    expect(CongThuc.nhip(72, 70), contains('giảm 0,25–0,5'));
+    expect(CongThuc.nhip(null, 70), isNull);
   });
 
   test('he so dau phay Viet', () {

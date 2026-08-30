@@ -22,12 +22,14 @@ class _ManCoTheState extends State<ManCoThe> {
   final _can = TextEditingController();
   final _cao = TextEditingController();
   final _dich = TextEditingController();
+  final _goi = TextEditingController();
 
   @override
   void dispose() {
     _can.dispose();
     _cao.dispose();
     _dich.dispose();
+    _goi.dispose();
     super.dispose();
   }
 
@@ -89,6 +91,9 @@ class _ManCoTheState extends State<ManCoThe> {
     if (kho.targetKg != null && _dich.text.isEmpty) {
       _dich.text = So.kg(kho.targetKg!);
     }
+    if (kho.tenGoi != null && _goi.text.isEmpty) {
+      _goi.text = kho.tenGoi!;
+    }
     final spark = kho.dsCan.reversed.map((c) => c.kg).toList();
     final bmi = kho.bmiDoc;
     final bmr = kho.bmrDoc;
@@ -149,13 +154,17 @@ class _ManCoTheState extends State<ManCoThe> {
               ),
             ],
           ),
-          if (spark.length >= 2) ...[
+          if (spark.length >= 2 || (spark.isNotEmpty && kho.targetKg != null)) ...[
             const SizedBox(height: 16),
-            DuongCan(diem: spark),
+            DuongCan(diem: spark, dich: kho.targetKg),
           ],
           const SizedBox(height: 20),
           if (duSo) ...[
-            _HangSo(nhan: Chuoi.bmi, giaTri: So.kg(bmi)),
+            _HangSo(
+              nhan: Chuoi.bmi,
+              giaTri: So.kg(bmi),
+              phu: kho.bmiNhan,
+            ),
             const Padding(
               padding: EdgeInsets.only(bottom: 8),
               child: Text(Chuoi.mocA, style: TextStyle(fontSize: 13, color: Mau.mo)),
@@ -166,6 +175,22 @@ class _ManCoTheState extends State<ManCoThe> {
               giaTri: '${tdee.round()}',
               phu: Chuoi.saiSo,
             ),
+            if (kho.conToiDich != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  kho.conToiDich!,
+                  style: const TextStyle(fontSize: 15, color: Mau.muc),
+                ),
+              ),
+            if (kho.nhipDoc != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  kho.nhipDoc!,
+                  style: const TextStyle(fontSize: 14, color: Mau.mo, height: 1.35),
+                ),
+              ),
           ] else
             Text(
               kho.thieuCan ? Chuoi.themCan : Chuoi.thieuDuLieu,
@@ -180,6 +205,32 @@ class _ManCoTheState extends State<ManCoThe> {
             ),
           ),
           const SizedBox(height: 8),
+          const Text(
+            Chuoi.tenGoi,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _goi,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(hintText: Chuoi.tenGoi),
+                  onSubmitted: (v) => kho.suaTenGoi(v),
+                ),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                height: 44,
+                child: FilledButton(
+                  onPressed: () => kho.suaTenGoi(_goi.text),
+                  child: const Text(Chuoi.luu),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           const Text(
             Chuoi.gioi,
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
@@ -390,7 +441,7 @@ class _ChipChon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: bat ? const Color(0xFFDCE8E2) : Mau.beMat,
+      color: bat ? Mau.chipBat : Mau.beMat,
       shape: StadiumBorder(side: BorderSide(color: bat ? Mau.reu : Mau.vien)),
       child: InkWell(
         customBorder: const StadiumBorder(),

@@ -2,6 +2,7 @@ import 'ngay.dart';
 
 /// Tính lúc đọc. Không persist BMI / BMR / TDEE / kcal.
 abstract final class CongThuc {
+  static const mocA185 = 18.5;
   static const mocA23 = 23.0;
   static const mocA275 = 27.5;
 
@@ -25,6 +26,15 @@ abstract final class CongThuc {
     return kg / (m * m);
   }
 
+  /// <18,5 thiếu · 18,5–22,9 bình thường · 23–27,4 thừa · ≥27,5 béo
+  static String? bmiNhan(double? bmi) {
+    if (bmi == null) return null;
+    if (bmi < mocA185) return 'thiếu';
+    if (bmi < mocA23) return 'bình thường';
+    if (bmi < mocA275) return 'thừa';
+    return 'béo';
+  }
+
   /// Mifflin–St Jeor 1990. Nam +5, nữ −161.
   static double? bmr({
     required String? sex,
@@ -41,5 +51,25 @@ abstract final class CongThuc {
   static double? tdee(double? bmr, double activity) {
     if (bmr == null) return null;
     return bmr * activity;
+  }
+
+  /// 0.0175 × MET × kg × phút. Thiếu cân → null.
+  static double? kcalTap({double? met, double? kg, int? phut}) {
+    if (met == null || kg == null || phut == null) return null;
+    if (met <= 0 || kg <= 0 || phut <= 0) return null;
+    return 0.0175 * met * kg * phut;
+  }
+
+  /// Một dòng nhịp 0,25–0,5 kg/tuần. Không thực đơn.
+  static String? nhip(double? kg, double? target) {
+    if (kg == null || target == null) return null;
+    final d = (kg - target).abs();
+    if (d <= 0.05) return 'Đã đạt cân đích.';
+    final nhanh = (d / 0.5).ceil();
+    final cham = (d / 0.25).ceil();
+    if (kg > target) {
+      return 'Khoảng $nhanh–$cham tuần nếu giảm 0,25–0,5 kg/tuần.';
+    }
+    return 'Khoảng $nhanh–$cham tuần nếu tăng 0,25–0,5 kg/tuần.';
   }
 }

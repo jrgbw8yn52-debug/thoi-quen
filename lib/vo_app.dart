@@ -30,7 +30,7 @@ class VoApp extends StatelessWidget {
           );
         }
         return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle.dark.copyWith(
+          value: SystemUiOverlayStyle.light.copyWith(
             statusBarColor: Colors.transparent,
             systemNavigationBarColor: Mau.beMat,
           ),

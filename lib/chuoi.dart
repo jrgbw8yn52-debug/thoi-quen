@@ -41,11 +41,14 @@ abstract final class Chuoi {
   static const ngaySinh = 'Ngày sinh';
   static const mucHoatDong = 'Mức hoạt động';
   static const canDich = 'Cân đích';
+  static const tenGoi = 'Tên gọi';
   static const bmi = 'BMI';
   static const bmr = 'BMR';
   static const tdee = 'TDEE';
-  static const mocA = 'Mốc Á 23 / 27,5';
+  static const mocA = 'Mốc Á 18,5 / 23 / 27,5';
   static const saiSo = 'sai số ±200–400';
+  static const kcalBuoi = 'Kcal buổi';
+  static const phut = 'phút';
   static const mifflin = 'Mifflin 1990 (BMR)';
   static const whoA = 'WHO châu Á (mốc BMI)';
   static const compendium = 'Compendium of Physical Activities (MET)';
@@ -85,6 +88,10 @@ abstract final class Chuoi {
   static String chipCan(String kg) => 'Cân $kg';
 
   static String chipCanCon(String kg, String con) => 'Cân $kg · còn $con kg';
+
+  static String conToiDich(String con) => 'Còn $con kg tới đích';
+
+  static String kcalBuoiSo(String n) => 'Kcal buổi $n';
 
   static String chipCanDat(String kg) => 'Cân $kg · $datMucTieu';
 

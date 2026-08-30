@@ -148,6 +148,7 @@ class _ThanState extends State<_Than> {
                 style: const TextStyle(fontSize: 15, color: Mau.mo),
               ),
             ),
+            if (h.met != null) _KcalVaPhut(kho: kho, habit: h),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
               child: Row(
@@ -310,6 +311,66 @@ class _ONgay extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _KcalVaPhut extends StatelessWidget {
+  const _KcalVaPhut({required this.kho, required this.habit});
+
+  final Kho kho;
+  final Habit habit;
+
+  @override
+  Widget build(BuildContext context) {
+    final phut = habit.phutMacDinh ?? 30;
+    final kcal = kho.kcalTapCua(habit, phut: phut);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (kcal != null)
+            Text(
+              Chuoi.kcalBuoiSo('${kcal.round()}'),
+              style: const TextStyle(fontSize: 15, color: Mau.muc),
+            )
+          else if (kho.thieuCan)
+            const Text(
+              Chuoi.themCan,
+              style: TextStyle(fontSize: 14, color: Mau.mo),
+            ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              SizedBox(
+                width: 44,
+                height: 44,
+                child: IconButton(
+                  onPressed: phut <= 5
+                      ? null
+                      : () => kho.suaPhutMacDinh(habit.id, phut - 5),
+                  icon: const Icon(Icons.remove),
+                ),
+              ),
+              Text(
+                '$phut ${Chuoi.phut}',
+                style: const TextStyle(fontSize: 15, color: Mau.muc),
+              ),
+              SizedBox(
+                width: 44,
+                height: 44,
+                child: IconButton(
+                  onPressed: phut >= 180
+                      ? null
+                      : () => kho.suaPhutMacDinh(habit.id, phut + 5),
+                  icon: const Icon(Icons.add),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

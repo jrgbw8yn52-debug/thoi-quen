@@ -15,7 +15,7 @@ void main() {
     expect(Chuoi.themCan, 'Thêm cân');
     expect(Chuoi.uocTinh, contains('không thay lời bác sĩ'));
     expect(Chuoi.saiSo, 'sai số ±200–400');
-    expect(Chuoi.mocA, 'Mốc Á 23 / 27,5');
+    expect(Chuoi.mocA, 'Mốc Á 18,5 / 23 / 27,5');
   });
 
   test('so kg dau phay Viet, khong bia', () {
