@@ -6,6 +6,60 @@ import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
 
+Future<DateTime?> moChonNgay({
+  required BuildContext context,
+  required DateTime goc,
+}) {
+  var tam = Ngay.cat(goc);
+  return showModalBottomSheet<DateTime>(
+    context: context,
+    backgroundColor: Mau.beMat,
+    builder: (ctx) {
+      return SafeArea(
+        child: SizedBox(
+          height: 280,
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text(Chuoi.huy),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      Chuoi.tuNgay,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Mau.muc,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, tam),
+                    child: const Text(Chuoi.xong),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: tam,
+                  minimumYear: tam.year - 5,
+                  maximumYear: tam.year + 3,
+                  onDateTimeChanged: (d) => tam = Ngay.cat(d),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 Future<void> moLanNgay(BuildContext context, Kho kho) async {
   final goc = kho.selected;
   final ok = await showModalBottomSheet<bool>(

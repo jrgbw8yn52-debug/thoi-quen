@@ -65,20 +65,37 @@ class ManHomNay extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 6, 20, 8),
-            child: Text.rich(
-              TextSpan(
-                style: const TextStyle(fontSize: 15, color: Mau.mo, height: 1.3),
-                children: [
-                  TextSpan(text: '${kho.nTickHom}/${kho.mHom} '),
-                  TextSpan(
-                    text: Chuoi.homNayNgay(kho.homNay),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: Mau.muc,
+            padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                key: const Key('hang-hom-nay'),
+                onTap: kho.veHomNay,
+                borderRadius: BorderRadius.circular(8),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 44),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text.rich(
+                        TextSpan(
+                          style: const TextStyle(fontSize: 15, color: Mau.mo, height: 1.3),
+                          children: [
+                            TextSpan(text: '${kho.nTickHom}/${kho.mHom} '),
+                            TextSpan(
+                              text: Chuoi.homNayNgay(kho.homNay),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Mau.muc,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),

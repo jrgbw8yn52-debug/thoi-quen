@@ -76,6 +76,13 @@ class CotThang {
   double get phan => tong == 0 ? 0 : tick / tong;
 }
 
+class ChuaTick {
+  const ChuaTick({required this.ten, required this.so});
+
+  final String ten;
+  final int so;
+}
+
 class Kho extends ChangeNotifier {
   Kho(this.db, {DateTime? bayGio}) : homNay = Ngay.cat(bayGio ?? DateTime.now()) {
     selected = homNay;
@@ -327,66 +334,63 @@ class Kho extends ChangeNotifier {
     }
   }
 
-  /// 0: 1 tuần, 1: 1 tháng, 2: 6 tháng, 3: 12 tháng.
-  List<CotThang> diemThongKe(int phin) {
-    switch (phin) {
-      case 1:
-        return cotThang;
-      case 2:
-        return _cotThangLui(6);
-      case 3:
-        return _cotThangLui(12);
-      default:
-        return [
-          for (final c in tuan)
-            CotThang(
-              ngay: c.ngay,
-              tick: c.tick,
-              tong: c.tong,
-              dangXem: c.dangXem,
-              tuongLai: c.tuongLai,
-            ),
-        ];
-    }
-  }
-
-  (int, int) nTrenMThongKe(int phin) {
-    var tick = 0;
-    var tong = 0;
-    for (final c in diemThongKe(phin)) {
-      tick += c.tick;
-      tong += c.tong;
-    }
-    return (tick, tong);
-  }
-
-  List<CotThang> _cotThangLui(int n) {
-    final out = <CotThang>[];
-    var y = selected.year;
-    var m = selected.month - (n - 1);
-    while (m < 1) {
-      m += 12;
-      y -= 1;
-    }
-    for (var i = 0; i < n; i++) {
-      final a = DateTime(y, m, 1);
-      final b = DateTime(y, m, Ngay.soNgayThang(y, m));
-      final r = _tickKhoang(a, b);
-      out.add(
-        CotThang(
-          ngay: a,
-          tick: r.$1,
-          tong: r.$2,
-          dangXem: y == selected.year && m == selected.month,
-          tuongLai: a.isAfter(Ngay.dauThang(homNay)),
-        ),
-      );
-      m += 1;
-      if (m > 12) {
-        m = 1;
-        y += 1;
+  /// 0 tuần, 1 tháng, 2 sáu tháng, 3 mười hai tháng. [tu] = ngày bắt đầu.
+  List<CotThang> diemThongKe(int phin, {DateTime? tu}) {
+    final a = Ngay.cat(tu ?? homNay);
+    final b = Ngay.cuoiKhoang(a, phin);
+    if (phin == 2 || phin == 3) {
+      final n = phin == 2 ? 6 : 12;
+      final out = <CotThang>[];
+      for (var i = 0; i < n; i++) {
+        final dau = Ngay.congThang(a, i);
+        final cuoi = i == n - 1
+            ? b
+            : Ngay.congThang(a, i + 1).subtract(const Duration(days: 1));
+        final r = _tickKhoang(dau, cuoi);
+        out.add(
+          CotThang(
+            ngay: dau,
+            tick: r.$1,
+            tong: r.$2,
+            dangXem: Ngay.cungThang(dau, selected),
+            tuongLai: Ngay.sau(dau, homNay),
+          ),
+        );
       }
+      return out;
     }
+    return [
+      for (final d in Ngay.cacNgayKhoang(a, b))
+        CotThang(
+          ngay: d,
+          tick: _tickCuaNgay(d),
+          tong: _tongCuaNgay(d),
+          dangXem: Ngay.cungNgay(d, selected),
+          tuongLai: Ngay.sau(d, homNay),
+        ),
+    ];
+  }
+
+  (int, int) nTrenMThongKe(int phin, {DateTime? tu}) {
+    final a = Ngay.cat(tu ?? homNay);
+    final b = Ngay.cuoiKhoang(a, phin);
+    return _tickKhoang(a, b);
+  }
+
+  List<ChuaTick> chuaTick({required int phin, DateTime? tu}) {
+    final a = Ngay.cat(tu ?? homNay);
+    final b = Ngay.cuoiKhoang(a, phin);
+    final out = <ChuaTick>[];
+    for (final h in dsHien) {
+      if (h.anTu != null && !Ngay.truoc(homNay, Ngay.parse(h.anTu!))) continue;
+      var n = 0;
+      for (final d in Ngay.cacNgayKhoang(a, b)) {
+        if (!hienO(h, d)) continue;
+        if (!ticksCua(h.id).contains(Ngay.iso(d))) n++;
+      }
+      if (n > 0) out.add(ChuaTick(ten: h.ten, so: n));
+    }
+    out.sort((x, y) => y.so.compareTo(x.so));
     return out;
   }
 
@@ -546,6 +550,8 @@ class Kho extends ChangeNotifier {
     _dongBoHangVaTuan();
     notifyListeners();
   }
+
+  void veHomNay() => chonNgay(homNay);
 
   void luiTuan() => chonNgay(Ngay.cat(selected).subtract(const Duration(days: 7)));
 
@@ -741,13 +747,14 @@ class Kho extends ChangeNotifier {
     notifyListeners();
   }
 
-  void moLich() {
-    tab = 1;
-    notifyListeners();
-  }
+  void moLich() => chonTab(1);
 
   void chonTab(int i) {
     tab = i;
+    if (i == 1) {
+      selected = homNay;
+      _dongBoHangVaTuan();
+    }
     notifyListeners();
   }
 

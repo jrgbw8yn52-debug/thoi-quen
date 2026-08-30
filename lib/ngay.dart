@@ -57,6 +57,50 @@ abstract final class Ngay {
 
   static DateTime toiThang(DateTime d) => DateTime(d.year, d.month + 1, 1);
 
+  /// Cộng tháng lịch, kẹp ngày cuối tháng (31/1 → 28/29/2, 31/3 → 30/4).
+  static DateTime congThang(DateTime d, int n) {
+    final x = cat(d);
+    var y = x.year;
+    var m = x.month + n;
+    while (m > 12) {
+      m -= 12;
+      y++;
+    }
+    while (m < 1) {
+      m += 12;
+      y--;
+    }
+    final last = soNgayThang(y, m);
+    final day = x.day > last ? last : x.day;
+    return DateTime(y, m, day);
+  }
+
+  /// End inclusive. 0 tuần +6, 1 tháng +1, 2 +6 tháng, 3 +12 tháng.
+  static DateTime cuoiKhoang(DateTime tu, int phin) {
+    final a = cat(tu);
+    switch (phin) {
+      case 1:
+        return congThang(a, 1);
+      case 2:
+        return congThang(a, 6);
+      case 3:
+        return congThang(a, 12);
+      default:
+        return a.add(const Duration(days: 6));
+    }
+  }
+
+  static List<DateTime> cacNgayKhoang(DateTime a, DateTime b) {
+    final out = <DateTime>[];
+    var d = cat(a);
+    final end = cat(b);
+    while (!d.isAfter(end)) {
+      out.add(d);
+      d = d.add(const Duration(days: 1));
+    }
+    return out;
+  }
+
   static List<DateTime> cacNgayThang(DateTime d) {
     final n = soNgayThang(d.year, d.month);
     return List<DateTime>.generate(n, (i) => DateTime(d.year, d.month, i + 1));

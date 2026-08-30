@@ -87,32 +87,61 @@ class _ManLichState extends State<ManLich> {
                 padding: const EdgeInsets.only(left: 8, right: 4),
                 child: Row(
                   children: [
-                    InkWell(
-                      onTap: () => setState(() => _cheDo = 2),
-                      child: Text(
-                        Chuoi.thang(_thang.month),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.4,
-                          color: Mau.muc,
+                    Expanded(
+                      child: FittedBox(
+                        alignment: Alignment.centerLeft,
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          children: [
+                            InkWell(
+                              onTap: () => setState(() => _cheDo = 2),
+                              child: Text(
+                                Chuoi.thang(_thang.month),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.4,
+                                  color: Mau.muc,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            InkWell(
+                              onTap: () => setState(() => _cheDo = 1),
+                              child: Text(
+                                '${_thang.year}',
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.4,
+                                  color: Mau.muc,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    InkWell(
-                      onTap: () => setState(() => _cheDo = 1),
-                      child: Text(
-                        '${_thang.year}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.4,
-                          color: Mau.muc,
-                        ),
+                    if (!Ngay.cungThang(_thang, kho.homNay) || !kho.xemHomNay)
+                      IconButton(
+                        key: const Key('nut-hom-nay'),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                        visualDensity: VisualDensity.compact,
+                        onPressed: () {
+                          kho.veHomNay();
+                          setState(() {
+                            _thang = DateTime(kho.homNay.year, kho.homNay.month, 1);
+                            _cheDo = 0;
+                          });
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (_trang.hasClients) {
+                              _trang.jumpToPage(_chiSo(_thang).clamp(0, _soTrang - 1));
+                            }
+                          });
+                        },
+                        icon: const Icon(Icons.today, color: Mau.reu),
                       ),
-                    ),
-                    const Spacer(),
                     InkWell(
                       onTap: _moThoiKhoa,
                       child: const Padding(
@@ -174,7 +203,10 @@ class _ManLichState extends State<ManLich> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
                     child: Text(
-                      Chuoi.hoanThanhThoiQuen(kho.nTick, kho.mHabit),
+                      Chuoi.hoanThanhThoiQuen(
+                        kho.hang.where((h) => h.ticked).length,
+                        kho.hang.length,
+                      ),
                       style: const TextStyle(fontSize: 15, color: Mau.mo),
                     ),
                   ),

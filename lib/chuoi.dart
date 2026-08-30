@@ -41,6 +41,8 @@ abstract final class Chuoi {
   static const motThang = '1 tháng';
   static const sauThang = '6 tháng';
   static const muoiHaiThang = '12 tháng';
+  static const tuNgay = 'Từ ngày';
+  static const chuaTick = 'Chưa tick';
   static const xuatSac = 'Xuất sắc';
   static const tot = 'Tốt';
   static const kha = 'Khá';
@@ -157,6 +159,9 @@ abstract final class Chuoi {
   ];
 
   static const thuNgan = [t2, t3, t4, t5, t6, t7, cn];
+
+  static String denNgay(DateTime d) =>
+      'đến ${d.day}/${d.month}/${d.year}';
 
   static String dongNgay(DateTime d) {
     return '${thu[d.weekday - 1]}, ${d.day} tháng ${d.month} ${d.year}';

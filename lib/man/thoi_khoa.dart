@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
+import '../ngay.dart';
 import '../widget/duong_thong_ke.dart';
+import '../widget/lan_ngay.dart';
 
 class ManThoiKhoa extends StatefulWidget {
   const ManThoiKhoa({super.key, required this.kho});
@@ -16,8 +18,22 @@ class ManThoiKhoa extends StatefulWidget {
 
 class _ManThoiKhoaState extends State<ManThoiKhoa> {
   int _phin = 0;
+  late DateTime _tu;
 
   Kho get kho => widget.kho;
+
+  @override
+  void initState() {
+    super.initState();
+    _tu = kho.homNay;
+  }
+
+  DateTime get _den => Ngay.cuoiKhoang(_tu, _phin);
+
+  Future<void> _chonTu() async {
+    final d = await moChonNgay(context: context, goc: _tu);
+    if (d != null) setState(() => _tu = Ngay.cat(d));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +43,11 @@ class _ManThoiKhoaState extends State<ManThoiKhoa> {
         child: ListenableBuilder(
           listenable: kho,
           builder: (context, _) {
-            final nm2 = kho.nTrenMThongKe(_phin);
-            final dg2 = Chuoi.danhGia(nm2.$1, nm2.$2);
-            final diem2 = kho.diemThongKe(_phin);
+            final nm = kho.nTrenMThongKe(_phin, tu: _tu);
+            final dg = Chuoi.danhGia(nm.$1, nm.$2);
+            final diem = kho.diemThongKe(_phin, tu: _tu);
+            final chua = kho.chuaTick(phin: _phin, tu: _tu);
+            final maxChua = chua.isEmpty ? 1 : chua.first.so;
             return ListView(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
               children: [
@@ -55,15 +73,36 @@ class _ManThoiKhoaState extends State<ManThoiKhoa> {
                 Wrap(
                   spacing: 8,
                   children: [
-                    _Phin(chu: Chuoi.motTuan, bat: _phin == 0, onTap: () => setState(() => _phin = 0)),
-                    _Phin(chu: Chuoi.motThang, bat: _phin == 1, onTap: () => setState(() => _phin = 1)),
+                    _Phin(chu: Chuoi.tuanNhan, bat: _phin == 0, onTap: () => setState(() => _phin = 0)),
+                    _Phin(chu: Chuoi.thangNhan, bat: _phin == 1, onTap: () => setState(() => _phin = 1)),
                     _Phin(chu: Chuoi.sauThang, bat: _phin == 2, onTap: () => setState(() => _phin = 2)),
                     _Phin(chu: Chuoi.muoiHaiThang, bat: _phin == 3, onTap: () => setState(() => _phin = 3)),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                InkWell(
+                  key: const Key('tu-ngay'),
+                  onTap: _chonTu,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 44),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${Chuoi.tuNgay} ${_tu.day}/${_tu.month}/${_tu.year}',
+                          style: const TextStyle(fontSize: 15, color: Mau.muc),
+                        ),
+                        Text(
+                          Chuoi.denNgay(_den),
+                          style: const TextStyle(fontSize: 13, color: Mau.mo),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 DuongThongKe(
-                  diem: diem2,
+                  diem: diem,
                   onChon: (d) {
                     kho.chonNgay(d);
                     setState(() {});
@@ -71,13 +110,59 @@ class _ManThoiKhoaState extends State<ManThoiKhoa> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  Chuoi.hoanThanhDanhGia(nm2.$1, nm2.$2, dg2),
+                  Chuoi.hoanThanhDanhGia(nm.$1, nm.$2, dg),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Mau.muc,
                   ),
                 ),
+                const SizedBox(height: 28),
+                const Text(
+                  Chuoi.chuaTick,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+                ),
+                const SizedBox(height: 8),
+                if (chua.isEmpty)
+                  const Text('—', style: TextStyle(color: Mau.mo))
+                else
+                  for (final c in chua)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 88,
+                            child: Text(
+                              c.ten,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 13, color: Mau.muc),
+                            ),
+                          ),
+                          Expanded(
+                            child: SizedBox(
+                              height: 10,
+                              child: FractionallySizedBox(
+                                alignment: Alignment.centerLeft,
+                                widthFactor: c.so / maxChua,
+                                child: const DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Mau.canhBao,
+                                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${c.so}',
+                            style: const TextStyle(fontSize: 13, color: Mau.canhBao),
+                          ),
+                        ],
+                      ),
+                    ),
                 const SizedBox(height: 24),
                 const Text(
                   Chuoi.chiXem,
