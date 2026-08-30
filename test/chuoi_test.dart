@@ -26,4 +26,13 @@ void main() {
     expect(So.parseKg('abc'), isNull);
     expect(So.parseKg('0'), isNull);
   });
+
+  test('danh gia nguong khoa', () {
+    expect(Chuoi.danhGia(12, 30), Chuoi.te);
+    expect(Chuoi.danhGia(55, 67), Chuoi.tot);
+    expect(Chuoi.danhGia(9, 10), Chuoi.xuatSac);
+    expect(Chuoi.danhGia(5, 10), Chuoi.kha);
+    expect(Chuoi.danhGia(4, 10), Chuoi.te);
+    expect(Chuoi.hoanThanhThoiQuen(1, 3), 'Hoàn thành 1/3 thói quen');
+  });
 }

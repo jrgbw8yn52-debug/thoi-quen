@@ -5,8 +5,7 @@ import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
-import 'them_habit.dart';
-import 'xoa_habit.dart';
+import 'thoi_khoa.dart';
 import '../widget/hang_habit.dart';
 
 class ManLich extends StatefulWidget {
@@ -23,14 +22,29 @@ class _ManLichState extends State<ManLich> {
   int _cheDo = 0;
   late DateTime _thang;
   late DateTime _selGan;
+  late final PageController _trang;
+
+  static final _goc = DateTime(2024, 1, 1);
+  static const _soTrang = 12 * 8;
 
   Kho get kho => widget.kho;
+
+  int _chiSo(DateTime t) => (t.year - _goc.year) * 12 + (t.month - 1);
+
+  DateTime _thangCua(int i) => DateTime(_goc.year, _goc.month + i, 1);
 
   @override
   void initState() {
     super.initState();
     _thang = DateTime(kho.selected.year, kho.selected.month, 1);
     _selGan = kho.selected;
+    _trang = PageController(initialPage: _chiSo(_thang).clamp(0, _soTrang - 1));
+  }
+
+  @override
+  void dispose() {
+    _trang.dispose();
+    super.dispose();
   }
 
   @override
@@ -39,6 +53,10 @@ class _ManLichState extends State<ManLich> {
     if (kho.selected.year != _selGan.year ||
         kho.selected.month != _selGan.month) {
       _thang = DateTime(kho.selected.year, kho.selected.month, 1);
+      final i = _chiSo(_thang).clamp(0, _soTrang - 1);
+      if (_trang.hasClients && _trang.page?.round() != i) {
+        _trang.jumpToPage(i);
+      }
     }
     _selGan = kho.selected;
   }
@@ -46,6 +64,12 @@ class _ManLichState extends State<ManLich> {
   List<int> get _dsNam {
     final y = kho.homNay.year;
     return [for (var i = y - 2; i <= y + 4; i++) i];
+  }
+
+  void _moThoiKhoa() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => ManThoiKhoa(kho: kho)),
+    );
   }
 
   @override
@@ -56,36 +80,49 @@ class _ManLichState extends State<ManLich> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+            padding: const EdgeInsets.fromLTRB(12, 12, 4, 0),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 44),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
+                padding: const EdgeInsets.only(left: 8, right: 4),
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
                   children: [
                     InkWell(
                       onTap: () => setState(() => _cheDo = 2),
                       child: Text(
                         Chuoi.thang(_thang.month),
                         style: const TextStyle(
-                          fontSize: 28,
+                          fontSize: 22,
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.4,
                           color: Mau.muc,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
                     InkWell(
                       onTap: () => setState(() => _cheDo = 1),
                       child: Text(
                         '${_thang.year}',
                         style: const TextStyle(
-                          fontSize: 28,
+                          fontSize: 22,
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.4,
                           color: Mau.muc,
                         ),
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(44, 44),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      onPressed: _moThoiKhoa,
+                      child: const Text(
+                        Chuoi.thoiKhoaBieu,
+                        style: TextStyle(fontSize: 13),
                       ),
                     ),
                   ],
@@ -93,11 +130,6 @@ class _ManLichState extends State<ManLich> {
               ),
             ),
           ),
-          if (kho.khoaGhi)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 4, 20, 0),
-              child: Text(Chuoi.chiXem, style: TextStyle(fontSize: 13, color: Mau.mo)),
-            ),
           Expanded(
             child: switch (_cheDo) {
               1 => _LuoiCacNam(
@@ -117,43 +149,59 @@ class _ManLichState extends State<ManLich> {
                       _thang = DateTime(_thang.year, m, 1);
                       _cheDo = 0;
                     });
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (_trang.hasClients) {
+                        _trang.jumpToPage(_chiSo(_thang).clamp(0, _soTrang - 1));
+                      }
+                    });
                   },
                 ),
-              _ => _LuoiThang(kho: kho, thang: _thang),
+              _ => PageView.builder(
+                  controller: _trang,
+                  itemCount: _soTrang,
+                  onPageChanged: (i) {
+                    setState(() => _thang = _thangCua(i));
+                  },
+                  itemBuilder: (context, i) =>
+                      _LuoiThang(kho: kho, thang: _thangCua(i)),
+                ),
             },
           ),
           if (_cheDo == 0)
             SizedBox(
-              height: 220,
-              child: kho.hang.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.fromLTRB(20, 8, 20, 8),
-                      child: Text('', style: TextStyle(color: Mau.mo)),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
-                      itemCount: kho.hang.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 6),
-                      itemBuilder: (context, i) {
-                        final h = kho.hang[i];
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
-                          child: HangHabit(
-                            hang: h,
-                            khoaGhi: kho.khoaGhi,
-                            onTap: () => kho.toggle(h),
-                            onSua: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute<void>(
-                                  builder: (_) => ManThemHabit(kho: kho, habit: h.habit),
-                                ),
+              height: 240,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+                    child: Text(
+                      Chuoi.hoanThanhThoiQuen(kho.nTick, kho.mHabit),
+                      style: const TextStyle(fontSize: 15, color: Mau.mo),
+                    ),
+                  ),
+                  Expanded(
+                    child: kho.hang.isEmpty
+                        ? const SizedBox.shrink()
+                        : ListView.separated(
+                            padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
+                            itemCount: kho.hang.length,
+                            separatorBuilder: (_, _) => const SizedBox(height: 6),
+                            itemBuilder: (context, i) {
+                              final h = kho.hang[i];
+                              return HangHabit(
+                                hang: h,
+                                khoaGhi: true,
+                                choVuot: false,
+                                onTap: () {},
+                                onSua: () {},
+                                onXoa: () {},
                               );
                             },
-                            onXoa: () => moXoaHabit(context, kho, h.habit),
                           ),
-                        );
-                      },
-                    ),
+                  ),
+                ],
+              ),
             ),
         ],
       ),

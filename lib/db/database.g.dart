@@ -106,6 +106,15 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, Habit> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _anTuMeta = const VerificationMeta('anTu');
+  @override
+  late final GeneratedColumn<String> anTu = GeneratedColumn<String>(
+    'an_tu',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _taoLucMeta = const VerificationMeta('taoLuc');
   @override
   late final GeneratedColumn<DateTime> taoLuc = GeneratedColumn<DateTime>(
@@ -126,6 +135,7 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, Habit> {
     thuBit,
     gioNhac,
     an,
+    anTu,
     taoLuc,
   ];
   @override
@@ -196,6 +206,12 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, Habit> {
     if (data.containsKey('an')) {
       context.handle(_anMeta, an.isAcceptableOrUnknown(data['an']!, _anMeta));
     }
+    if (data.containsKey('an_tu')) {
+      context.handle(
+        _anTuMeta,
+        anTu.isAcceptableOrUnknown(data['an_tu']!, _anTuMeta),
+      );
+    }
     if (data.containsKey('tao_luc')) {
       context.handle(
         _taoLucMeta,
@@ -249,6 +265,10 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, Habit> {
         DriftSqlType.bool,
         data['${effectivePrefix}an'],
       )!,
+      anTu: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}an_tu'],
+      ),
       taoLuc: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}tao_luc'],
@@ -272,6 +292,7 @@ class Habit extends DataClass implements Insertable<Habit> {
   final String thuBit;
   final int? gioNhac;
   final bool an;
+  final String? anTu;
   final DateTime taoLuc;
   const Habit({
     required this.id,
@@ -283,6 +304,7 @@ class Habit extends DataClass implements Insertable<Habit> {
     required this.thuBit,
     this.gioNhac,
     required this.an,
+    this.anTu,
     required this.taoLuc,
   });
   @override
@@ -303,6 +325,9 @@ class Habit extends DataClass implements Insertable<Habit> {
       map['gio_nhac'] = Variable<int>(gioNhac);
     }
     map['an'] = Variable<bool>(an);
+    if (!nullToAbsent || anTu != null) {
+      map['an_tu'] = Variable<String>(anTu);
+    }
     map['tao_luc'] = Variable<DateTime>(taoLuc);
     return map;
   }
@@ -322,6 +347,7 @@ class Habit extends DataClass implements Insertable<Habit> {
           ? const Value.absent()
           : Value(gioNhac),
       an: Value(an),
+      anTu: anTu == null && nullToAbsent ? const Value.absent() : Value(anTu),
       taoLuc: Value(taoLuc),
     );
   }
@@ -341,6 +367,7 @@ class Habit extends DataClass implements Insertable<Habit> {
       thuBit: serializer.fromJson<String>(json['thuBit']),
       gioNhac: serializer.fromJson<int?>(json['gioNhac']),
       an: serializer.fromJson<bool>(json['an']),
+      anTu: serializer.fromJson<String?>(json['anTu']),
       taoLuc: serializer.fromJson<DateTime>(json['taoLuc']),
     );
   }
@@ -357,6 +384,7 @@ class Habit extends DataClass implements Insertable<Habit> {
       'thuBit': serializer.toJson<String>(thuBit),
       'gioNhac': serializer.toJson<int?>(gioNhac),
       'an': serializer.toJson<bool>(an),
+      'anTu': serializer.toJson<String?>(anTu),
       'taoLuc': serializer.toJson<DateTime>(taoLuc),
     };
   }
@@ -371,6 +399,7 @@ class Habit extends DataClass implements Insertable<Habit> {
     String? thuBit,
     Value<int?> gioNhac = const Value.absent(),
     bool? an,
+    Value<String?> anTu = const Value.absent(),
     DateTime? taoLuc,
   }) => Habit(
     id: id ?? this.id,
@@ -382,6 +411,7 @@ class Habit extends DataClass implements Insertable<Habit> {
     thuBit: thuBit ?? this.thuBit,
     gioNhac: gioNhac.present ? gioNhac.value : this.gioNhac,
     an: an ?? this.an,
+    anTu: anTu.present ? anTu.value : this.anTu,
     taoLuc: taoLuc ?? this.taoLuc,
   );
   Habit copyWithCompanion(HabitsCompanion data) {
@@ -399,6 +429,7 @@ class Habit extends DataClass implements Insertable<Habit> {
       thuBit: data.thuBit.present ? data.thuBit.value : this.thuBit,
       gioNhac: data.gioNhac.present ? data.gioNhac.value : this.gioNhac,
       an: data.an.present ? data.an.value : this.an,
+      anTu: data.anTu.present ? data.anTu.value : this.anTu,
       taoLuc: data.taoLuc.present ? data.taoLuc.value : this.taoLuc,
     );
   }
@@ -415,6 +446,7 @@ class Habit extends DataClass implements Insertable<Habit> {
           ..write('thuBit: $thuBit, ')
           ..write('gioNhac: $gioNhac, ')
           ..write('an: $an, ')
+          ..write('anTu: $anTu, ')
           ..write('taoLuc: $taoLuc')
           ..write(')'))
         .toString();
@@ -431,6 +463,7 @@ class Habit extends DataClass implements Insertable<Habit> {
     thuBit,
     gioNhac,
     an,
+    anTu,
     taoLuc,
   );
   @override
@@ -446,6 +479,7 @@ class Habit extends DataClass implements Insertable<Habit> {
           other.thuBit == this.thuBit &&
           other.gioNhac == this.gioNhac &&
           other.an == this.an &&
+          other.anTu == this.anTu &&
           other.taoLuc == this.taoLuc);
 }
 
@@ -459,6 +493,7 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
   final Value<String> thuBit;
   final Value<int?> gioNhac;
   final Value<bool> an;
+  final Value<String?> anTu;
   final Value<DateTime> taoLuc;
   const HabitsCompanion({
     this.id = const Value.absent(),
@@ -470,6 +505,7 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     this.thuBit = const Value.absent(),
     this.gioNhac = const Value.absent(),
     this.an = const Value.absent(),
+    this.anTu = const Value.absent(),
     this.taoLuc = const Value.absent(),
   });
   HabitsCompanion.insert({
@@ -482,6 +518,7 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     this.thuBit = const Value.absent(),
     this.gioNhac = const Value.absent(),
     this.an = const Value.absent(),
+    this.anTu = const Value.absent(),
     required DateTime taoLuc,
   }) : ten = Value(ten),
        taoLuc = Value(taoLuc);
@@ -495,6 +532,7 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     Expression<String>? thuBit,
     Expression<int>? gioNhac,
     Expression<bool>? an,
+    Expression<String>? anTu,
     Expression<DateTime>? taoLuc,
   }) {
     return RawValuesInsertable({
@@ -507,6 +545,7 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
       if (thuBit != null) 'thu_bit': thuBit,
       if (gioNhac != null) 'gio_nhac': gioNhac,
       if (an != null) 'an': an,
+      if (anTu != null) 'an_tu': anTu,
       if (taoLuc != null) 'tao_luc': taoLuc,
     });
   }
@@ -521,6 +560,7 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     Value<String>? thuBit,
     Value<int?>? gioNhac,
     Value<bool>? an,
+    Value<String?>? anTu,
     Value<DateTime>? taoLuc,
   }) {
     return HabitsCompanion(
@@ -533,6 +573,7 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
       thuBit: thuBit ?? this.thuBit,
       gioNhac: gioNhac ?? this.gioNhac,
       an: an ?? this.an,
+      anTu: anTu ?? this.anTu,
       taoLuc: taoLuc ?? this.taoLuc,
     );
   }
@@ -567,6 +608,9 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     if (an.present) {
       map['an'] = Variable<bool>(an.value);
     }
+    if (anTu.present) {
+      map['an_tu'] = Variable<String>(anTu.value);
+    }
     if (taoLuc.present) {
       map['tao_luc'] = Variable<DateTime>(taoLuc.value);
     }
@@ -585,6 +629,7 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
           ..write('thuBit: $thuBit, ')
           ..write('gioNhac: $gioNhac, ')
           ..write('an: $an, ')
+          ..write('anTu: $anTu, ')
           ..write('taoLuc: $taoLuc')
           ..write(')'))
         .toString();
@@ -2574,6 +2619,219 @@ class ChiSoInsCompanion extends UpdateCompanion<ChiSoIn> {
   }
 }
 
+class $LoaiTruInsTable extends LoaiTruIns
+    with TableInfo<$LoaiTruInsTable, LoaiTruIn> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LoaiTruInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _habitIdMeta = const VerificationMeta(
+    'habitId',
+  );
+  @override
+  late final GeneratedColumn<int> habitId = GeneratedColumn<int>(
+    'habit_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES habits (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [habitId, ngay];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'loai_tru';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LoaiTruIn> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('habit_id')) {
+      context.handle(
+        _habitIdMeta,
+        habitId.isAcceptableOrUnknown(data['habit_id']!, _habitIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_habitIdMeta);
+    }
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {habitId, ngay};
+  @override
+  LoaiTruIn map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LoaiTruIn(
+      habitId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}habit_id'],
+      )!,
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+    );
+  }
+
+  @override
+  $LoaiTruInsTable createAlias(String alias) {
+    return $LoaiTruInsTable(attachedDatabase, alias);
+  }
+}
+
+class LoaiTruIn extends DataClass implements Insertable<LoaiTruIn> {
+  final int habitId;
+  final String ngay;
+  const LoaiTruIn({required this.habitId, required this.ngay});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['habit_id'] = Variable<int>(habitId);
+    map['ngay'] = Variable<String>(ngay);
+    return map;
+  }
+
+  LoaiTruInsCompanion toCompanion(bool nullToAbsent) {
+    return LoaiTruInsCompanion(habitId: Value(habitId), ngay: Value(ngay));
+  }
+
+  factory LoaiTruIn.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LoaiTruIn(
+      habitId: serializer.fromJson<int>(json['habitId']),
+      ngay: serializer.fromJson<String>(json['ngay']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'habitId': serializer.toJson<int>(habitId),
+      'ngay': serializer.toJson<String>(ngay),
+    };
+  }
+
+  LoaiTruIn copyWith({int? habitId, String? ngay}) =>
+      LoaiTruIn(habitId: habitId ?? this.habitId, ngay: ngay ?? this.ngay);
+  LoaiTruIn copyWithCompanion(LoaiTruInsCompanion data) {
+    return LoaiTruIn(
+      habitId: data.habitId.present ? data.habitId.value : this.habitId,
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LoaiTruIn(')
+          ..write('habitId: $habitId, ')
+          ..write('ngay: $ngay')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(habitId, ngay);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LoaiTruIn &&
+          other.habitId == this.habitId &&
+          other.ngay == this.ngay);
+}
+
+class LoaiTruInsCompanion extends UpdateCompanion<LoaiTruIn> {
+  final Value<int> habitId;
+  final Value<String> ngay;
+  final Value<int> rowid;
+  const LoaiTruInsCompanion({
+    this.habitId = const Value.absent(),
+    this.ngay = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LoaiTruInsCompanion.insert({
+    required int habitId,
+    required String ngay,
+    this.rowid = const Value.absent(),
+  }) : habitId = Value(habitId),
+       ngay = Value(ngay);
+  static Insertable<LoaiTruIn> custom({
+    Expression<int>? habitId,
+    Expression<String>? ngay,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (habitId != null) 'habit_id': habitId,
+      if (ngay != null) 'ngay': ngay,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LoaiTruInsCompanion copyWith({
+    Value<int>? habitId,
+    Value<String>? ngay,
+    Value<int>? rowid,
+  }) {
+    return LoaiTruInsCompanion(
+      habitId: habitId ?? this.habitId,
+      ngay: ngay ?? this.ngay,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (habitId.present) {
+      map['habit_id'] = Variable<int>(habitId.value);
+    }
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LoaiTruInsCompanion(')
+          ..write('habitId: $habitId, ')
+          ..write('ngay: $ngay, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2585,6 +2843,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MoInsTable moIns = $MoInsTable(this);
   late final $TapInsTable tapIns = $TapInsTable(this);
   late final $ChiSoInsTable chiSoIns = $ChiSoInsTable(this);
+  late final $LoaiTruInsTable loaiTruIns = $LoaiTruInsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2598,6 +2857,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     moIns,
     tapIns,
     chiSoIns,
+    loaiTruIns,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -2607,6 +2867,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('ticks', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'habits',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('loai_tru', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -2621,6 +2888,7 @@ typedef $$HabitsTableCreateCompanionBuilder = HabitsCompanion Function({
   Value<String> thuBit,
   Value<int?> gioNhac,
   Value<bool> an,
+  Value<String?> anTu,
   required DateTime taoLuc,
 });
 typedef $$HabitsTableUpdateCompanionBuilder = HabitsCompanion Function({
@@ -2633,6 +2901,7 @@ typedef $$HabitsTableUpdateCompanionBuilder = HabitsCompanion Function({
   Value<String> thuBit,
   Value<int?> gioNhac,
   Value<bool> an,
+  Value<String?> anTu,
   Value<DateTime> taoLuc,
 });
 
@@ -2654,6 +2923,24 @@ final class $$HabitsTableReferences
     ).filter((f) => f.habitId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_ticksRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$LoaiTruInsTable, List<LoaiTruIn>>
+  _loaiTruInsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.loaiTruIns,
+    aliasName: 'habits__id__loai_tru__habit_id',
+  );
+
+  $$LoaiTruInsTableProcessedTableManager get loaiTruInsRefs {
+    final manager = $$LoaiTruInsTableTableManager(
+      $_db,
+      $_db.loaiTruIns,
+    ).filter((f) => f.habitId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_loaiTruInsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -2714,6 +3001,11 @@ class $$HabitsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get anTu => $composableBuilder(
+    column: $table.anTu,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get taoLuc => $composableBuilder(
     column: $table.taoLuc,
     builder: (column) => ColumnFilters(column),
@@ -2735,6 +3027,31 @@ class $$HabitsTableFilterComposer
           }) => $$TicksTableFilterComposer(
             $db: $db,
             $table: $db.ticks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> loaiTruInsRefs(
+    Expression<bool> Function($$LoaiTruInsTableFilterComposer f) f,
+  ) {
+    final $$LoaiTruInsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.loaiTruIns,
+      getReferencedColumn: (t) => t.habitId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LoaiTruInsTableFilterComposer(
+            $db: $db,
+            $table: $db.loaiTruIns,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2799,6 +3116,11 @@ class $$HabitsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get anTu => $composableBuilder(
+    column: $table.anTu,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get taoLuc => $composableBuilder(
     column: $table.taoLuc,
     builder: (column) => ColumnOrderings(column),
@@ -2845,6 +3167,9 @@ class $$HabitsTableAnnotationComposer
   GeneratedColumn<bool> get an =>
       $composableBuilder(column: $table.an, builder: (column) => column);
 
+  GeneratedColumn<String> get anTu =>
+      $composableBuilder(column: $table.anTu, builder: (column) => column);
+
   GeneratedColumn<DateTime> get taoLuc =>
       $composableBuilder(column: $table.taoLuc, builder: (column) => column);
 
@@ -2872,6 +3197,31 @@ class $$HabitsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> loaiTruInsRefs<T extends Object>(
+    Expression<T> Function($$LoaiTruInsTableAnnotationComposer a) f,
+  ) {
+    final $$LoaiTruInsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.loaiTruIns,
+      getReferencedColumn: (t) => t.habitId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LoaiTruInsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.loaiTruIns,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$HabitsTableTableManager
@@ -2887,7 +3237,7 @@ class $$HabitsTableTableManager
           $$HabitsTableUpdateCompanionBuilder,
           (Habit, $$HabitsTableReferences),
           Habit,
-          PrefetchHooks Function({bool ticksRefs})
+          PrefetchHooks Function({bool ticksRefs, bool loaiTruInsRefs})
         > {
   $$HabitsTableTableManager(_$AppDatabase db, $HabitsTable table)
     : super(
@@ -2911,6 +3261,7 @@ class $$HabitsTableTableManager
                 Value<String> thuBit = const Value.absent(),
                 Value<int?> gioNhac = const Value.absent(),
                 Value<bool> an = const Value.absent(),
+                Value<String?> anTu = const Value.absent(),
                 Value<DateTime> taoLuc = const Value.absent(),
               }) => HabitsCompanion(
                 id: id,
@@ -2922,6 +3273,7 @@ class $$HabitsTableTableManager
                 thuBit: thuBit,
                 gioNhac: gioNhac,
                 an: an,
+                anTu: anTu,
                 taoLuc: taoLuc,
               ),
           createCompanionCallback:
@@ -2935,6 +3287,7 @@ class $$HabitsTableTableManager
                 Value<String> thuBit = const Value.absent(),
                 Value<int?> gioNhac = const Value.absent(),
                 Value<bool> an = const Value.absent(),
+                Value<String?> anTu = const Value.absent(),
                 required DateTime taoLuc,
               }) => HabitsCompanion.insert(
                 id: id,
@@ -2946,6 +3299,7 @@ class $$HabitsTableTableManager
                 thuBit: thuBit,
                 gioNhac: gioNhac,
                 an: an,
+                anTu: anTu,
                 taoLuc: taoLuc,
               ),
           withReferenceMapper: (p0) => p0
@@ -2954,10 +3308,13 @@ class $$HabitsTableTableManager
                     (e.readTable(table), $$HabitsTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({ticksRefs = false}) {
+          prefetchHooksCallback: ({ticksRefs = false, loaiTruInsRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (ticksRefs) db.ticks],
+              explicitlyWatchedTables: [
+                if (ticksRefs) db.ticks,
+                if (loaiTruInsRefs) db.loaiTruIns,
+              ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
@@ -2969,6 +3326,17 @@ class $$HabitsTableTableManager
                       ),
                       managerFromTypedResult: (p0) =>
                           $$HabitsTableReferences(db, table, p0).ticksRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.habitId == item.id),
+                      typedResults: items,
+                    ),
+                  if (loaiTruInsRefs)
+                    await $_getPrefetchedData<Habit, $HabitsTable, LoaiTruIn>(
+                      currentTable: table,
+                      referencedTable: $$HabitsTableReferences
+                          ._loaiTruInsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$HabitsTableReferences(db, table, p0).loaiTruInsRefs,
                       referencedItemsForCurrentItem: (item, referencedItems) =>
                           referencedItems.where((e) => e.habitId == item.id),
                       typedResults: items,
@@ -2993,7 +3361,7 @@ typedef $$HabitsTableProcessedTableManager =
       $$HabitsTableUpdateCompanionBuilder,
       (Habit, $$HabitsTableReferences),
       Habit,
-      PrefetchHooks Function({bool ticksRefs})
+      PrefetchHooks Function({bool ticksRefs, bool loaiTruInsRefs})
     >;
 typedef $$TicksTableCreateCompanionBuilder = TicksCompanion Function({
   required int habitId,
@@ -4237,6 +4605,257 @@ typedef $$ChiSoInsTableProcessedTableManager =
       ChiSoIn,
       PrefetchHooks Function()
     >;
+typedef $$LoaiTruInsTableCreateCompanionBuilder = LoaiTruInsCompanion Function({
+  required int habitId,
+  required String ngay,
+  Value<int> rowid,
+});
+typedef $$LoaiTruInsTableUpdateCompanionBuilder = LoaiTruInsCompanion Function({
+  Value<int> habitId,
+  Value<String> ngay,
+  Value<int> rowid,
+});
+
+final class $$LoaiTruInsTableReferences
+    extends BaseReferences<_$AppDatabase, $LoaiTruInsTable, LoaiTruIn> {
+  $$LoaiTruInsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $HabitsTable _habitIdTable(_$AppDatabase db) =>
+      db.habits.createAlias('loai_tru__habit_id__habits__id');
+
+  $$HabitsTableProcessedTableManager get habitId {
+    final $_column = $_itemColumn<int>('habit_id')!;
+
+    final manager = $$HabitsTableTableManager(
+      $_db,
+      $_db.habits,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_habitIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$LoaiTruInsTableFilterComposer
+    extends Composer<_$AppDatabase, $LoaiTruInsTable> {
+  $$LoaiTruInsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$HabitsTableFilterComposer get habitId {
+    final $$HabitsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.habitId,
+      referencedTable: $db.habits,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HabitsTableFilterComposer(
+            $db: $db,
+            $table: $db.habits,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LoaiTruInsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LoaiTruInsTable> {
+  $$LoaiTruInsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$HabitsTableOrderingComposer get habitId {
+    final $$HabitsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.habitId,
+      referencedTable: $db.habits,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HabitsTableOrderingComposer(
+            $db: $db,
+            $table: $db.habits,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LoaiTruInsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LoaiTruInsTable> {
+  $$LoaiTruInsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  $$HabitsTableAnnotationComposer get habitId {
+    final $$HabitsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.habitId,
+      referencedTable: $db.habits,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HabitsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.habits,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LoaiTruInsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LoaiTruInsTable,
+          LoaiTruIn,
+          $$LoaiTruInsTableFilterComposer,
+          $$LoaiTruInsTableOrderingComposer,
+          $$LoaiTruInsTableAnnotationComposer,
+          $$LoaiTruInsTableCreateCompanionBuilder,
+          $$LoaiTruInsTableUpdateCompanionBuilder,
+          (LoaiTruIn, $$LoaiTruInsTableReferences),
+          LoaiTruIn,
+          PrefetchHooks Function({bool habitId})
+        > {
+  $$LoaiTruInsTableTableManager(_$AppDatabase db, $LoaiTruInsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LoaiTruInsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LoaiTruInsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LoaiTruInsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> habitId = const Value.absent(),
+            Value<String> ngay = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) => LoaiTruInsCompanion(habitId: habitId, ngay: ngay, rowid: rowid),
+          createCompanionCallback:
+              ({
+                required int habitId,
+                required String ngay,
+                Value<int> rowid = const Value.absent(),
+              }) => LoaiTruInsCompanion.insert(
+                habitId: habitId,
+                ngay: ngay,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$LoaiTruInsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({habitId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (habitId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.habitId,
+                        referencedTable: $$LoaiTruInsTableReferences
+                            ._habitIdTable(db),
+                        referencedColumn: $$LoaiTruInsTableReferences
+                            ._habitIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$LoaiTruInsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LoaiTruInsTable,
+      LoaiTruIn,
+      $$LoaiTruInsTableFilterComposer,
+      $$LoaiTruInsTableOrderingComposer,
+      $$LoaiTruInsTableAnnotationComposer,
+      $$LoaiTruInsTableCreateCompanionBuilder,
+      $$LoaiTruInsTableUpdateCompanionBuilder,
+      (LoaiTruIn, $$LoaiTruInsTableReferences),
+      LoaiTruIn,
+      PrefetchHooks Function({bool habitId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4257,4 +4876,6 @@ class $AppDatabaseManager {
       $$TapInsTableTableManager(_db, _db.tapIns);
   $$ChiSoInsTableTableManager get chiSoIns =>
       $$ChiSoInsTableTableManager(_db, _db.chiSoIns);
+  $$LoaiTruInsTableTableManager get loaiTruIns =>
+      $$LoaiTruInsTableTableManager(_db, _db.loaiTruIns);
 }

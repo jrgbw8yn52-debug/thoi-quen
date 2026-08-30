@@ -109,6 +109,7 @@ class Kho extends ChangeNotifier {
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
   Map<int, Set<String>> ticksIso = {};
+  Map<int, Set<String>> loaiTru = {};
 
   final Set<String> _dangThem = {};
   final Map<String, Future<void>> _ghiTick = {};
@@ -118,7 +119,15 @@ class Kho extends ChangeNotifier {
   bool get rong => dsHien.isEmpty;
   bool get xemHomNay => Ngay.cungNgay(selected, homNay);
   bool get khoaGhi => !Ngay.ghiDuoc(selected, homNay);
-  bool get themDuoc => dsHien.length < AppDatabase.maxHabit && !khoaGhi;
+  bool get themDuoc => soConHien < AppDatabase.maxHabit && !khoaGhi;
+
+  int get soConHien {
+    var n = 0;
+    for (final h in dsHien) {
+      if (h.anTu == null || Ngay.truoc(homNay, Ngay.parse(h.anTu!))) n++;
+    }
+    return n;
+  }
 
   String get dongNgay => Chuoi.dongNgay(selected);
 
@@ -133,11 +142,15 @@ class Kho extends ChangeNotifier {
   bool get tuanChuaHomNay =>
       Ngay.cungNgay(Ngay.thuHai(selected), Ngay.thuHai(homNay));
 
-  bool hienO(Habit h, DateTime d) => Thu.hien(
-        thuBit: h.thuBit,
-        createdOn: Ngay.cat(h.taoLuc),
-        d: d,
-      );
+  bool hienO(Habit h, DateTime d) {
+    if (h.anTu != null && !Ngay.truoc(d, Ngay.parse(h.anTu!))) return false;
+    if (loaiTru[h.id]?.contains(Ngay.iso(d)) ?? false) return false;
+    return Thu.hien(
+      thuBit: h.thuBit,
+      createdOn: Ngay.cat(h.taoLuc),
+      d: d,
+    );
+  }
 
   int get phanTramNgay {
     if (mHabit == 0) return 0;
@@ -282,15 +295,15 @@ class Kho extends ChangeNotifier {
   String? get hienTaiKg => dsCan.isEmpty ? null : So.kg(dsCan.first.kg);
 
   int get phanTramKy {
-    final r = _ky;
+    final r = nTrenMCua(phin);
     if (r.$2 == 0) return 0;
     return ((r.$1 / r.$2) * 100).round();
   }
 
-  (int, int) get nTrenMKy => _ky;
+  (int, int) get nTrenMKy => nTrenMCua(phin);
 
-  (int, int) get _ky {
-    switch (phin) {
+  (int, int) nTrenMCua(int p) {
+    switch (p) {
       case 1:
         return _tickKhoang(
           Ngay.thuHai(selected),
@@ -436,6 +449,10 @@ class Kho extends ChangeNotifier {
     ticksIso = {};
     for (final t in allTicks) {
       ticksIso.putIfAbsent(t.habitId, () => <String>{}).add(t.ngay);
+    }
+    loaiTru = {};
+    for (final x in await db.dsLoaiTru()) {
+      loaiTru.putIfAbsent(x.habitId, () => <String>{}).add(x.ngay);
     }
     _xepHang();
     _veTuan();
@@ -607,33 +624,41 @@ class Kho extends ChangeNotifier {
   }
 
   Future<void> anKhoiDs(int id) async {
-    await db.anHabit(id);
+    if (!Ngay.ghiDuoc(selected, homNay)) return;
+    await db.anTuNgay(id, homNay);
     await tai();
   }
 
-  Future<void> boTickNgay(Habit h, DateTime ngay) async {
-    if (!Ngay.ghiDuoc(ngay, homNay)) return;
-    final iso = Ngay.iso(ngay);
-    final set = ticksIso[h.id];
-    if (set == null || !set.contains(iso)) return;
-    set.remove(iso);
+  Future<void> xoaKhoiNgay(Habit h, DateTime ngay) async {
+    if (!Ngay.ghiDuoc(selected, homNay)) return;
+    loaiTru.putIfAbsent(h.id, () => <String>{}).add(Ngay.iso(ngay));
     _dongBoHangVaTuan();
     notifyListeners();
-    await db.xoaTick(h.id, ngay);
+    await db.ghiLoaiTru(h.id, ngay);
   }
 
-  Future<void> boTickTuan(Habit h) async {
-    for (final d in Thu.ngayTrongTuan(h.thuBit, selected)) {
-      if (!Ngay.sau(d, homNay)) await boTickNgay(h, d);
+  Future<void> xoaKhoiTuanSau(Habit h) async {
+    if (!Ngay.ghiDuoc(selected, homNay)) return;
+    final tuanSau = Ngay.tuan(Ngay.cat(selected).add(const Duration(days: 7)));
+    for (final d in tuanSau) {
+      if (!Thu.hop(h.thuBit, d)) continue;
+      loaiTru.putIfAbsent(h.id, () => <String>{}).add(Ngay.iso(d));
+      await db.ghiLoaiTru(h.id, d);
     }
+    _dongBoHangVaTuan();
+    notifyListeners();
   }
 
-  Future<void> boTickThang(Habit h) async {
-    for (final d in Thu.ngayTrongThang(h.thuBit, selected)) {
-      if (!Ngay.sau(d, homNay) && Ngay.ghiDuoc(d, homNay)) {
-        await boTickNgay(h, d);
-      }
+  Future<void> xoaKhoiThangSau(Habit h) async {
+    if (!Ngay.ghiDuoc(selected, homNay)) return;
+    final thangSau = Ngay.toiThang(selected);
+    for (final d in Ngay.cacNgayThang(thangSau)) {
+      if (!Thu.hop(h.thuBit, d)) continue;
+      loaiTru.putIfAbsent(h.id, () => <String>{}).add(Ngay.iso(d));
+      await db.ghiLoaiTru(h.id, d);
     }
+    _dongBoHangVaTuan();
+    notifyListeners();
   }
 
   Future<void> xoaHabit(int id) => anKhoiDs(id);

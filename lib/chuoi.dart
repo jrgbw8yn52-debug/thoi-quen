@@ -31,10 +31,16 @@ abstract final class Chuoi {
   static const xoa = 'Xoá';
   static const daCoThoiQuen = 'Đã có thói quen này.';
   static const xoaKhoiMay = 'Xoá khỏi máy này? Không lấy lại được.';
-  static const boTickNgay = 'Bỏ tick ngày đang xem';
-  static const boTickTuan = 'Bỏ tick các ngày đã chọn trong tuần này';
-  static const boTickThang = 'Bỏ tick các ngày đã chọn trong tháng này';
-  static const xoaKhoiDs = 'Xoá thói quen khỏi danh sách';
+  static const xoaKhoiNgay = 'Xóa khỏi ngày đang xem';
+  static const xoaKhoiTuanSau = 'Xóa khỏi tuần tiếp theo';
+  static const xoaKhoiThangSau = 'Xóa khỏi tháng tiếp theo';
+  static const xoaKhoiDs = 'Xóa thói quen khỏi danh sách';
+  static const thoiKhoaBieu = 'Thời khoá biểu';
+  static const xuatSac = 'Xuất sắc';
+  static const tot = 'Tốt';
+  static const kha = 'Khá';
+  static const te = 'Tệ';
+  static const danhGiaNhan = 'Đánh giá';
   static const gioNhac = 'Giờ nhắc';
   static const tat = 'Tắt';
   static const batNhac = 'Bật';
@@ -203,6 +209,21 @@ abstract final class Chuoi {
   static String phanTram(int p) => '$p%';
 
   static String nTrenM(int n, int m) => '$n/$m';
+
+  static String hoanThanhThoiQuen(int n, int m) =>
+      'Hoàn thành $n/$m thói quen';
+
+  static String hoanThanhDanhGia(int n, int m, String dg) =>
+      'Hoàn thành $n/$m · Đánh giá: $dg';
+
+  static String danhGia(int n, int m) {
+    if (m <= 0) return te;
+    final p = n / m;
+    if (p >= 0.9) return xuatSac;
+    if (p >= 0.75) return tot;
+    if (p >= 0.5) return kha;
+    return te;
+  }
 
   static String gioNhacChu(int phut) {
     var h = phut ~/ 60;

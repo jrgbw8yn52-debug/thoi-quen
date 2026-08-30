@@ -5,6 +5,7 @@ import 'package:thoi_quen/chuoi.dart';
 import 'package:thoi_quen/db/database.dart';
 import 'package:thoi_quen/kho.dart';
 import 'package:thoi_quen/man/mot_habit.dart';
+import 'package:thoi_quen/man/them_habit.dart';
 import 'package:thoi_quen/mau.dart';
 import 'package:thoi_quen/vo_app.dart';
 
@@ -183,6 +184,9 @@ void main() {
     tester.view.physicalSize = const Size(390, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
     await kho.themPreset(ten: Chuoi.day6Gio);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
@@ -216,8 +220,8 @@ void main() {
     final id = kho.hang.single.habit.id;
     expect(kho.ticksCua(id), {'2026-08-30'});
     await kho.anKhoiDs(id);
-    expect(kho.dsHien, isEmpty);
     expect(kho.hang, isEmpty);
+    expect(kho.hienO(kho.dsHien.single, kho.homNay), isFalse);
     expect(kho.ticksCua(id), {'2026-08-30'});
   });
 
@@ -242,13 +246,9 @@ void main() {
 
   test('khoa ghi: khong tick, khong them', () async {
     await kho.themPreset(ten: Chuoi.day6Gio);
-    final id = kho.hang.single.habit.id;
-    expect(kho.ticksCua(id), {'2026-08-30'});
-    kho.chonNgay(DateTime(2026, 9, 8));
+    kho.chonNgay(DateTime(2026, 8, 23));
     expect(kho.khoaGhi, isTrue);
-    expect(kho.hang, isNotEmpty);
-    await kho.toggle(kho.hang.single);
-    expect(kho.ticksCua(id), {'2026-08-30'});
+    expect(kho.hang, isEmpty);
     expect(await kho.themPreset(ten: Chuoi.doc20Trang), isFalse);
     expect(kho.dsHien.length, 1);
   });
@@ -296,5 +296,61 @@ void main() {
     await tester.tap(find.text(Chuoi.homNay));
     await tester.pumpAndSettle();
     expect(find.text('Thứ Hai, 24 tháng 8 2026'), findsOneWidget);
+  });
+
+  testWidgets('Telex ten habit khong cat', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      theme: Mau.theme(),
+      home: ManThemHabit(kho: kho),
+    ));
+    await tester.pumpAndSettle();
+    final tf = tester.widget<TextField>(find.byKey(const Key('ten-habit')));
+    expect(tf.inputFormatters, isEmpty);
+    expect(tf.textCapitalization, TextCapitalization.none);
+    await tester.enterText(find.byKey(const Key('ten-habit')), 'Dậy sớm');
+    expect(tf.controller!.text, 'Dậy sớm');
+  });
+
+  testWidgets('Hom nay 31/8: 1/9 co, 29/8 khong, hang phu co dinh', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    await k.themPreset(ten: 'Dậy sớm', thuBit: '1234', gioNhac: 7 * 60);
+    expect(k.hienO(k.dsHien.single, DateTime(2026, 9, 1)), isTrue);
+    expect(k.hienO(k.dsHien.single, DateTime(2026, 8, 29)), isFalse);
+
+    await tester.pumpWidget(_app(k));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('hôm nay 31/8/2026'), findsOneWidget);
+
+    k.chonNgay(DateTime(2026, 8, 29));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('hôm nay 31/8/2026'), findsOneWidget);
+    expect(k.khoaGhi, isFalse);
+    expect(k.hang, isEmpty);
+
+    k.chonNgay(DateTime(2026, 8, 31));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.lich));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.thoiKhoaBieu));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.thoiKhoaBieu), findsWidgets);
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(PageView), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.thang(9)), findsWidgets);
+    await tester.tap(find.text('1'));
+    await tester.pumpAndSettle();
+    expect(k.selected, DateTime(2026, 9, 1));
+    expect(find.text('Dậy sớm · 7:00 SA'), findsOneWidget);
+    expect(find.text(Chuoi.hoanThanhThoiQuen(0, 1)), findsOneWidget);
+    await tester.tap(find.text('Dậy sớm · 7:00 SA'));
+    await tester.pumpAndSettle();
+    expect(k.ticksCua(k.dsHien.single.id).contains('2026-09-01'), isFalse);
   });
 }

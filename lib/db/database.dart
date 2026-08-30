@@ -22,6 +22,7 @@ class Habits extends Table {
   TextColumn get thuBit => text().withDefault(const Constant('1234567'))();
   IntColumn get gioNhac => integer().nullable()();
   BoolColumn get an => boolean().withDefault(const Constant(false))();
+  TextColumn get anTu => text().nullable()();
   DateTimeColumn get taoLuc => dateTime()();
 }
 
@@ -33,6 +34,18 @@ class Ticks extends Table {
       integer().references(Habits, #id, onDelete: KeyAction.cascade)();
   TextColumn get ngay => text()();
   IntColumn get phut => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {habitId, ngay};
+}
+
+class LoaiTruIns extends Table {
+  @override
+  String get tableName => 'loai_tru';
+
+  IntColumn get habitId =>
+      integer().references(Habits, #id, onDelete: KeyAction.cascade)();
+  TextColumn get ngay => text()();
 
   @override
   Set<Column> get primaryKey => {habitId, ngay};
@@ -121,6 +134,7 @@ class ChiSoIns extends Table {
   MoIns,
   TapIns,
   ChiSoIns,
+  LoaiTruIns,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
@@ -130,7 +144,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -189,6 +203,10 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
             await m.addColumn(habits, habits.thuBit);
             await m.addColumn(habits, habits.gioNhac);
             await m.addColumn(habits, habits.an);
+          }
+          if (from < 7) {
+            await m.addColumn(habits, habits.anTu);
+            await m.createTable(loaiTruIns);
           }
         },
         beforeOpen: (details) async {
@@ -277,11 +295,23 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     return n > 0;
   }
 
-  Future<void> anHabit(int id) async {
+  Future<void> anTuNgay(int id, DateTime tu) async {
     await (update(habits)..where((h) => h.id.equals(id))).write(
-      const HabitsCompanion(an: Value(true)),
+      HabitsCompanion(anTu: Value(Ngay.iso(tu))),
     );
   }
+
+  Future<void> ghiLoaiTru(int habitId, DateTime ngay) async {
+    await into(loaiTruIns).insert(
+      LoaiTruInsCompanion.insert(
+        habitId: habitId,
+        ngay: Ngay.iso(ngay),
+      ),
+      mode: InsertMode.insertOrIgnore,
+    );
+  }
+
+  Future<List<LoaiTruIn>> dsLoaiTru() => select(loaiTruIns).get();
 
   Future<void> xoaTick(int habitId, DateTime ngay) async {
     await (delete(ticks)
@@ -505,6 +535,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await customStatement("ATTACH DATABASE '$esc' AS src");
     try {
       await customStatement('DELETE FROM ticks');
+      await customStatement('DELETE FROM loai_tru');
       await customStatement('DELETE FROM habits');
       await customStatement('DELETE FROM weigh_ins');
       await customStatement('DELETE FROM eo_ins');
@@ -519,6 +550,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         await customStatement('INSERT INTO mo_ins SELECT * FROM src.mo_ins');
         await customStatement('INSERT INTO tap_ins SELECT * FROM src.tap_ins');
         await customStatement('INSERT INTO chi_so SELECT * FROM src.chi_so');
+        await customStatement('INSERT INTO loai_tru SELECT * FROM src.loai_tru');
       } catch (_) {}
     } finally {
       await customStatement('DETACH DATABASE src');
@@ -535,6 +567,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
 
   Future<void> xoaHet() async {
     await delete(ticks).go();
+    await delete(loaiTruIns).go();
     await delete(habits).go();
     await delete(weighIns).go();
     await delete(eoIns).go();

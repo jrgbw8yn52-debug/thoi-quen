@@ -17,24 +17,24 @@ Future<void> moXoaHabit(BuildContext context, Kho kho, Habit h) async {
             mainAxisSize: MainAxisSize.min,
             children: [
               _Hang(
-                chu: Chuoi.boTickNgay,
+                chu: Chuoi.xoaKhoiNgay,
                 onTap: () async {
                   Navigator.pop(ctx);
-                  await kho.boTickNgay(h, kho.selected);
+                  await kho.xoaKhoiNgay(h, kho.selected);
                 },
               ),
               _Hang(
-                chu: Chuoi.boTickTuan,
+                chu: Chuoi.xoaKhoiTuanSau,
                 onTap: () async {
                   Navigator.pop(ctx);
-                  await kho.boTickTuan(h);
+                  await kho.xoaKhoiTuanSau(h);
                 },
               ),
               _Hang(
-                chu: Chuoi.boTickThang,
+                chu: Chuoi.xoaKhoiThangSau,
                 onTap: () async {
                   Navigator.pop(ctx);
-                  await kho.boTickThang(h);
+                  await kho.xoaKhoiThangSau(h);
                 },
               ),
               _Hang(

@@ -13,6 +13,7 @@ class HangHabit extends StatelessWidget {
     required this.onSua,
     required this.onXoa,
     this.khoaGhi = false,
+    this.choVuot = true,
   });
 
   final HangHabitView hang;
@@ -20,10 +21,12 @@ class HangHabit extends StatelessWidget {
   final VoidCallback onSua;
   final VoidCallback onXoa;
   final bool khoaGhi;
+  final bool choVuot;
 
   @override
   Widget build(BuildContext context) {
     return HangVuot(
+      choVuot: choVuot && !khoaGhi,
       onSua: onSua,
       onXoa: onXoa,
       child: Material(
@@ -72,11 +75,13 @@ class HangVuot extends StatefulWidget {
     required this.child,
     required this.onSua,
     required this.onXoa,
+    this.choVuot = true,
   });
 
   final Widget child;
   final VoidCallback onSua;
   final VoidCallback onXoa;
+  final bool choVuot;
 
   @override
   State<HangVuot> createState() => _HangVuotState();
@@ -88,6 +93,7 @@ class _HangVuotState extends State<HangVuot> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.choVuot) return widget.child;
     return ClipRect(
       child: Stack(
         children: [
