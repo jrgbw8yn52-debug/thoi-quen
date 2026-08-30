@@ -57,13 +57,15 @@ class ManCaiDat extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  Chuoi.nguon,
+                  Chuoi.nguonDisclaimer,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Mau.muc,
                   ),
                 ),
+                SizedBox(height: 12),
+                Text(Chuoi.uocTinh, style: TextStyle(fontSize: 15, color: Mau.mo, height: 1.4)),
                 SizedBox(height: 12),
                 Text(Chuoi.mifflin, style: TextStyle(fontSize: 15, color: Mau.muc, height: 1.4)),
                 SizedBox(height: 8),
@@ -140,7 +142,7 @@ class ManCaiDat extends StatelessWidget {
           _Hang(chu: Chuoi.xuatBanSao, onTap: () => _xuat(context)),
           _Hang(chu: Chuoi.khoiPhuc, onTap: () => _khoiPhuc(context)),
           _Hang(chu: Chuoi.xoaDuLieu, onTap: () => _xoa(context)),
-          _Hang(chu: Chuoi.nguon, onTap: () => _nguon(context)),
+          _Hang(chu: Chuoi.nguonDisclaimer, onTap: () => _nguon(context)),
           const Padding(
             padding: EdgeInsets.fromLTRB(12, 20, 12, 0),
             child: Text(

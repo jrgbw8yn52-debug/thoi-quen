@@ -167,7 +167,7 @@ class _ManTienDoState extends State<ManTienDo> {
           ),
           const SizedBox(height: 28),
           const Text(
-            Chuoi.kg,
+            Chuoi.canKg,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -175,13 +175,7 @@ class _ManTienDoState extends State<ManTienDo> {
             ),
           ),
           const SizedBox(height: 8),
-          if (spark.length >= 2)
-            DuongCan(diem: spark, dich: kho.targetKg)
-          else
-            const Text(
-              Chuoi.ghiThemCan,
-              style: TextStyle(fontSize: 15, color: Mau.mo),
-            ),
+          if (spark.isNotEmpty) DuongCan(diem: spark, dich: kho.targetKg),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -209,6 +203,14 @@ class _ManTienDoState extends State<ManTienDo> {
               ),
             ],
           ),
+          if (kho.dongCanHienTai != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                kho.dongCanHienTai!,
+                style: const TextStyle(fontSize: 14, color: Mau.mo, height: 1.35),
+              ),
+            ),
         ],
       ),
     );

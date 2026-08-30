@@ -23,6 +23,22 @@ abstract final class So {
     return v;
   }
 
+  static double? parseEo(String raw) {
+    final t = raw.trim().replaceAll(' ', '').replaceAll(',', '.');
+    if (t.isEmpty) return null;
+    final v = double.tryParse(t);
+    if (v == null || v < 40 || v > 200) return null;
+    return v;
+  }
+
+  static double? parseMo(String raw) {
+    final t = raw.trim().replaceAll(' ', '').replaceAll(',', '.');
+    if (t.isEmpty) return null;
+    final v = double.tryParse(t);
+    if (v == null || v < 1 || v > 70) return null;
+    return v;
+  }
+
   static String heSo(double v) {
     var s = v.toStringAsFixed(3).replaceAll('.', ',');
     while (s.endsWith('0')) {

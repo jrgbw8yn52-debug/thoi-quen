@@ -37,10 +37,15 @@ void main() {
     expect(CongThuc.kcalTap(met: 5.5, kg: null, phut: 30), isNull);
   });
 
-  test('nhip 0,25-0,5 kg/tuan', () {
-    expect(CongThuc.nhip(70, 70), 'Đã đạt cân đích.');
-    expect(CongThuc.nhip(72, 70), contains('giảm 0,25–0,5'));
-    expect(CongThuc.nhip(null, 70), isNull);
+  test('nhip 0,25 hoac 0,5 kg/tuan', () {
+    expect(CongThuc.nhipDong(70, 70, 0.5), 'Đã đạt cân đích.');
+    expect(CongThuc.nhipDong(72, 70, 0.5), contains('giảm 0,5'));
+    expect(CongThuc.nhipDong(null, 70, 0.5), isNull);
+  });
+
+  test('kcal goi y TDEE tru nhip, lam tron 10', () {
+    expect(CongThuc.kcalGoiY(tdee: 2000, nhip: 0.5, kg: 72, target: 70), 1450);
+    expect(CongThuc.kcalGoiY(tdee: null, nhip: 0.5), isNull);
   });
 
   test('he so dau phay Viet', () {

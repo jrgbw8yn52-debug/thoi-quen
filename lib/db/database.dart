@@ -46,6 +46,7 @@ class Profiles extends Table {
   RealColumn get activity => real().withDefault(const Constant(1.2))();
   RealColumn get targetKg => real().nullable()();
   TextColumn get tenGoi => text().nullable()();
+  RealColumn get nhipKg => real().withDefault(const Constant(0.5))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -62,7 +63,29 @@ class WeighIns extends Table {
   Set<Column> get primaryKey => {ngay};
 }
 
-@DriftDatabase(tables: [Habits, Ticks, Profiles, WeighIns])
+class EoIns extends Table {
+  @override
+  String get tableName => 'eo_ins';
+
+  TextColumn get ngay => text()();
+  RealColumn get cm => real()();
+
+  @override
+  Set<Column> get primaryKey => {ngay};
+}
+
+class MoIns extends Table {
+  @override
+  String get tableName => 'mo_ins';
+
+  TextColumn get ngay => text()();
+  RealColumn get pct => real()();
+
+  @override
+  Set<Column> get primaryKey => {ngay};
+}
+
+@DriftDatabase(tables: [Habits, Ticks, Profiles, WeighIns, EoIns, MoIns])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
 
@@ -71,7 +94,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -90,12 +113,18 @@ class AppDatabase extends _$AppDatabase {
             ProfilesCompanion.insert(
               id: const Value(1),
               activity: const Value(1.2),
+              nhipKg: const Value(0.5),
             ),
           );
         },
         onUpgrade: (m, from, to) async {
           if (from < 2) {
             await m.addColumn(profiles, profiles.tenGoi);
+          }
+          if (from < 3) {
+            await m.addColumn(profiles, profiles.nhipKg);
+            await m.createTable(eoIns);
+            await m.createTable(moIns);
           }
         },
         beforeOpen: (details) async {
@@ -266,6 +295,26 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  Future<void> ghiEo(DateTime ngay, double cm) async {
+    await into(eoIns).insertOnConflictUpdate(
+      EoInsCompanion.insert(ngay: Ngay.iso(ngay), cm: cm),
+    );
+  }
+
+  Future<void> ghiMo(DateTime ngay, double pct) async {
+    await into(moIns).insertOnConflictUpdate(
+      MoInsCompanion.insert(ngay: Ngay.iso(ngay), pct: pct),
+    );
+  }
+
+  Future<List<EoIn>> dsEo() {
+    return (select(eoIns)..orderBy([(e) => OrderingTerm.desc(e.ngay)])).get();
+  }
+
+  Future<List<MoIn>> dsMo() {
+    return (select(moIns)..orderBy([(e) => OrderingTerm.desc(e.ngay)])).get();
+  }
+
   Future<void> suaProfile({
     Value<String?> sex = const Value.absent(),
     Value<double?> heightCm = const Value.absent(),
@@ -273,6 +322,7 @@ class AppDatabase extends _$AppDatabase {
     Value<double> activity = const Value.absent(),
     Value<double?> targetKg = const Value.absent(),
     Value<String?> tenGoi = const Value.absent(),
+    Value<double> nhipKg = const Value.absent(),
   }) async {
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       ProfilesCompanion(
@@ -282,6 +332,7 @@ class AppDatabase extends _$AppDatabase {
         activity: activity,
         targetKg: targetKg,
         tenGoi: tenGoi,
+        nhipKg: nhipKg,
       ),
     );
   }
@@ -324,11 +375,17 @@ class AppDatabase extends _$AppDatabase {
       await customStatement('DELETE FROM ticks');
       await customStatement('DELETE FROM habits');
       await customStatement('DELETE FROM weigh_ins');
+      await customStatement('DELETE FROM eo_ins');
+      await customStatement('DELETE FROM mo_ins');
       await customStatement('DELETE FROM profile');
       await customStatement('INSERT INTO habits SELECT * FROM src.habits');
       await customStatement('INSERT INTO ticks SELECT * FROM src.ticks');
       await customStatement('INSERT INTO weigh_ins SELECT * FROM src.weigh_ins');
       await customStatement('INSERT INTO profile SELECT * FROM src.profile');
+      try {
+        await customStatement('INSERT INTO eo_ins SELECT * FROM src.eo_ins');
+        await customStatement('INSERT INTO mo_ins SELECT * FROM src.mo_ins');
+      } catch (_) {}
     } finally {
       await customStatement('DETACH DATABASE src');
     }
@@ -346,6 +403,8 @@ class AppDatabase extends _$AppDatabase {
     await delete(ticks).go();
     await delete(habits).go();
     await delete(weighIns).go();
+    await delete(eoIns).go();
+    await delete(moIns).go();
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       const ProfilesCompanion(
         sex: Value(null),
@@ -354,6 +413,7 @@ class AppDatabase extends _$AppDatabase {
         activity: Value(1.2),
         targetKg: Value(null),
         tenGoi: Value(null),
+        nhipKg: Value(0.5),
       ),
     );
   }

@@ -49,23 +49,32 @@ abstract final class Chuoi {
   static const saiSo = 'sai số ±200–400';
   static const kcalBuoi = 'Kcal buổi';
   static const phut = 'phút';
-  static const hoSoChiSo = 'Hồ sơ & chỉ số';
+  static const hoSoChiSo = 'Hồ sơ & mục tiêu';
   static const xuatBanSao = 'Xuất bản sao';
   static const khoiPhuc = 'Khôi phục';
-  static const xoaDuLieu = 'Xoá dữ liệu';
+  static const xoaDuLieu = 'Xoá hết';
+  static const nguonDisclaimer = 'Nguồn & disclaimer';
   static const phienBan = 'Phiên bản 0.1.0';
   static const haiMayLech = 'Hai máy cùng ghi sẽ lệch. Chỉ một máy ghi.';
   static const thayToanBo = 'Thay toàn bộ dữ liệu trên máy này. Không gộp.';
   static const daXuat = 'Đã xuất bản sao trên máy này.';
   static const khongCoBanSao = 'Không có bản sao.';
-  static const ghiThemCan = 'Ghi thêm cân để thấy đường';
   static const canKg = 'Cân kg';
   static const tuanNhan = 'Tuần';
-  static const itVanDong = 'Ít · 1,2';
-  static const nheVanDong = 'Nhẹ · 1,375';
-  static const vuaVanDong = 'Vừa · 1,55';
-  static const nhieuVanDong = 'Nhiều · 1,725';
-  static const ratNhieuVanDong = 'Rất nhiều · 1,9';
+  static const hienTai = 'Hiện tại';
+  static const mucTieuPhan = 'Mục tiêu';
+  static const ghiTrongNgay = 'Ghi trong ngày';
+  static const eoCm = 'Eo cm';
+  static const moPhanTram = '% mỡ';
+  static const nhipTuan = 'Nhịp kg/tuần';
+  static const nhip025 = '0,25 kg/tuần';
+  static const nhip05 = '0,5 kg/tuần';
+  static const kcalGoiY = 'Kcal/ngày gợi ý';
+  static const itVanDong = '1,2 Ít vận động — ngồi nhiều';
+  static const nheVanDong = '1,375 Nhẹ — 1–3 buổi/tuần';
+  static const vuaVanDong = '1,55 Vừa — 3–5 buổi/tuần';
+  static const nhieuVanDong = '1,725 Nhiều — 6–7 buổi hoặc kháng lực gần mỗi ngày';
+  static const ratNhieuVanDong = '1,9 Rất nặng — tập 2 buổi/ngày';
 
   static const heSoNhan = [
     itVanDong,
@@ -115,6 +124,11 @@ abstract final class Chuoi {
   static String chipCanCon(String kg, String con) => 'Cân $kg · còn $con kg';
 
   static String conToiDich(String con) => 'Còn $con kg tới đích';
+
+  static String canHienTai(String x, String y, String z) =>
+      'Cân hiện tại $x · đích $y · còn $z';
+
+  static String canHienTaiKhongDich(String x) => 'Cân hiện tại $x';
 
   static String kcalBuoiSo(String n) => 'Kcal buổi $n';
 

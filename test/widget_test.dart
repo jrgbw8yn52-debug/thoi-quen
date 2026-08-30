@@ -115,12 +115,14 @@ void main() {
     await tester.tap(find.text(Chuoi.tienDo));
     await tester.pumpAndSettle();
     expect(kho.tab, 1);
-    expect(find.text(Chuoi.ghiThemCan), findsOneWidget);
+    expect(find.text('Ghi thêm cân để thấy đường'), findsNothing);
 
     await tester.enterText(find.byType(TextField), '72,5');
     await tester.tap(find.text(Chuoi.luu));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.ghiThemCan), findsOneWidget);
+    expect(find.text('Ghi thêm cân để thấy đường'), findsNothing);
+    expect(find.textContaining('Cân hiện tại 72,5'), findsOneWidget);
+    expect(find.text('72,5'), findsWidgets);
 
     await tester.tap(find.text(Chuoi.homNay));
     await tester.pumpAndSettle();
@@ -217,19 +219,21 @@ void main() {
     await tester.tap(find.text(Chuoi.caiDat));
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.hoSoChiSo), findsOneWidget);
-    expect(find.text(Chuoi.xuatBanSao), findsOneWidget);
+    expect(find.text(Chuoi.xoaDuLieu), findsOneWidget);
+    expect(find.text(Chuoi.nguonDisclaimer), findsOneWidget);
     expect(find.text(Chuoi.phienBan), findsOneWidget);
 
     await tester.tap(find.text(Chuoi.hoSoChiSo));
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.uocTinh), findsWidgets);
     expect(find.text(Chuoi.itVanDong), findsOneWidget);
+    expect(find.text(Chuoi.nhip05), findsOneWidget);
     expect(find.text('70'), findsNothing);
     expect(find.text(Chuoi.bmi), findsNothing);
 
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(Chuoi.nguon));
+    await tester.tap(find.text(Chuoi.nguonDisclaimer));
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.mifflin), findsOneWidget);
     expect(find.text(Chuoi.whoA), findsOneWidget);

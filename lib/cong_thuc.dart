@@ -7,6 +7,22 @@ abstract final class CongThuc {
   static const mocA275 = 27.5;
 
   static const heSo = [1.2, 1.375, 1.55, 1.725, 1.9];
+  static const nhipKg = [0.25, 0.5];
+
+  static int? kcalGoiY({
+    required double? tdee,
+    required double nhip,
+    double? kg,
+    double? target,
+  }) {
+    if (tdee == null) return null;
+    final delta = nhip * 7700 / 7;
+    var v = tdee - delta;
+    if (kg != null && target != null && target - kg > 0.05) {
+      v = tdee + delta;
+    }
+    return (v / 10).round() * 10;
+  }
 
   static int? tuoi(String? dobIso, DateTime homNay) {
     if (dobIso == null || dobIso.isEmpty) return null;
@@ -60,16 +76,15 @@ abstract final class CongThuc {
     return 0.0175 * met * kg * phut;
   }
 
-  /// Một dòng nhịp 0,25–0,5 kg/tuần. Không thực đơn.
-  static String? nhip(double? kg, double? target) {
+  /// Tuần còn lại với nhịp đã chọn.
+  static String? nhipDong(double? kg, double? target, double nhip) {
     if (kg == null || target == null) return null;
     final d = (kg - target).abs();
     if (d <= 0.05) return 'Đã đạt cân đích.';
-    final nhanh = (d / 0.5).ceil();
-    final cham = (d / 0.25).ceil();
+    final tuan = (d / nhip).ceil();
     if (kg > target) {
-      return 'Khoảng $nhanh–$cham tuần nếu giảm 0,25–0,5 kg/tuần.';
+      return 'Khoảng $tuan tuần nếu giảm ${nhip == 0.25 ? '0,25' : '0,5'} kg/tuần.';
     }
-    return 'Khoảng $nhanh–$cham tuần nếu tăng 0,25–0,5 kg/tuần.';
+    return 'Khoảng $tuan tuần nếu tăng ${nhip == 0.25 ? '0,25' : '0,5'} kg/tuần.';
   }
 }

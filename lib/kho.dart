@@ -97,6 +97,11 @@ class Kho extends ChangeNotifier {
   String? dob;
   double activity = 1.2;
   String? tenGoi;
+  double nhipKg = 0.5;
+  EoIn? eoMoi;
+  MoIn? moMoi;
+  List<EoIn> dsEo = const [];
+  List<MoIn> dsMo = const [];
   bool dangTai = true;
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
@@ -181,7 +186,24 @@ class Kho extends ChangeNotifier {
 
   String? get bmiNhan => CongThuc.bmiNhan(bmiDoc);
 
-  String? get nhipDoc => CongThuc.nhip(canMoi?.kg, targetKg);
+  String? get nhipDoc => CongThuc.nhipDong(canMoi?.kg, targetKg, nhipKg);
+
+  int? get kcalGoiYDoc => CongThuc.kcalGoiY(
+        tdee: tdeeDoc,
+        nhip: nhipKg,
+        kg: canMoi?.kg,
+        target: targetKg,
+      );
+
+  String? get dongCanHienTai {
+    final c = canMoi;
+    if (c == null) return null;
+    final t = targetKg;
+    if (t == null) return Chuoi.canHienTaiKhongDich(So.kg(c.kg));
+    final z = (c.kg - t).abs();
+    if (z <= 0.05) return Chuoi.chipCanDat(So.kg(c.kg));
+    return Chuoi.canHienTai(So.kg(c.kg), So.kg(t), So.kg(z));
+  }
 
   String? get conToiDich {
     final c = canMoi;
@@ -246,8 +268,13 @@ class Kho extends ChangeNotifier {
     dob = p.dob;
     activity = p.activity;
     tenGoi = p.tenGoi;
+    nhipKg = p.nhipKg;
     dsCan = await db.dsCan();
     canMoi = dsCan.isEmpty ? null : dsCan.first;
+    dsEo = await db.dsEo();
+    eoMoi = dsEo.isEmpty ? null : dsEo.first;
+    dsMo = await db.dsMo();
+    moMoi = dsMo.isEmpty ? null : dsMo.first;
     dangTai = false;
     notifyListeners();
   }
@@ -400,6 +427,32 @@ class Kho extends ChangeNotifier {
     await db.ghiCan(d, kg);
     await tai();
     return true;
+  }
+
+  Future<bool> ghiEo(String raw, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? homNay);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    final cm = So.parseEo(raw);
+    if (cm == null) return false;
+    await db.ghiEo(d, cm);
+    await tai();
+    return true;
+  }
+
+  Future<bool> ghiMo(String raw, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? homNay);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    final pct = So.parseMo(raw);
+    if (pct == null) return false;
+    await db.ghiMo(d, pct);
+    await tai();
+    return true;
+  }
+
+  Future<void> suaNhip(double v) async {
+    if (!CongThuc.nhipKg.contains(v)) return;
+    await db.suaProfile(nhipKg: Value(v));
+    await tai();
   }
 
   Future<void> suaGioi(String v) async {

@@ -784,6 +784,16 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _nhipKgMeta = const VerificationMeta('nhipKg');
+  @override
+  late final GeneratedColumn<double> nhipKg = GeneratedColumn<double>(
+    'nhip_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.5),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -793,6 +803,7 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     activity,
     targetKg,
     tenGoi,
+    nhipKg,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -845,6 +856,12 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         tenGoi.isAcceptableOrUnknown(data['ten_goi']!, _tenGoiMeta),
       );
     }
+    if (data.containsKey('nhip_kg')) {
+      context.handle(
+        _nhipKgMeta,
+        nhipKg.isAcceptableOrUnknown(data['nhip_kg']!, _nhipKgMeta),
+      );
+    }
     return context;
   }
 
@@ -882,6 +899,10 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         DriftSqlType.string,
         data['${effectivePrefix}ten_goi'],
       ),
+      nhipKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}nhip_kg'],
+      )!,
     );
   }
 
@@ -899,6 +920,7 @@ class Profile extends DataClass implements Insertable<Profile> {
   final double activity;
   final double? targetKg;
   final String? tenGoi;
+  final double nhipKg;
   const Profile({
     required this.id,
     this.sex,
@@ -907,6 +929,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     required this.activity,
     this.targetKg,
     this.tenGoi,
+    required this.nhipKg,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -928,6 +951,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     if (!nullToAbsent || tenGoi != null) {
       map['ten_goi'] = Variable<String>(tenGoi);
     }
+    map['nhip_kg'] = Variable<double>(nhipKg);
     return map;
   }
 
@@ -946,6 +970,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       tenGoi: tenGoi == null && nullToAbsent
           ? const Value.absent()
           : Value(tenGoi),
+      nhipKg: Value(nhipKg),
     );
   }
 
@@ -962,6 +987,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       activity: serializer.fromJson<double>(json['activity']),
       targetKg: serializer.fromJson<double?>(json['targetKg']),
       tenGoi: serializer.fromJson<String?>(json['tenGoi']),
+      nhipKg: serializer.fromJson<double>(json['nhipKg']),
     );
   }
   @override
@@ -975,6 +1001,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       'activity': serializer.toJson<double>(activity),
       'targetKg': serializer.toJson<double?>(targetKg),
       'tenGoi': serializer.toJson<String?>(tenGoi),
+      'nhipKg': serializer.toJson<double>(nhipKg),
     };
   }
 
@@ -986,6 +1013,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     double? activity,
     Value<double?> targetKg = const Value.absent(),
     Value<String?> tenGoi = const Value.absent(),
+    double? nhipKg,
   }) => Profile(
     id: id ?? this.id,
     sex: sex.present ? sex.value : this.sex,
@@ -994,6 +1022,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     activity: activity ?? this.activity,
     targetKg: targetKg.present ? targetKg.value : this.targetKg,
     tenGoi: tenGoi.present ? tenGoi.value : this.tenGoi,
+    nhipKg: nhipKg ?? this.nhipKg,
   );
   Profile copyWithCompanion(ProfilesCompanion data) {
     return Profile(
@@ -1004,6 +1033,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       activity: data.activity.present ? data.activity.value : this.activity,
       targetKg: data.targetKg.present ? data.targetKg.value : this.targetKg,
       tenGoi: data.tenGoi.present ? data.tenGoi.value : this.tenGoi,
+      nhipKg: data.nhipKg.present ? data.nhipKg.value : this.nhipKg,
     );
   }
 
@@ -1016,14 +1046,15 @@ class Profile extends DataClass implements Insertable<Profile> {
           ..write('dob: $dob, ')
           ..write('activity: $activity, ')
           ..write('targetKg: $targetKg, ')
-          ..write('tenGoi: $tenGoi')
+          ..write('tenGoi: $tenGoi, ')
+          ..write('nhipKg: $nhipKg')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, sex, heightCm, dob, activity, targetKg, tenGoi);
+      Object.hash(id, sex, heightCm, dob, activity, targetKg, tenGoi, nhipKg);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1034,7 +1065,8 @@ class Profile extends DataClass implements Insertable<Profile> {
           other.dob == this.dob &&
           other.activity == this.activity &&
           other.targetKg == this.targetKg &&
-          other.tenGoi == this.tenGoi);
+          other.tenGoi == this.tenGoi &&
+          other.nhipKg == this.nhipKg);
 }
 
 class ProfilesCompanion extends UpdateCompanion<Profile> {
@@ -1045,6 +1077,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   final Value<double> activity;
   final Value<double?> targetKg;
   final Value<String?> tenGoi;
+  final Value<double> nhipKg;
   const ProfilesCompanion({
     this.id = const Value.absent(),
     this.sex = const Value.absent(),
@@ -1053,6 +1086,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     this.activity = const Value.absent(),
     this.targetKg = const Value.absent(),
     this.tenGoi = const Value.absent(),
+    this.nhipKg = const Value.absent(),
   });
   ProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -1062,6 +1096,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     this.activity = const Value.absent(),
     this.targetKg = const Value.absent(),
     this.tenGoi = const Value.absent(),
+    this.nhipKg = const Value.absent(),
   });
   static Insertable<Profile> custom({
     Expression<int>? id,
@@ -1071,6 +1106,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Expression<double>? activity,
     Expression<double>? targetKg,
     Expression<String>? tenGoi,
+    Expression<double>? nhipKg,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1080,6 +1116,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       if (activity != null) 'activity': activity,
       if (targetKg != null) 'target_kg': targetKg,
       if (tenGoi != null) 'ten_goi': tenGoi,
+      if (nhipKg != null) 'nhip_kg': nhipKg,
     });
   }
 
@@ -1091,6 +1128,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Value<double>? activity,
     Value<double?>? targetKg,
     Value<String?>? tenGoi,
+    Value<double>? nhipKg,
   }) {
     return ProfilesCompanion(
       id: id ?? this.id,
@@ -1100,6 +1138,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       activity: activity ?? this.activity,
       targetKg: targetKg ?? this.targetKg,
       tenGoi: tenGoi ?? this.tenGoi,
+      nhipKg: nhipKg ?? this.nhipKg,
     );
   }
 
@@ -1127,6 +1166,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     if (tenGoi.present) {
       map['ten_goi'] = Variable<String>(tenGoi.value);
     }
+    if (nhipKg.present) {
+      map['nhip_kg'] = Variable<double>(nhipKg.value);
+    }
     return map;
   }
 
@@ -1139,7 +1181,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
           ..write('dob: $dob, ')
           ..write('activity: $activity, ')
           ..write('targetKg: $targetKg, ')
-          ..write('tenGoi: $tenGoi')
+          ..write('tenGoi: $tenGoi, ')
+          ..write('nhipKg: $nhipKg')
           ..write(')'))
         .toString();
   }
@@ -1347,6 +1390,413 @@ class WeighInsCompanion extends UpdateCompanion<WeighIn> {
   }
 }
 
+class $EoInsTable extends EoIns with TableInfo<$EoInsTable, EoIn> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EoInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cmMeta = const VerificationMeta('cm');
+  @override
+  late final GeneratedColumn<double> cm = GeneratedColumn<double>(
+    'cm',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [ngay, cm];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'eo_ins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<EoIn> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    if (data.containsKey('cm')) {
+      context.handle(_cmMeta, cm.isAcceptableOrUnknown(data['cm']!, _cmMeta));
+    } else if (isInserting) {
+      context.missing(_cmMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ngay};
+  @override
+  EoIn map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EoIn(
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+      cm: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cm'],
+      )!,
+    );
+  }
+
+  @override
+  $EoInsTable createAlias(String alias) {
+    return $EoInsTable(attachedDatabase, alias);
+  }
+}
+
+class EoIn extends DataClass implements Insertable<EoIn> {
+  final String ngay;
+  final double cm;
+  const EoIn({required this.ngay, required this.cm});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ngay'] = Variable<String>(ngay);
+    map['cm'] = Variable<double>(cm);
+    return map;
+  }
+
+  EoInsCompanion toCompanion(bool nullToAbsent) {
+    return EoInsCompanion(ngay: Value(ngay), cm: Value(cm));
+  }
+
+  factory EoIn.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EoIn(
+      ngay: serializer.fromJson<String>(json['ngay']),
+      cm: serializer.fromJson<double>(json['cm']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ngay': serializer.toJson<String>(ngay),
+      'cm': serializer.toJson<double>(cm),
+    };
+  }
+
+  EoIn copyWith({String? ngay, double? cm}) =>
+      EoIn(ngay: ngay ?? this.ngay, cm: cm ?? this.cm);
+  EoIn copyWithCompanion(EoInsCompanion data) {
+    return EoIn(
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+      cm: data.cm.present ? data.cm.value : this.cm,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EoIn(')
+          ..write('ngay: $ngay, ')
+          ..write('cm: $cm')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ngay, cm);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EoIn && other.ngay == this.ngay && other.cm == this.cm);
+}
+
+class EoInsCompanion extends UpdateCompanion<EoIn> {
+  final Value<String> ngay;
+  final Value<double> cm;
+  final Value<int> rowid;
+  const EoInsCompanion({
+    this.ngay = const Value.absent(),
+    this.cm = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EoInsCompanion.insert({
+    required String ngay,
+    required double cm,
+    this.rowid = const Value.absent(),
+  }) : ngay = Value(ngay),
+       cm = Value(cm);
+  static Insertable<EoIn> custom({
+    Expression<String>? ngay,
+    Expression<double>? cm,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ngay != null) 'ngay': ngay,
+      if (cm != null) 'cm': cm,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EoInsCompanion copyWith({
+    Value<String>? ngay,
+    Value<double>? cm,
+    Value<int>? rowid,
+  }) {
+    return EoInsCompanion(
+      ngay: ngay ?? this.ngay,
+      cm: cm ?? this.cm,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (cm.present) {
+      map['cm'] = Variable<double>(cm.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EoInsCompanion(')
+          ..write('ngay: $ngay, ')
+          ..write('cm: $cm, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MoInsTable extends MoIns with TableInfo<$MoInsTable, MoIn> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MoInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pctMeta = const VerificationMeta('pct');
+  @override
+  late final GeneratedColumn<double> pct = GeneratedColumn<double>(
+    'pct',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [ngay, pct];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'mo_ins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MoIn> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    if (data.containsKey('pct')) {
+      context.handle(
+        _pctMeta,
+        pct.isAcceptableOrUnknown(data['pct']!, _pctMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pctMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ngay};
+  @override
+  MoIn map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MoIn(
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+      pct: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}pct'],
+      )!,
+    );
+  }
+
+  @override
+  $MoInsTable createAlias(String alias) {
+    return $MoInsTable(attachedDatabase, alias);
+  }
+}
+
+class MoIn extends DataClass implements Insertable<MoIn> {
+  final String ngay;
+  final double pct;
+  const MoIn({required this.ngay, required this.pct});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ngay'] = Variable<String>(ngay);
+    map['pct'] = Variable<double>(pct);
+    return map;
+  }
+
+  MoInsCompanion toCompanion(bool nullToAbsent) {
+    return MoInsCompanion(ngay: Value(ngay), pct: Value(pct));
+  }
+
+  factory MoIn.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MoIn(
+      ngay: serializer.fromJson<String>(json['ngay']),
+      pct: serializer.fromJson<double>(json['pct']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ngay': serializer.toJson<String>(ngay),
+      'pct': serializer.toJson<double>(pct),
+    };
+  }
+
+  MoIn copyWith({String? ngay, double? pct}) =>
+      MoIn(ngay: ngay ?? this.ngay, pct: pct ?? this.pct);
+  MoIn copyWithCompanion(MoInsCompanion data) {
+    return MoIn(
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+      pct: data.pct.present ? data.pct.value : this.pct,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MoIn(')
+          ..write('ngay: $ngay, ')
+          ..write('pct: $pct')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ngay, pct);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MoIn && other.ngay == this.ngay && other.pct == this.pct);
+}
+
+class MoInsCompanion extends UpdateCompanion<MoIn> {
+  final Value<String> ngay;
+  final Value<double> pct;
+  final Value<int> rowid;
+  const MoInsCompanion({
+    this.ngay = const Value.absent(),
+    this.pct = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MoInsCompanion.insert({
+    required String ngay,
+    required double pct,
+    this.rowid = const Value.absent(),
+  }) : ngay = Value(ngay),
+       pct = Value(pct);
+  static Insertable<MoIn> custom({
+    Expression<String>? ngay,
+    Expression<double>? pct,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ngay != null) 'ngay': ngay,
+      if (pct != null) 'pct': pct,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MoInsCompanion copyWith({
+    Value<String>? ngay,
+    Value<double>? pct,
+    Value<int>? rowid,
+  }) {
+    return MoInsCompanion(
+      ngay: ngay ?? this.ngay,
+      pct: pct ?? this.pct,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (pct.present) {
+      map['pct'] = Variable<double>(pct.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MoInsCompanion(')
+          ..write('ngay: $ngay, ')
+          ..write('pct: $pct, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1354,6 +1804,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TicksTable ticks = $TicksTable(this);
   late final $ProfilesTable profiles = $ProfilesTable(this);
   late final $WeighInsTable weighIns = $WeighInsTable(this);
+  late final $EoInsTable eoIns = $EoInsTable(this);
+  late final $MoInsTable moIns = $MoInsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1363,6 +1815,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ticks,
     profiles,
     weighIns,
+    eoIns,
+    moIns,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -1984,6 +2438,7 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<double> activity,
   Value<double?> targetKg,
   Value<String?> tenGoi,
+  Value<double> nhipKg,
 });
 typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<int> id,
@@ -1993,6 +2448,7 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<double> activity,
   Value<double?> targetKg,
   Value<String?> tenGoi,
+  Value<double> nhipKg,
 });
 
 class $$ProfilesTableFilterComposer
@@ -2036,6 +2492,11 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<String> get tenGoi => $composableBuilder(
     column: $table.tenGoi,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get nhipKg => $composableBuilder(
+    column: $table.nhipKg,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2083,6 +2544,11 @@ class $$ProfilesTableOrderingComposer
     column: $table.tenGoi,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get nhipKg => $composableBuilder(
+    column: $table.nhipKg,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProfilesTableAnnotationComposer
@@ -2114,6 +2580,9 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<String> get tenGoi =>
       $composableBuilder(column: $table.tenGoi, builder: (column) => column);
+
+  GeneratedColumn<double> get nhipKg =>
+      $composableBuilder(column: $table.nhipKg, builder: (column) => column);
 }
 
 class $$ProfilesTableTableManager
@@ -2151,6 +2620,7 @@ class $$ProfilesTableTableManager
                 Value<double> activity = const Value.absent(),
                 Value<double?> targetKg = const Value.absent(),
                 Value<String?> tenGoi = const Value.absent(),
+                Value<double> nhipKg = const Value.absent(),
               }) => ProfilesCompanion(
                 id: id,
                 sex: sex,
@@ -2159,6 +2629,7 @@ class $$ProfilesTableTableManager
                 activity: activity,
                 targetKg: targetKg,
                 tenGoi: tenGoi,
+                nhipKg: nhipKg,
               ),
           createCompanionCallback:
               ({
@@ -2169,6 +2640,7 @@ class $$ProfilesTableTableManager
                 Value<double> activity = const Value.absent(),
                 Value<double?> targetKg = const Value.absent(),
                 Value<String?> tenGoi = const Value.absent(),
+                Value<double> nhipKg = const Value.absent(),
               }) => ProfilesCompanion.insert(
                 id: id,
                 sex: sex,
@@ -2177,6 +2649,7 @@ class $$ProfilesTableTableManager
                 activity: activity,
                 targetKg: targetKg,
                 tenGoi: tenGoi,
+                nhipKg: nhipKg,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -2325,6 +2798,254 @@ typedef $$WeighInsTableProcessedTableManager =
       WeighIn,
       PrefetchHooks Function()
     >;
+typedef $$EoInsTableCreateCompanionBuilder = EoInsCompanion Function({
+  required String ngay,
+  required double cm,
+  Value<int> rowid,
+});
+typedef $$EoInsTableUpdateCompanionBuilder = EoInsCompanion Function({
+  Value<String> ngay,
+  Value<double> cm,
+  Value<int> rowid,
+});
+
+class $$EoInsTableFilterComposer extends Composer<_$AppDatabase, $EoInsTable> {
+  $$EoInsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get cm => $composableBuilder(
+    column: $table.cm,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$EoInsTableOrderingComposer
+    extends Composer<_$AppDatabase, $EoInsTable> {
+  $$EoInsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get cm => $composableBuilder(
+    column: $table.cm,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$EoInsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EoInsTable> {
+  $$EoInsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  GeneratedColumn<double> get cm =>
+      $composableBuilder(column: $table.cm, builder: (column) => column);
+}
+
+class $$EoInsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $EoInsTable,
+          EoIn,
+          $$EoInsTableFilterComposer,
+          $$EoInsTableOrderingComposer,
+          $$EoInsTableAnnotationComposer,
+          $$EoInsTableCreateCompanionBuilder,
+          $$EoInsTableUpdateCompanionBuilder,
+          (EoIn, BaseReferences<_$AppDatabase, $EoInsTable, EoIn>),
+          EoIn,
+          PrefetchHooks Function()
+        > {
+  $$EoInsTableTableManager(_$AppDatabase db, $EoInsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EoInsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EoInsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EoInsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ngay = const Value.absent(),
+            Value<double> cm = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) => EoInsCompanion(ngay: ngay, cm: cm, rowid: rowid),
+          createCompanionCallback: ({
+            required String ngay,
+            required double cm,
+            Value<int> rowid = const Value.absent(),
+          }) => EoInsCompanion.insert(ngay: ngay, cm: cm, rowid: rowid),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$EoInsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $EoInsTable,
+      EoIn,
+      $$EoInsTableFilterComposer,
+      $$EoInsTableOrderingComposer,
+      $$EoInsTableAnnotationComposer,
+      $$EoInsTableCreateCompanionBuilder,
+      $$EoInsTableUpdateCompanionBuilder,
+      (EoIn, BaseReferences<_$AppDatabase, $EoInsTable, EoIn>),
+      EoIn,
+      PrefetchHooks Function()
+    >;
+typedef $$MoInsTableCreateCompanionBuilder = MoInsCompanion Function({
+  required String ngay,
+  required double pct,
+  Value<int> rowid,
+});
+typedef $$MoInsTableUpdateCompanionBuilder = MoInsCompanion Function({
+  Value<String> ngay,
+  Value<double> pct,
+  Value<int> rowid,
+});
+
+class $$MoInsTableFilterComposer extends Composer<_$AppDatabase, $MoInsTable> {
+  $$MoInsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get pct => $composableBuilder(
+    column: $table.pct,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MoInsTableOrderingComposer
+    extends Composer<_$AppDatabase, $MoInsTable> {
+  $$MoInsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get pct => $composableBuilder(
+    column: $table.pct,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MoInsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MoInsTable> {
+  $$MoInsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  GeneratedColumn<double> get pct =>
+      $composableBuilder(column: $table.pct, builder: (column) => column);
+}
+
+class $$MoInsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MoInsTable,
+          MoIn,
+          $$MoInsTableFilterComposer,
+          $$MoInsTableOrderingComposer,
+          $$MoInsTableAnnotationComposer,
+          $$MoInsTableCreateCompanionBuilder,
+          $$MoInsTableUpdateCompanionBuilder,
+          (MoIn, BaseReferences<_$AppDatabase, $MoInsTable, MoIn>),
+          MoIn,
+          PrefetchHooks Function()
+        > {
+  $$MoInsTableTableManager(_$AppDatabase db, $MoInsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MoInsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MoInsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MoInsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ngay = const Value.absent(),
+            Value<double> pct = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) => MoInsCompanion(ngay: ngay, pct: pct, rowid: rowid),
+          createCompanionCallback: ({
+            required String ngay,
+            required double pct,
+            Value<int> rowid = const Value.absent(),
+          }) => MoInsCompanion.insert(ngay: ngay, pct: pct, rowid: rowid),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MoInsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MoInsTable,
+      MoIn,
+      $$MoInsTableFilterComposer,
+      $$MoInsTableOrderingComposer,
+      $$MoInsTableAnnotationComposer,
+      $$MoInsTableCreateCompanionBuilder,
+      $$MoInsTableUpdateCompanionBuilder,
+      (MoIn, BaseReferences<_$AppDatabase, $MoInsTable, MoIn>),
+      MoIn,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2337,4 +3058,8 @@ class $AppDatabaseManager {
       $$ProfilesTableTableManager(_db, _db.profiles);
   $$WeighInsTableTableManager get weighIns =>
       $$WeighInsTableTableManager(_db, _db.weighIns);
+  $$EoInsTableTableManager get eoIns =>
+      $$EoInsTableTableManager(_db, _db.eoIns);
+  $$MoInsTableTableManager get moIns =>
+      $$MoInsTableTableManager(_db, _db.moIns);
 }

@@ -79,7 +79,7 @@ Một hàng `id = 1`.
 - target_kg REAL NULL
 - ten_goi TEXT NULL
 
-`schemaVersion` = 2. Cột `ten_goi` thêm bằng migration.
+`schemaVersion` = 3. `ten_goi` (v2), `nhip_kg` + `eo_ins` + `mo_ins` (v3).
 
 Không cột bmr / tdee / bmi / kcal.
 
@@ -126,13 +126,13 @@ Tab: **Hôm nay | Tiến độ | Cài đặt**. Không tab Cơ thể. Không clo
 1. Ngày đang xem: % hoàn thành + `n/m`. Vòng.
 2. Tuần chứa ngày đó: 7 cột % T2→CN. Tap cột → `selectedDate`.
 3. Tháng chứa ngày đó: một hàng cột % theo ngày (không lưới habit×31). Tap cột → `selectedDate`.
-4. Cân: sparkline + vạch đích. Ô Cân kg + Lưu (không xóa ô). <2 mốc: `Ghi thêm cân để thấy đường`.
+4. Cân: 1 mốc = chấm. ≥2 = sparkline + vạch đích. Cấm câu «Ghi thêm cân để thấy đường» khi ≥1 mốc. Ô không xóa. Dưới ô: `Cân hiện tại x · đích y · còn z`.
 Ngày >7 ngày trước: chỉ xem, không tick, không ghi cân mới.
 
 **Cài đặt**
 - `Dữ liệu chỉ trên máy này.` + `Hai máy cùng ghi sẽ lệch. Chỉ một máy ghi.`
-- Hồ sơ & chỉ số: form + BMI/BMR/TDEE cuối trang. Lưu cân không xóa ô. Nhãn hoạt động Việt.
-- Xuất bản sao (`VACUUM INTO`) / Khôi phục (thay toàn bộ, không gộp) / Xoá dữ liệu / Nguồn / Phiên bản 0.1.0.
+- Hồ sơ & mục tiêu: hiện tại / mục tiêu (cân đích + nhịp 0,25|0,5 mặc định 0,5) / ghi trong ngày (cân, eo tuỳ, % mỡ tuỳ, ô không xóa). BMI/BMR/TDEE/kcal gợi ý cuối trang.
+- Xuất bản sao / Khôi phục (thay toàn bộ, không gộp) / Xoá hết / Nguồn & disclaimer / Phiên bản 0.1.0.
 
 BMI mốc Á: <18,5 thiếu · 18,5–22,9 bình thường · 23–27,4 thừa · ≥27,5 béo.
 BMR Mifflin 1990 lúc đọc. TDEE = BMR × hệ số, không persist.

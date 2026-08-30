@@ -10,7 +10,6 @@ class DuongCan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (diem.length < 2 && dich == null) return const SizedBox.shrink();
     if (diem.isEmpty) return const SizedBox.shrink();
     return SizedBox(
       height: 56,
@@ -79,6 +78,17 @@ class _VeDuong extends CustomPainter {
       }
     }
     canvas.drawPath(path, paint);
+    final cham = Paint()
+      ..color = Mau.reu
+      ..style = PaintingStyle.fill;
+    if (diem.length == 1) {
+      canvas.drawCircle(Offset(size.width / 2, yOf(diem.first)), 5, cham);
+    } else {
+      for (var i = 0; i < diem.length; i++) {
+        final x = size.width * i / (diem.length - 1);
+        canvas.drawCircle(Offset(x, yOf(diem[i])), 3, cham);
+      }
+    }
   }
 
   @override
