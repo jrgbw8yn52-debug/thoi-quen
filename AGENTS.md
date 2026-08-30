@@ -7,7 +7,7 @@ Không IndexedDB. Không account. Không iCloud/Drive làm nguồn.
 
 Sandbox / mạng / AI / preview web: **tắt** trừ khi người dùng hỏi.
 
-Cổng hiện tại: **2 xong — dừng**. Không làm cổng 3 cho đến khi được bảo chạy tiếp.
+Cổng hiện tại: **3 xong**. Không làm cổng 4 cho đến khi được bảo chạy tiếp.
 
 ---
 
@@ -91,17 +91,20 @@ Không bảng foods. Không macro.
 - Chip đầu trang: chưa cân → `Thêm cân`. Có cân + đích → `Cân kg · còn x kg` (còn = cân − đích, giả định giảm). Có cân chưa đích → `Cân kg`. Tap mở tab Cơ thể. Không hiện kcal thừa/thiếu trên Home.
 - Tối đa 8 habit.
 - First-run (0 habit): chip `Dậy 6 giờ` / `Vận động` / `Đọc 20 trang` + `Tự đặt tên`. Không carousel. Không seed rượu/porn. Không tự insert trước khi tap.
+- Một tên = một hàng. Chip đã chọn không tạo thêm. Tap liên tiếp không nhân bản. `gopTenTrung()` lúc mở DB.
+- Tick: UI đổi ngay, ghi Drift sau (hàng đợi theo habit+ngày).
 - `Vận động`: met = 5.5 (Compendium, health club exercise general), phút mặc định 30. Tick Home ghi 30 vào ticks.phut.
 
-### 2) Thêm thói quen — cổng 3, chưa làm
-Một màn. Tên. Stepper mục tiêu tháng, mặc định 25 (`25 ngày trong tháng này`). Lưu / Huỷ.
-Habit vận động: MET + phút mặc định.
+### 2) Thêm thói quen — cổng 3
+Một màn. Tên. Stepper mục tiêu tháng, mặc định 25 (`N ngày trong tháng này`). Lưu / Huỷ.
+Trùng tên → không lưu, hiện `Đã có thói quen này.`
+Habit vận động: MET + phút mặc định (cổng 5 hiện kcal).
 
-### 3) Một habit — cổng 3, chưa làm
+### 3) Một habit — cổng 3
 Dải 28–31 ngày của tháng đang xem (chỉ màn này, không đưa lên Home).
-`Chuỗi n ngày`. `Còn k ngày nữa là đạt N`.
+`Chuỗi n ngày`. `Còn k ngày nữa là đạt N` (k=0 → `Đã đạt N`).
 Sửa / Xoá. Confirm xoá đúng câu: `Xoá khỏi máy này? Không lấy lại được.`
-Nếu có MET: hiện kcal buổi (tính lúc đọc).
+Nếu có MET: hiện kcal buổi (tính lúc đọc) — cổng 5.
 
 ### 4) Cơ thể — cổng 4, chưa đủ
 Cổng 2 chỉ: nhập cân hôm nay + danh sách cân, để chip Home có đường đi.
@@ -136,13 +139,13 @@ Thêm: `Hai máy cùng ghi sẽ lệch. Chỉ một máy ghi.`
 ## Thứ tự cổng
 
 1. Drift + 4 bảng + schemaVersion.
-2. First-run chips + Home tick + 7 chấm + chip cân. **← đang dừng ở đây**
-3. Thêm habit (N mặc định 25) + màn một habit (dải tháng + chuỗi + xoá).
+2. First-run chips + Home tick + 7 chấm + chip cân.
+3. Thêm habit (N mặc định 25) + màn một habit (dải tháng + chuỗi + xoá). **← đang dừng ở đây**
 4. Cơ thể + sparkline + công thức lúc đọc + disclaimer + nguồn.
 5. MET/phút trên habit vận động + kcal lúc đọc.
 6. Xuất VACUUM INTO / khôi phục thay toàn bộ. Round-trip một máy.
 
-Dừng sau cổng 2 để chạy tay trước khi làm cổng 3.
+Dừng sau cổng 3 để chạy tay trước khi làm cổng 4.
 
 ---
 
@@ -170,5 +173,8 @@ Sau khi sửa bảng: bump `schemaVersion`, viết `onUpgrade`, chạy lại bui
 - `lib/man/hom_nay.dart` — Home.
 - `lib/man/co_the.dart` — Cơ thể (mỏng ở cổng 2).
 - `lib/man/cai_dat.dart` — Cài đặt (mỏng ở cổng 2).
+- `lib/ten.dart` — chuẩn hoá tên, một tên = một hàng.
+- `lib/man/them_habit.dart` — thêm / sửa, stepper N.
+- `lib/man/mot_habit.dart` — dải tháng, chuỗi, xoá.
 
 Test không được bịa số. Test UI không được chứa chuỗi cấm.

@@ -6,10 +6,16 @@ import '../kho.dart';
 import '../mau.dart';
 
 class HangHabit extends StatelessWidget {
-  const HangHabit({super.key, required this.hang, required this.onTap});
+  const HangHabit({
+    super.key,
+    required this.hang,
+    required this.onTap,
+    required this.onChiTiet,
+  });
 
   final HangHabitView hang;
   final VoidCallback onTap;
+  final VoidCallback onChiTiet;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +29,7 @@ class HangHabit extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 56),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.only(left: 16),
             child: Row(
               children: [
                 _NutTick(bat: hang.ticked),
@@ -39,13 +45,24 @@ class HangHabit extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Text(
                   Chuoi.xTrenNThangNay(hang.xThang, hang.habit.mucTieuThang),
                   style: const TextStyle(
                     fontSize: 13,
                     height: 1.2,
                     color: Mau.mo,
+                  ),
+                ),
+                SizedBox(
+                  width: 44,
+                  height: 56,
+                  child: IconButton(
+                    key: Key('chi-tiet-${hang.habit.id}'),
+                    padding: EdgeInsets.zero,
+                    tooltip: Chuoi.thoiQuen,
+                    onPressed: onChiTiet,
+                    icon: const Icon(Icons.chevron_right, color: Mau.mo),
                   ),
                 ),
               ],

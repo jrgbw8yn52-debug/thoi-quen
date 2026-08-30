@@ -28,6 +28,16 @@ void main() {
     await db.close();
   });
 
+  test('themPreset song song mot ten mot hang', () async {
+    final r = await Future.wait([
+      kho.themPreset(ten: Chuoi.day6Gio),
+      kho.themPreset(ten: Chuoi.day6Gio),
+      kho.themPreset(ten: Chuoi.day6Gio),
+    ]);
+    expect(r.where((x) => x).length, 1);
+    expect(kho.hang.length, 1);
+  });
+
   testWidgets('first-run + tick hang + hoan tac', (tester) async {
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
@@ -51,6 +61,27 @@ void main() {
     await tester.tap(find.text(Chuoi.day6Gio));
     await tester.pumpAndSettle();
     expect(find.text('0/1 hôm nay'), findsOneWidget);
+  });
+
+  testWidgets('chip tap lien tiep khong nhan ban ten', (tester) async {
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.day6Gio));
+    await tester.tap(find.text(Chuoi.day6Gio));
+    await tester.tap(find.text(Chuoi.day6Gio));
+    await tester.pumpAndSettle();
+    expect(kho.hang.length, 1);
+    expect(kho.hang.single.habit.ten, Chuoi.day6Gio);
+  });
+
+  testWidgets('tick doi UI ngay', (tester) async {
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    expect(kho.hang.single.ticked, isFalse);
+    final fut = kho.toggle(kho.hang.single);
+    expect(kho.hang.single.ticked, isTrue);
+    await fut;
   });
 
   testWidgets('chip can mo tab Co the, ghi can cap nhat chip', (tester) async {
@@ -79,5 +110,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Thứ Hai, 24 tháng 8'), findsOneWidget);
     expect(find.text('0/1 ngày 24/8'), findsOneWidget);
+  });
+
+  testWidgets('mo mot habit: chuoi, xoa dung cau khoa', (tester) async {
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(Key('chi-tiet-${kho.hang.single.habit.id}')));
+    await tester.pumpAndSettle();
+    expect(find.text('Chuỗi 0 ngày'), findsOneWidget);
+    expect(find.text('Còn 25 ngày nữa là đạt 25'), findsOneWidget);
+
+    await tester.tap(find.text(Chuoi.xoa));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.xoaKhoiMay), findsOneWidget);
+    await tester.tap(find.text(Chuoi.huy));
+    await tester.pumpAndSettle();
+    expect(kho.hang.length, 1);
   });
 }

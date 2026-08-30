@@ -90,6 +90,35 @@ void main() {
     expect(await db.soHabit(), 8);
   });
 
+  test('khong trung ten', () async {
+    expect(await db.themHabit(ten: 'Dậy 6 giờ'), isNotNull);
+    expect(await db.themHabit(ten: ' dậy 6 giờ '), isNull);
+    expect(await db.soHabit(), 1);
+  });
+
+  test('gop ten trung giu hang cu, gop tick', () async {
+    final a = await db.themHabit(ten: 'A');
+    await db.into(db.habits).insert(
+          HabitsCompanion.insert(
+            ten: 'A',
+            taoLuc: DateTime.now(),
+          ),
+        );
+    expect(await db.soHabit(), 2);
+    final ids = (await db.dsHabit()).map((h) => h.id).toList();
+    final drop = ids.firstWhere((id) => id != a);
+    await db.into(db.ticks).insert(
+          TicksCompanion.insert(habitId: a!, ngay: '2026-08-30'),
+        );
+    await db.into(db.ticks).insert(
+          TicksCompanion.insert(habitId: drop, ngay: '2026-08-29'),
+        );
+    await db.gopTenTrung();
+    expect(await db.soHabit(), 1);
+    final ticks = await db.ticksCuaHabit(a);
+    expect(ticks.map((t) => t.ngay).toSet(), {'2026-08-29', '2026-08-30'});
+  });
+
   test('khong bia 70 kg khi thieu can', () async {
     expect(await db.canMoiNhat(), isNull);
   });

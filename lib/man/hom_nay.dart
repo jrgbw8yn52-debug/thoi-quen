@@ -6,11 +6,29 @@ import '../mau.dart';
 import '../widget/chip_can.dart';
 import '../widget/dai_tuan.dart';
 import '../widget/hang_habit.dart';
+import 'mot_habit.dart';
+import 'them_habit.dart';
 
 class ManHomNay extends StatelessWidget {
   const ManHomNay({super.key, required this.kho});
 
   final Kho kho;
+
+  void _moThem(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ManThemHabit(kho: kho),
+      ),
+    );
+  }
+
+  void _moMot(BuildContext context, int id) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ManMotHabit(kho: kho, habitId: id),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,16 +64,26 @@ class ManHomNay extends StatelessWidget {
           DaiTuan(tuan: kho.tuan, onChon: kho.chonNgay),
           Expanded(
             child: kho.rong
-                ? _FirstRun(kho: kho)
+                ? _FirstRun(
+                    kho: kho,
+                    onTuDatTen: () => _moThem(context),
+                  )
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-                    itemCount: kho.hang.length,
+                    itemCount: kho.hang.length + (kho.themDuoc ? 1 : 0),
                     separatorBuilder: (_, _) => const SizedBox(height: 6),
                     itemBuilder: (context, i) {
+                      if (i == kho.hang.length) {
+                        return _NutThem(onTap: () => _moThem(context));
+                      }
                       final h = kho.hang[i];
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(14),
-                        child: HangHabit(hang: h, onTap: () => kho.toggle(h)),
+                        child: HangHabit(
+                          hang: h,
+                          onTap: () => kho.toggle(h),
+                          onChiTiet: () => _moMot(context, h.habit.id),
+                        ),
                       );
                     },
                   ),
@@ -66,10 +94,41 @@ class ManHomNay extends StatelessWidget {
   }
 }
 
+class _NutThem extends StatelessWidget {
+  const _NutThem({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Center(
+            child: Text(
+              Chuoi.themThoiQuen,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Mau.reu,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _FirstRun extends StatelessWidget {
-  const _FirstRun({required this.kho});
+  const _FirstRun({required this.kho, required this.onTuDatTen});
 
   final Kho kho;
+  final VoidCallback onTuDatTen;
 
   @override
   Widget build(BuildContext context) {
@@ -91,19 +150,19 @@ class _FirstRun extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _ChipThem(
-                chu: Chuoi.day6Gio,
-                onTap: () => kho.themPreset(ten: Chuoi.day6Gio),
-              ),
-              _ChipThem(chu: Chuoi.vanDong, onTap: kho.themVanDong),
-              _ChipThem(
-                chu: Chuoi.doc20Trang,
-                onTap: () => kho.themPreset(ten: Chuoi.doc20Trang),
-              ),
-              _ChipThem(
-                chu: Chuoi.tuDatTen,
-                onTap: () => _moDatTen(context, kho),
-              ),
+              if (!kho.daCoTen(Chuoi.day6Gio))
+                _ChipThem(
+                  chu: Chuoi.day6Gio,
+                  onTap: () => kho.themPreset(ten: Chuoi.day6Gio),
+                ),
+              if (!kho.daCoTen(Chuoi.vanDong))
+                _ChipThem(chu: Chuoi.vanDong, onTap: kho.themVanDong),
+              if (!kho.daCoTen(Chuoi.doc20Trang))
+                _ChipThem(
+                  chu: Chuoi.doc20Trang,
+                  onTap: () => kho.themPreset(ten: Chuoi.doc20Trang),
+                ),
+              _ChipThem(chu: Chuoi.tuDatTen, onTap: onTuDatTen),
             ],
           ),
         ],
@@ -143,70 +202,4 @@ class _ChipThem extends StatelessWidget {
       ),
     );
   }
-}
-
-Future<void> _moDatTen(BuildContext context, Kho kho) async {
-  final ctrl = TextEditingController();
-  final ten = await showModalBottomSheet<String>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Mau.beMat,
-    builder: (ctx) {
-      return Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.viewInsetsOf(ctx).bottom + 20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              Chuoi.tuDatTen,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Mau.muc,
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              Chuoi.haiLamNamNgay,
-              style: TextStyle(fontSize: 13, color: Mau.mo),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: ctrl,
-              autofocus: true,
-              maxLength: 40,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText: Chuoi.tenThoiQuen,
-                counterText: '',
-              ),
-              onSubmitted: (v) => Navigator.pop(ctx, v),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text(Chuoi.huy),
-                ),
-                const Spacer(),
-                FilledButton(
-                  onPressed: () => Navigator.pop(ctx, ctrl.text),
-                  child: const Text(Chuoi.luu),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    },
-  );
-  ctrl.dispose();
-  if (ten != null) await kho.themPreset(ten: ten);
 }

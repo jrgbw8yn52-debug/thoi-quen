@@ -4,6 +4,7 @@ import 'chuoi.dart';
 import 'db/database.dart';
 import 'ngay.dart';
 import 'so.dart';
+import 'ten.dart';
 
 class HangHabitView {
   const HangHabitView({
@@ -15,6 +16,14 @@ class HangHabitView {
   final Habit habit;
   final bool ticked;
   final int xThang;
+
+  HangHabitView copyWith({bool? ticked, int? xThang, Habit? habit}) {
+    return HangHabitView(
+      habit: habit ?? this.habit,
+      ticked: ticked ?? this.ticked,
+      xThang: xThang ?? this.xThang,
+    );
+  }
 }
 
 class ChamTuan {
@@ -33,6 +42,17 @@ class ChamTuan {
   final bool laHomNay;
   final bool tuongLai;
   final bool dangXem;
+
+  ChamTuan copyWith({int? tick, int? tong, bool? dangXem}) {
+    return ChamTuan(
+      ngay: ngay,
+      tick: tick ?? this.tick,
+      tong: tong ?? this.tong,
+      laHomNay: laHomNay,
+      tuongLai: tuongLai,
+      dangXem: dangXem ?? this.dangXem,
+    );
+  }
 }
 
 class Kho extends ChangeNotifier {
@@ -52,10 +72,17 @@ class Kho extends ChangeNotifier {
   double? targetKg;
   bool dangTai = true;
 
+  /// iso yyyy-MM-dd đã tick, theo habitId.
+  Map<int, Set<String>> ticksIso = {};
+
+  final Set<String> _dangThem = {};
+  final Map<String, Future<void>> _ghiTick = {};
+
   int get nTick => hang.where((h) => h.ticked).length;
   int get mHabit => hang.length;
   bool get rong => hang.isEmpty;
   bool get xemHomNay => Ngay.cungNgay(selected, homNay);
+  bool get themDuoc => hang.length < AppDatabase.maxHabit;
 
   String get dongNgay => Chuoi.dongNgay(selected);
 
@@ -75,35 +102,50 @@ class Kho extends ChangeNotifier {
     return Chuoi.chipCanCon(kg, So.kg(con));
   }
 
+  bool daCoTen(String ten) {
+    final k = Ten.khoa(ten);
+    if (k.isEmpty) return false;
+    if (_dangThem.contains(k)) return true;
+    return hang.any((h) => Ten.trung(h.habit.ten, ten));
+  }
+
+  Set<String> ticksCua(int habitId) => ticksIso[habitId] ?? {};
+
+  int chuoiCua(int habitId) =>
+      Ngay.chuoiLienTiep(ticksCua(habitId), homNay);
+
+  int xThangCua(int habitId, DateTime thang) {
+    final prefix = Ngay.prefixThang(thang);
+    return ticksCua(habitId).where((s) => s.startsWith(prefix)).length;
+  }
+
   Future<void> tai() async {
     final habits = await db.dsHabit();
-    final ticksNgay = await db.ticksNgay(selected);
-    final ticked = {for (final t in ticksNgay) t.habitId};
-    final thang = await db.ticksThang(selected);
-    final theoHabit = <int, int>{};
-    for (final t in thang) {
-      theoHabit[t.habitId] = (theoHabit[t.habitId] ?? 0) + 1;
+    final allTicks = await db.dsTick();
+    ticksIso = {};
+    for (final t in allTicks) {
+      ticksIso.putIfAbsent(t.habitId, () => <String>{}).add(t.ngay);
     }
+    final isoSel = Ngay.iso(selected);
+    final prefix = Ngay.prefixThang(selected);
     hang = [
       for (final h in habits)
         HangHabitView(
           habit: h,
-          ticked: ticked.contains(h.id),
-          xThang: theoHabit[h.id] ?? 0,
+          ticked: ticksIso[h.id]?.contains(isoSel) ?? false,
+          xThang: ticksIso[h.id]
+                  ?.where((s) => s.startsWith(prefix))
+                  .length ??
+              0,
         ),
     ];
 
     final cacNgay = Ngay.tuan(homNay);
-    final ticksTuan = await db.ticksKhoang(cacNgay.first, cacNgay.last);
-    final demNgay = <String, int>{};
-    for (final t in ticksTuan) {
-      demNgay[t.ngay] = (demNgay[t.ngay] ?? 0) + 1;
-    }
     tuan = [
       for (final d in cacNgay)
         ChamTuan(
           ngay: d,
-          tick: demNgay[Ngay.iso(d)] ?? 0,
+          tick: hang.where((h) => ticksCua(h.habit.id).contains(Ngay.iso(d))).length,
           tong: habits.length,
           laHomNay: Ngay.cungNgay(d, homNay),
           tuongLai: Ngay.sau(d, homNay),
@@ -122,22 +164,89 @@ class Kho extends ChangeNotifier {
   Future<void> chonNgay(DateTime d) async {
     if (Ngay.sau(d, homNay)) return;
     selected = Ngay.cat(d);
-    await tai();
+    final isoSel = Ngay.iso(selected);
+    hang = [
+      for (final h in hang)
+        h.copyWith(ticked: ticksCua(h.habit.id).contains(isoSel)),
+    ];
+    tuan = [
+      for (final c in tuan) c.copyWith(dangXem: Ngay.cungNgay(c.ngay, selected)),
+    ];
+    notifyListeners();
   }
 
-  Future<void> toggle(HangHabitView h) async {
-    await db.toggleTick(h.habit, selected);
-    await tai();
+  /// UI đổi ngay, ghi Drift sau. Ghi tuần tự theo (habit, ngày).
+  Future<void> toggle(HangHabitView h) => toggleNgay(h.habit, selected);
+
+  Future<void> toggleNgay(Habit habit, DateTime ngay) {
+    if (Ngay.sau(ngay, homNay)) return Future.value();
+    final iso = Ngay.iso(ngay);
+    final set = ticksIso.putIfAbsent(habit.id, () => <String>{});
+    final bat = !set.contains(iso);
+    if (bat) {
+      set.add(iso);
+    } else {
+      set.remove(iso);
+    }
+    _apDungLenHang(habit.id);
+    notifyListeners();
+
+    final khoa = '${habit.id}-$iso';
+    final viec = (_ghiTick[khoa] ?? Future.value()).then((_) {
+      return db.toggleTick(habit, ngay);
+    });
+    _ghiTick[khoa] = viec;
+    return viec;
+  }
+
+  void _apDungLenHang(int habitId) {
+    final isoSel = Ngay.iso(selected);
+    final prefix = Ngay.prefixThang(selected);
+    hang = [
+      for (final h in hang)
+        if (h.habit.id == habitId)
+          h.copyWith(
+            ticked: ticksCua(habitId).contains(isoSel),
+            xThang: ticksCua(habitId).where((s) => s.startsWith(prefix)).length,
+          )
+        else
+          h,
+    ];
+    tuan = [
+      for (final c in tuan)
+        c.copyWith(
+          tick: hang
+              .where((h) => ticksCua(h.habit.id).contains(Ngay.iso(c.ngay)))
+              .length,
+          tong: hang.length,
+        ),
+    ];
   }
 
   Future<bool> themPreset({
     required String ten,
+    int mucTieuThang = 25,
     double? met,
     int? phutMacDinh,
   }) async {
-    final id = await db.themHabit(ten: ten, met: met, phutMacDinh: phutMacDinh);
-    await tai();
-    return id != null;
+    final khoa = Ten.khoa(ten);
+    if (khoa.isEmpty) return false;
+    if (_dangThem.contains(khoa) || daCoTen(ten) || !themDuoc) return false;
+    _dangThem.add(khoa);
+    notifyListeners();
+    try {
+      final id = await db.themHabit(
+        ten: ten,
+        mucTieuThang: mucTieuThang,
+        met: met,
+        phutMacDinh: phutMacDinh,
+      );
+      await tai();
+      return id != null;
+    } finally {
+      _dangThem.remove(khoa);
+      notifyListeners();
+    }
   }
 
   Future<bool> themVanDong() {
@@ -146,6 +255,22 @@ class Kho extends ChangeNotifier {
       met: AppDatabase.metVanDong,
       phutMacDinh: AppDatabase.phutVanDong,
     );
+  }
+
+  Future<bool> suaHabit({
+    required int id,
+    required String ten,
+    required int mucTieuThang,
+  }) async {
+    final ok = await db.suaHabit(id: id, ten: ten, mucTieuThang: mucTieuThang);
+    if (ok) await tai();
+    return ok;
+  }
+
+  Future<void> xoaHabit(int id) async {
+    await db.xoaHabit(id);
+    ticksIso.remove(id);
+    await tai();
   }
 
   void moCoThe() {

@@ -3,6 +3,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../ngay.dart';
+import '../ten.dart';
 
 part 'database.g.dart';
 
@@ -92,6 +93,7 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (m, from, to) async {},
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
+          await gopTenTrung();
         },
       );
 
@@ -115,21 +117,74 @@ class AppDatabase extends _$AppDatabase {
     double? met,
     int? phutMacDinh,
   }) async {
-    final n = await soHabit();
-    if (n >= maxHabit) return null;
-    final tenSach = ten.trim();
+    final tenSach = Ten.sach(ten);
     if (tenSach.isEmpty) return null;
+    final ds = await dsHabit();
+    if (ds.length >= maxHabit) return null;
+    if (ds.any((h) => Ten.trung(h.ten, tenSach))) return null;
     return into(habits).insert(
       HabitsCompanion.insert(
         ten: tenSach,
         mucTieuThang: Value(mucTieuThang),
         met: Value(met),
         phutMacDinh: Value(phutMacDinh),
-        thuTu: Value(n),
+        thuTu: Value(ds.length),
         taoLuc: DateTime.now(),
       ),
     );
   }
+
+  Future<bool> suaHabit({
+    required int id,
+    required String ten,
+    required int mucTieuThang,
+  }) async {
+    final tenSach = Ten.sach(ten);
+    if (tenSach.isEmpty) return false;
+    if (mucTieuThang < 1 || mucTieuThang > 31) return false;
+    final ds = await dsHabit();
+    if (ds.any((h) => h.id != id && Ten.trung(h.ten, tenSach))) return false;
+    final n = await (update(habits)..where((h) => h.id.equals(id))).write(
+      HabitsCompanion(
+        ten: Value(tenSach),
+        mucTieuThang: Value(mucTieuThang),
+      ),
+    );
+    return n > 0;
+  }
+
+  Future<void> xoaHabit(int id) async {
+    await (delete(habits)..where((h) => h.id.equals(id))).go();
+  }
+
+  Future<void> gopTenTrung() async {
+    final ds = await dsHabit();
+    final giu = <String, Habit>{};
+    for (final h in ds) {
+      final k = Ten.khoa(h.ten);
+      final cu = giu[k];
+      if (cu == null) {
+        giu[k] = h;
+        continue;
+      }
+      final keep = cu.id <= h.id ? cu : h;
+      final drop = cu.id <= h.id ? h : cu;
+      await customStatement(
+        'INSERT OR IGNORE INTO ticks (habit_id, ngay, phut) '
+        'SELECT ?, ngay, phut FROM ticks WHERE habit_id = ?',
+        [keep.id, drop.id],
+      );
+      await (delete(ticks)..where((t) => t.habitId.equals(drop.id))).go();
+      await (delete(habits)..where((x) => x.id.equals(drop.id))).go();
+      giu[k] = keep;
+    }
+  }
+
+  Future<List<Tick>> ticksCuaHabit(int habitId) {
+    return (select(ticks)..where((t) => t.habitId.equals(habitId))).get();
+  }
+
+  Future<List<Tick>> dsTick() => select(ticks).get();
 
   Future<void> toggleTick(Habit habit, DateTime ngay) async {
     final iso = Ngay.iso(ngay);

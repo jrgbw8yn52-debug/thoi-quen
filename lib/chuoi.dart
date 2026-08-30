@@ -24,6 +24,11 @@ abstract final class Chuoi {
   static const kg = 'kg';
   static const thieuDuLieu = 'Thiếu dữ liệu';
   static const chuaCoCan = 'Chưa có lần cân.';
+  static const themThoiQuen = 'Thêm thói quen';
+  static const sua = 'Sửa';
+  static const xoa = 'Xoá';
+  static const daCoThoiQuen = 'Đã có thói quen này.';
+  static const xoaKhoiMay = 'Xoá khỏi máy này? Không lấy lại được.';
   static const t2 = 'T2';
   static const t3 = 'T3';
   static const t4 = 'T4';
@@ -60,4 +65,15 @@ abstract final class Chuoi {
   static String chipCanCon(String kg, String con) => 'Cân $kg · còn $con kg';
 
   static String chipCanDat(String kg) => 'Cân $kg · $datMucTieu';
+
+  static String nNgayTrongThang(int n) => '$n ngày trong tháng này';
+
+  static String chuoiNNgay(int n) => 'Chuỗi $n ngày';
+
+  static String conKDatN(int k, int n) {
+    if (k <= 0) return 'Đã đạt $n';
+    return 'Còn $k ngày nữa là đạt $n';
+  }
+
+  static String thang(int m) => 'Tháng $m';
 }
