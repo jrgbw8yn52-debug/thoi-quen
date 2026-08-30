@@ -85,44 +85,42 @@ class _ManLichState extends State<ManLich> {
               constraints: const BoxConstraints(minHeight: 44),
               child: Padding(
                 padding: const EdgeInsets.only(left: 8, right: 4),
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 8,
+                child: Row(
                   children: [
                     InkWell(
                       onTap: () => setState(() => _cheDo = 2),
                       child: Text(
                         Chuoi.thang(_thang.month),
                         style: const TextStyle(
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.4,
                           color: Mau.muc,
                         ),
                       ),
                     ),
+                    const SizedBox(width: 6),
                     InkWell(
                       onTap: () => setState(() => _cheDo = 1),
                       child: Text(
                         '${_thang.year}',
                         style: const TextStyle(
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.4,
                           color: Mau.muc,
                         ),
                       ),
                     ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        minimumSize: const Size(44, 44),
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      onPressed: _moThoiKhoa,
-                      child: const Text(
-                        Chuoi.thoiKhoaBieu,
-                        style: TextStyle(fontSize: 13),
+                    const Spacer(),
+                    InkWell(
+                      onTap: _moThoiKhoa,
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                        child: Text(
+                          Chuoi.thongKe,
+                          style: TextStyle(fontSize: 14, color: Mau.reu),
+                        ),
                       ),
                     ),
                   ],

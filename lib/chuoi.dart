@@ -35,7 +35,12 @@ abstract final class Chuoi {
   static const xoaKhoiTuanSau = 'Xóa khỏi tuần tiếp theo';
   static const xoaKhoiThangSau = 'Xóa khỏi tháng tiếp theo';
   static const xoaKhoiDs = 'Xóa thói quen khỏi danh sách';
-  static const thoiKhoaBieu = 'Thời khoá biểu';
+  static const thoiKhoaBieu = 'Thống kê';
+  static const thongKe = 'Thống kê';
+  static const motTuan = '1 tuần';
+  static const motThang = '1 tháng';
+  static const sauThang = '6 tháng';
+  static const muoiHaiThang = '12 tháng';
   static const xuatSac = 'Xuất sắc';
   static const tot = 'Tốt';
   static const kha = 'Khá';

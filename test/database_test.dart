@@ -4,6 +4,7 @@ import 'package:thoi_quen/db/database.dart';
 
 void main() {
   late AppDatabase db;
+  final goc = DateTime(2026, 8, 30);
 
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
@@ -38,7 +39,7 @@ void main() {
   });
 
   test('ticks UNIQUE (habit_id, ngay)', () async {
-    final id = await db.themHabit(ten: 'Dậy 6 giờ');
+    final id = await db.themHabit(ten: 'Dậy 6 giờ', createdOn: goc);
     await db.into(db.ticks).insert(
           TicksCompanion.insert(habitId: id!, ngay: '2026-08-30'),
         );
@@ -55,6 +56,7 @@ void main() {
       ten: 'Vận động',
       met: AppDatabase.metVanDong,
       phutMacDinh: AppDatabase.phutVanDong,
+      createdOn: goc,
     );
     final h = (await db.dsHabit()).single;
     expect(h.met, 5.5);
@@ -73,7 +75,7 @@ void main() {
   });
 
   test('x/N thang nay khong dem thang khac', () async {
-    await db.themHabit(ten: 'Đọc 20 trang');
+    await db.themHabit(ten: 'Đọc 20 trang', createdOn: goc);
     final h = (await db.dsHabit()).single;
     await db.toggleTick(h, DateTime(2026, 8, 1));
     await db.toggleTick(h, DateTime(2026, 8, 30));
@@ -84,24 +86,24 @@ void main() {
 
   test('toi da 8 habit', () async {
     for (var i = 0; i < 8; i++) {
-      expect(await db.themHabit(ten: 'H$i'), isNotNull);
+      expect(await db.themHabit(ten: 'H$i', createdOn: goc), isNotNull);
     }
-    expect(await db.themHabit(ten: 'H9'), isNull);
+    expect(await db.themHabit(ten: 'H9', createdOn: goc), isNull);
     expect(await db.soHabit(), 8);
   });
 
   test('khong trung ten', () async {
-    expect(await db.themHabit(ten: 'Dậy 6 giờ'), isNotNull);
-    expect(await db.themHabit(ten: ' dậy 6 giờ '), isNull);
+    expect(await db.themHabit(ten: 'Dậy 6 giờ', createdOn: goc), isNotNull);
+    expect(await db.themHabit(ten: ' dậy 6 giờ ', createdOn: goc), isNull);
     expect(await db.soHabit(), 1);
   });
 
   test('gop ten trung giu hang cu, gop tick', () async {
-    final a = await db.themHabit(ten: 'A');
+    final a = await db.themHabit(ten: 'A', createdOn: goc);
     await db.into(db.habits).insert(
           HabitsCompanion.insert(
             ten: 'A',
-            taoLuc: DateTime.now(),
+            taoLuc: goc,
           ),
         );
     expect(await db.soHabit(), 2);

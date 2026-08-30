@@ -141,12 +141,6 @@ class _ManThemHabitState extends State<ManThemHabit> {
                 key: const Key('ten-habit'),
                 controller: _ten,
                 autofocus: !_sua,
-                textCapitalization: TextCapitalization.none,
-                enableSuggestions: true,
-                autocorrect: false,
-                smartDashesType: SmartDashesType.disabled,
-                smartQuotesType: SmartQuotesType.disabled,
-                inputFormatters: const [],
                 decoration: const InputDecoration(
                   hintText: Chuoi.tenThoiQuen,
                 ),

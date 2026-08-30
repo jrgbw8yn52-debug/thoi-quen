@@ -82,10 +82,20 @@ class ManHomNay extends StatelessWidget {
               ),
             ),
           ),
-          DaiTuan(
-            tuan: kho.tuan,
-            onChon: kho.chonNgay,
-            tuanChuaHomNay: kho.tuanChuaHomNay,
+          GestureDetector(
+            onHorizontalDragEnd: (d) {
+              final v = d.primaryVelocity ?? 0;
+              if (v < -120) {
+                kho.toiTuan();
+              } else if (v > 120) {
+                kho.luiTuan();
+              }
+            },
+            child: DaiTuan(
+              tuan: kho.tuan,
+              onChon: kho.chonNgay,
+              tuanChuaHomNay: kho.tuanChuaHomNay,
+            ),
           ),
           Expanded(
             child: kho.rong

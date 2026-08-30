@@ -327,6 +327,69 @@ class Kho extends ChangeNotifier {
     }
   }
 
+  /// 0: 1 tuần, 1: 1 tháng, 2: 6 tháng, 3: 12 tháng.
+  List<CotThang> diemThongKe(int phin) {
+    switch (phin) {
+      case 1:
+        return cotThang;
+      case 2:
+        return _cotThangLui(6);
+      case 3:
+        return _cotThangLui(12);
+      default:
+        return [
+          for (final c in tuan)
+            CotThang(
+              ngay: c.ngay,
+              tick: c.tick,
+              tong: c.tong,
+              dangXem: c.dangXem,
+              tuongLai: c.tuongLai,
+            ),
+        ];
+    }
+  }
+
+  (int, int) nTrenMThongKe(int phin) {
+    var tick = 0;
+    var tong = 0;
+    for (final c in diemThongKe(phin)) {
+      tick += c.tick;
+      tong += c.tong;
+    }
+    return (tick, tong);
+  }
+
+  List<CotThang> _cotThangLui(int n) {
+    final out = <CotThang>[];
+    var y = selected.year;
+    var m = selected.month - (n - 1);
+    while (m < 1) {
+      m += 12;
+      y -= 1;
+    }
+    for (var i = 0; i < n; i++) {
+      final a = DateTime(y, m, 1);
+      final b = DateTime(y, m, Ngay.soNgayThang(y, m));
+      final r = _tickKhoang(a, b);
+      out.add(
+        CotThang(
+          ngay: a,
+          tick: r.$1,
+          tong: r.$2,
+          dangXem: y == selected.year && m == selected.month,
+          tuongLai: a.isAfter(Ngay.dauThang(homNay)),
+        ),
+      );
+      m += 1;
+      if (m > 12) {
+        m = 1;
+        y += 1;
+      }
+    }
+    return out;
+  }
+
   (int, int) _tickKhoang(DateTime a, DateTime b) {
     var tick = 0;
     var tong = 0;
@@ -484,6 +547,10 @@ class Kho extends ChangeNotifier {
     notifyListeners();
   }
 
+  void luiTuan() => chonNgay(Ngay.cat(selected).subtract(const Duration(days: 7)));
+
+  void toiTuan() => chonNgay(Ngay.cat(selected).add(const Duration(days: 7)));
+
   /// UI đổi ngay, ghi Drift sau. Ghi tuần tự theo (habit, ngày).
   Future<void> toggle(HangHabitView h) => toggleNgay(h.habit, selected);
 
@@ -573,6 +640,7 @@ class Kho extends ChangeNotifier {
     _dangThem.add(khoa);
     notifyListeners();
     try {
+      final goc = Ngay.cat(selected);
       final id = await db.themHabit(
         ten: ten,
         mucTieuThang: mucTieuThang,
@@ -580,14 +648,14 @@ class Kho extends ChangeNotifier {
         phutMacDinh: phutMacDinh,
         thuBit: thuBit,
         gioNhac: gioNhac,
-        createdOn: homNay,
+        createdOn: goc,
       );
       if (id != null &&
-          Ngay.ghiDuoc(selected, homNay) &&
-          Thu.hien(thuBit: thuBit, createdOn: homNay, d: selected)) {
+          Ngay.ghiDuoc(goc, homNay) &&
+          Thu.hien(thuBit: thuBit, createdOn: goc, d: goc)) {
         final ds = await db.dsHabit();
         final h = ds.firstWhere((x) => x.id == id);
-        await db.ghiTick(h, selected);
+        await db.ghiTick(h, goc);
       }
       await tai();
       return id != null;

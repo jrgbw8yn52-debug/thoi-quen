@@ -7,6 +7,7 @@ import 'package:thoi_quen/kho.dart';
 import 'package:thoi_quen/man/mot_habit.dart';
 import 'package:thoi_quen/man/them_habit.dart';
 import 'package:thoi_quen/mau.dart';
+import 'package:thoi_quen/ngay.dart';
 import 'package:thoi_quen/vo_app.dart';
 
 Widget _app(Kho kho) {
@@ -305,10 +306,13 @@ void main() {
     ));
     await tester.pumpAndSettle();
     final tf = tester.widget<TextField>(find.byKey(const Key('ten-habit')));
-    expect(tf.inputFormatters, isEmpty);
+    expect(tf.inputFormatters ?? const [], isEmpty);
+    expect(tf.onChanged, isNull);
     expect(tf.textCapitalization, TextCapitalization.none);
-    await tester.enterText(find.byKey(const Key('ten-habit')), 'Dậy sớm');
-    expect(tf.controller!.text, 'Dậy sớm');
+    await tester.enterText(find.byKey(const Key('ten-habit')), 'Dậy');
+    expect(tf.controller!.text, 'Dậy');
+    await tester.enterText(find.byKey(const Key('ten-habit')), 'Đọc sách');
+    expect(tf.controller!.text, 'Đọc sách');
   });
 
   testWidgets('Hom nay 31/8: 1/9 co, 29/8 khong, hang phu co dinh', (tester) async {
@@ -335,9 +339,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.lich));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(Chuoi.thoiKhoaBieu));
+    await tester.tap(find.text(Chuoi.thongKe));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.thoiKhoaBieu), findsWidgets);
+    expect(find.text(Chuoi.thongKe), findsWidgets);
+    expect(find.byKey(const Key('duong-thong-ke')), findsOneWidget);
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
 
@@ -352,5 +357,49 @@ void main() {
     await tester.tap(find.text('Dậy sớm · 7:00 SA'));
     await tester.pumpAndSettle();
     expect(k.ticksCua(k.dsHien.single.id).contains('2026-09-01'), isFalse);
+  });
+
+  test('createdOn = selectedDate: 26/8 co, 24/8 khong', () async {
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    k.chonNgay(DateTime(2026, 8, 26));
+    expect(await k.themPreset(ten: 'Đọc sách', thuBit: '123'), isTrue);
+    expect(Ngay.cat(k.dsHien.single.taoLuc), DateTime(2026, 8, 26));
+    expect(k.hang.single.habit.ten, 'Đọc sách');
+    expect(k.mHabit, 1);
+    expect(k.nTick, 1);
+    k.chonNgay(DateTime(2026, 8, 24));
+    expect(k.hienO(k.dsHien.single, DateTime(2026, 8, 24)), isFalse);
+    expect(k.hang, isEmpty);
+    k.chonNgay(DateTime(2026, 8, 26));
+    expect(k.hang, isNotEmpty);
+  });
+
+  testWidgets('hang phu hom nay 31/8 khi tieu de 26/8', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    k.chonNgay(DateTime(2026, 8, 26));
+    await k.themPreset(ten: 'Đọc sách', thuBit: '123');
+    await tester.pumpWidget(_app(k));
+    await tester.pumpAndSettle();
+    expect(find.text('Thứ Tư, 26 tháng 8 2026'), findsOneWidget);
+    expect(find.textContaining('hôm nay 31/8/2026'), findsOneWidget);
+    expect(find.text('Đọc sách'), findsOneWidget);
+
+    await tester.tap(find.text(Chuoi.lich));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.hoanThanhThoiQuen(0, 0)), findsNothing);
+    expect(find.text(Chuoi.hoanThanhThoiQuen(1, 1)), findsOneWidget);
+    expect(find.text(Chuoi.thongKe), findsOneWidget);
+
+    await tester.tap(find.text(Chuoi.thongKe));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('duong-thong-ke')), findsOneWidget);
+    expect(find.textContaining('Hoàn thành'), findsOneWidget);
+    expect(find.textContaining('Đánh giá'), findsOneWidget);
+    expect(find.byType(CustomPaint), findsWidgets);
   });
 }

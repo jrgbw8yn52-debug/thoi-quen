@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
+import '../widget/duong_thong_ke.dart';
 
 class ManThoiKhoa extends StatefulWidget {
   const ManThoiKhoa({super.key, required this.kho});
@@ -20,154 +21,72 @@ class _ManThoiKhoaState extends State<ManThoiKhoa> {
 
   @override
   Widget build(BuildContext context) {
-    final nm = kho.nTrenMCua(_phin);
-    final dg = Chuoi.danhGia(nm.$1, nm.$2);
     return Scaffold(
       backgroundColor: Mau.giay,
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-          children: [
-            Row(
+        child: ListenableBuilder(
+          listenable: kho,
+          builder: (context, _) {
+            final nm2 = kho.nTrenMThongKe(_phin);
+            final dg2 = Chuoi.danhGia(nm2.$1, nm2.$2);
+            final diem2 = kho.diemThongKe(_phin);
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
               children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                const Expanded(
-                  child: Text(
-                    Chuoi.thoiKhoaBieu,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Mau.muc,
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back),
                     ),
+                    const Expanded(
+                      child: Text(
+                        Chuoi.thongKe,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: Mau.muc,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    _Phin(chu: Chuoi.motTuan, bat: _phin == 0, onTap: () => setState(() => _phin = 0)),
+                    _Phin(chu: Chuoi.motThang, bat: _phin == 1, onTap: () => setState(() => _phin = 1)),
+                    _Phin(chu: Chuoi.sauThang, bat: _phin == 2, onTap: () => setState(() => _phin = 2)),
+                    _Phin(chu: Chuoi.muoiHaiThang, bat: _phin == 3, onTap: () => setState(() => _phin = 3)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                DuongThongKe(
+                  diem: diem2,
+                  onChon: (d) {
+                    kho.chonNgay(d);
+                    setState(() {});
+                  },
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  Chuoi.hoanThanhDanhGia(nm2.$1, nm2.$2, dg2),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Mau.muc,
                   ),
                 ),
+                const SizedBox(height: 24),
+                const Text(
+                  Chuoi.chiXem,
+                  style: TextStyle(fontSize: 13, color: Mau.mo),
+                ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                _Phin(chu: Chuoi.phinNgay, bat: _phin == 0, onTap: () => setState(() => _phin = 0)),
-                _Phin(chu: Chuoi.tuanNhan, bat: _phin == 1, onTap: () => setState(() => _phin = 1)),
-                _Phin(chu: Chuoi.thangNhan, bat: _phin == 2, onTap: () => setState(() => _phin = 2)),
-                _Phin(chu: Chuoi.namNhan, bat: _phin == 3, onTap: () => setState(() => _phin = 3)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              Chuoi.hoanThanhDanhGia(nm.$1, nm.$2, dg),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Mau.muc),
-            ),
-            const SizedBox(height: 16),
-            if (_phin == 0) _CotDon(phan: nm.$2 == 0 ? 0 : nm.$1 / nm.$2),
-            if (_phin == 1)
-              SizedBox(
-                height: 72,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final c in kho.tuan)
-                      Expanded(child: _Cot(phan: c.phan, nhan: Chuoi.thuNgan[c.ngay.weekday - 1])),
-                  ],
-                ),
-              ),
-            if (_phin == 2)
-              SizedBox(
-                height: 72,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final c in kho.cotThang)
-                      Expanded(child: _Cot(phan: c.phan, nhan: '${c.ngay.day}')),
-                  ],
-                ),
-              ),
-            if (_phin == 3)
-              SizedBox(
-                height: 72,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final c in kho.cotNam)
-                      Expanded(child: _Cot(phan: c.phan, nhan: '${c.ngay.month}')),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 24),
-            const Text(
-              Chuoi.chiXem,
-              style: TextStyle(fontSize: 13, color: Mau.mo),
-            ),
-          ],
+            );
+          },
         ),
-      ),
-    );
-  }
-}
-
-class _CotDon extends StatelessWidget {
-  const _CotDon({required this.phan});
-
-  final double phan;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 12,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Mau.beMat,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: FractionallySizedBox(
-            widthFactor: phan.clamp(0.0, 1.0),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Mau.reu,
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Cot extends StatelessWidget {
-  const _Cot({required this.phan, required this.nhan});
-
-  final double phan;
-  final String nhan;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 1),
-      child: Column(
-        children: [
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: FractionallySizedBox(
-                heightFactor: phan.clamp(0.05, 1.0),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Mau.reu.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(nhan, style: const TextStyle(fontSize: 9, color: Mau.mo)),
-        ],
       ),
     );
   }

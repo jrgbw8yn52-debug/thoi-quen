@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     int? phutMacDinh,
     String thuBit = '1234567',
     int? gioNhac,
-    DateTime? createdOn,
+    required DateTime createdOn,
   }) async {
     final tenSach = Ten.sach(ten);
     if (tenSach.isEmpty) return null;
@@ -263,7 +263,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         thuTu: Value(hien.length),
         thuBit: Value(thuBit),
         gioNhac: Value(gioNhac),
-        taoLuc: Ngay.cat(createdOn ?? DateTime.now()),
+        taoLuc: Ngay.cat(createdOn),
       ),
     );
   }
