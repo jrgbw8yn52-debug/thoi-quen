@@ -64,6 +64,15 @@ abstract final class Chuoi {
   static const hienTai = 'Hiện tại';
   static const mucTieuPhan = 'Mục tiêu';
   static const ghiTrongNgay = 'Ghi trong ngày';
+  static const ghi = 'Ghi';
+  static const luuHoSo = 'Lưu hồ sơ';
+  static const tap = 'Tập';
+  static const diBo = 'Đi bộ';
+  static const khangLuc = 'Kháng lực';
+  static const anUong = 'Ăn uống';
+  static const seLam = 'Sẽ làm';
+  static const uocMo = 'Ước tính ±5–8';
+  static const kcalTapNhan = 'Kcal tập';
   static const eoCm = 'Eo cm';
   static const moPhanTram = '% mỡ';
   static const nhipTuan = 'Nhịp kg/tuần';
@@ -131,6 +140,10 @@ abstract final class Chuoi {
   static String canHienTaiKhongDich(String x) => 'Cân hiện tại $x';
 
   static String kcalBuoiSo(String n) => 'Kcal buổi $n';
+
+  static String kcalTapSo(int n) => 'Kcal tập $n';
+
+  static String daDoi(String x) => 'Đã đổi $x kg';
 
   static String chipCanDat(String kg) => 'Cân $kg · $datMucTieu';
 

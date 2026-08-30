@@ -8,6 +8,29 @@ abstract final class CongThuc {
 
   static const heSo = [1.2, 1.375, 1.55, 1.725, 1.9];
   static const nhipKg = [0.25, 0.5];
+  static const metDiBo = 3.5;
+  static const metKhangLuc = 5.0;
+  static const loaiDiBo = 'di_bo';
+  static const loaiKhangLuc = 'khang_luc';
+
+  static double? metCua(String? loai) {
+    if (loai == loaiDiBo) return metDiBo;
+    if (loai == loaiKhangLuc) return metKhangLuc;
+    return null;
+  }
+
+  /// Deurenberg 1991. Nam sex=1, nữ sex=0.
+  /// BF% = 1.20×BMI + 0.23×tuổi − 10.8×sex − 5.4. Không persist.
+  static double? moDeurenberg({
+    required double? bmi,
+    required int? tuoi,
+    required String? sex,
+  }) {
+    if (bmi == null || tuoi == null) return null;
+    if (sex != 'nam' && sex != 'nu') return null;
+    final s = sex == 'nam' ? 1.0 : 0.0;
+    return 1.20 * bmi + 0.23 * tuoi - 10.8 * s - 5.4;
+  }
 
   static int? kcalGoiY({
     required double? tdee,

@@ -102,6 +102,7 @@ class Kho extends ChangeNotifier {
   MoIn? moMoi;
   List<EoIn> dsEo = const [];
   List<MoIn> dsMo = const [];
+  List<TapIn> dsTap = const [];
   bool dangTai = true;
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
@@ -195,6 +196,37 @@ class Kho extends ChangeNotifier {
         target: targetKg,
       );
 
+  String? get daDoiDoc {
+    if (dsCan.length < 2) return null;
+    return Chuoi.daDoi(So.kg(dsCan.first.kg - dsCan.last.kg));
+  }
+
+  double? get moDoc => CongThuc.moDeurenberg(
+        bmi: bmiDoc,
+        tuoi: CongThuc.tuoi(dob, homNay),
+        sex: sex,
+      );
+
+  String get chuKcalTap {
+    final t = tapCua(selected);
+    if (t == null) return Chuoi.kcalTapSo(0);
+    final k = CongThuc.kcalTap(
+      met: CongThuc.metCua(t.loai),
+      kg: canMoi?.kg,
+      phut: t.phut,
+    );
+    if (k == null) return Chuoi.thieuDuLieu;
+    return Chuoi.kcalTapSo(k.round());
+  }
+
+  TapIn? tapCua(DateTime d) {
+    final iso = Ngay.iso(d);
+    for (final t in dsTap) {
+      if (t.ngay == iso) return t;
+    }
+    return null;
+  }
+
   String? get dongCanHienTai {
     final c = canMoi;
     if (c == null) return null;
@@ -275,6 +307,7 @@ class Kho extends ChangeNotifier {
     eoMoi = dsEo.isEmpty ? null : dsEo.first;
     dsMo = await db.dsMo();
     moMoi = dsMo.isEmpty ? null : dsMo.first;
+    dsTap = await db.dsTap();
     dangTai = false;
     notifyListeners();
   }
@@ -430,11 +463,45 @@ class Kho extends ChangeNotifier {
   }
 
   Future<bool> ghiEo(String raw, {DateTime? ngay}) async {
-    final d = Ngay.cat(ngay ?? homNay);
+    final d = Ngay.cat(ngay ?? selected);
     if (!Ngay.ghiDuoc(d, homNay)) return false;
     final cm = So.parseEo(raw);
     if (cm == null) return false;
     await db.ghiEo(d, cm);
+    await tai();
+    return true;
+  }
+
+  Future<bool> ghiTap(String loai, int phut, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    if (CongThuc.metCua(loai) == null) return false;
+    if (phut < 1 || phut > 300) return false;
+    await db.ghiTap(d, loai, phut);
+    await tai();
+    return true;
+  }
+
+  Future<bool> luuHoSo({
+    required String ten,
+    required String cao,
+    required String dich,
+    required String? sex,
+    required DateTime? dob,
+    required double activity,
+    required double nhip,
+  }) async {
+    if (!CongThuc.heSo.contains(activity)) return false;
+    if (!CongThuc.nhipKg.contains(nhip)) return false;
+    await db.suaProfile(
+      tenGoi: Value(ten.trim().isEmpty ? null : ten.trim()),
+      heightCm: Value(So.parseCm(cao) ?? heightCm),
+      targetKg: Value(So.parseKg(dich) ?? targetKg),
+      sex: Value(sex),
+      dob: Value(dob == null ? null : Ngay.iso(dob)),
+      activity: Value(activity),
+      nhipKg: Value(nhip),
+    );
     await tai();
     return true;
   }

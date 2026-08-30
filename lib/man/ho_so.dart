@@ -18,66 +18,82 @@ class ManHoSo extends StatefulWidget {
 }
 
 class _ManHoSoState extends State<ManHoSo> {
-  final _can = TextEditingController();
   final _cao = TextEditingController();
   final _dich = TextEditingController();
   final _goi = TextEditingController();
-  final _eo = TextEditingController();
-  final _mo = TextEditingController();
-
-  @override
-  void dispose() {
-    _can.dispose();
-    _cao.dispose();
-    _dich.dispose();
-    _goi.dispose();
-    _eo.dispose();
-    _mo.dispose();
-    super.dispose();
-  }
+  String? _sex;
+  DateTime? _dob;
+  double _activity = 1.2;
+  double _nhip = 0.5;
+  bool _nap = false;
 
   Kho get kho => widget.kho;
 
-  Future<void> _luuCan() async {
-    await kho.ghiCan(_can.text, ngay: kho.homNay);
+  void _napLanDau() {
+    if (_nap) return;
+    _nap = true;
+    if (kho.heightCm != null) _cao.text = So.kg(kho.heightCm!);
+    if (kho.targetKg != null) _dich.text = So.kg(kho.targetKg!);
+    if (kho.tenGoi != null) _goi.text = kho.tenGoi!;
+    _sex = kho.sex;
+    _dob = kho.dob == null ? null : Ngay.parse(kho.dob!);
+    _activity = kho.activity;
+    _nhip = kho.nhipKg;
   }
 
   Future<void> _moSinh() async {
-    final goc = kho.dob != null
-        ? Ngay.parse(kho.dob!)
-        : DateTime(kho.homNay.year - 30);
+    final goc = _dob ?? DateTime(kho.homNay.year - 30);
     final d = await moLanSinh(
       context: context,
       goc: goc,
       homNay: kho.homNay,
     );
-    if (d != null) await kho.suaNgaySinh(d);
+    if (d != null) setState(() => _dob = d);
+  }
+
+  Future<void> _luu() async {
+    await kho.luuHoSo(
+      ten: _goi.text,
+      cao: _cao.text,
+      dich: _dich.text,
+      sex: _sex,
+      dob: _dob,
+      activity: _activity,
+      nhip: _nhip,
+    );
+  }
+
+  @override
+  void dispose() {
+    _cao.dispose();
+    _dich.dispose();
+    _goi.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final kho = this.kho;
-    if (kho.heightCm != null && _cao.text.isEmpty) {
-      _cao.text = So.kg(kho.heightCm!);
-    }
-    if (kho.targetKg != null && _dich.text.isEmpty) {
-      _dich.text = So.kg(kho.targetKg!);
-    }
-    if (kho.tenGoi != null && _goi.text.isEmpty) {
-      _goi.text = kho.tenGoi!;
-    }
-    if (kho.canMoi != null && _can.text.isEmpty) {
-      _can.text = So.kg(kho.canMoi!.kg);
-    }
-    if (kho.eoMoi != null && _eo.text.isEmpty) {
-      _eo.text = So.kg(kho.eoMoi!.cm);
-    }
-    if (kho.moMoi != null && _mo.text.isEmpty) {
-      _mo.text = So.kg(kho.moMoi!.pct);
-    }
-    final bmi = kho.bmiDoc;
-    final bmr = kho.bmrDoc;
-    final tdee = kho.tdeeDoc;
+    _napLanDau();
+    final cao = So.parseCm(_cao.text) ?? kho.heightCm;
+    final bmi = CongThuc.bmi(kho.canMoi?.kg, cao);
+    final tuoi = CongThuc.tuoi(
+      _dob == null ? null : Ngay.iso(_dob!),
+      kho.homNay,
+    );
+    final bmr = CongThuc.bmr(
+      sex: _sex,
+      kg: kho.canMoi?.kg,
+      cm: cao,
+      tuoi: tuoi,
+    );
+    final tdee = CongThuc.tdee(bmr, _activity);
+    final mo = CongThuc.moDeurenberg(bmi: bmi, tuoi: tuoi, sex: _sex);
+    final goiY = CongThuc.kcalGoiY(
+      tdee: tdee,
+      nhip: _nhip,
+      kg: kho.canMoi?.kg,
+      target: So.parseKg(_dich.text) ?? kho.targetKg,
+    );
     final duSo = bmi != null && bmr != null && tdee != null;
 
     return Scaffold(
@@ -132,25 +148,10 @@ class _ManHoSoState extends State<ManHoSo> {
               ),
             ),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _goi,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(hintText: Chuoi.tenGoi),
-                    onSubmitted: (v) => kho.suaTenGoi(v),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  height: 44,
-                  child: FilledButton(
-                    onPressed: () => kho.suaTenGoi(_goi.text),
-                    child: const Text(Chuoi.luu),
-                  ),
-                ),
-              ],
+            TextField(
+              controller: _goi,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(hintText: Chuoi.tenGoi),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -166,46 +167,14 @@ class _ManHoSoState extends State<ManHoSo> {
               children: [
                 _ChipChon(
                   chu: Chuoi.nam,
-                  bat: kho.sex == 'nam',
-                  onTap: () => kho.suaGioi('nam'),
+                  bat: _sex == 'nam',
+                  onTap: () => setState(() => _sex = 'nam'),
                 ),
                 const SizedBox(width: 8),
                 _ChipChon(
                   chu: Chuoi.nu,
-                  bat: kho.sex == 'nu',
-                  onTap: () => kho.suaGioi('nu'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              Chuoi.chieuCao,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Mau.mo,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _cao,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: const InputDecoration(suffixText: Chuoi.cm),
-                    onSubmitted: (v) => kho.suaChieuCao(v),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  height: 44,
-                  child: FilledButton(
-                    onPressed: () => kho.suaChieuCao(_cao.text),
-                    child: const Text(Chuoi.luu),
-                  ),
+                  bat: _sex == 'nu',
+                  onTap: () => setState(() => _sex = 'nu'),
                 ),
               ],
             ),
@@ -232,18 +201,31 @@ class _ManHoSoState extends State<ManHoSo> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        kho.dob == null
-                            ? Chuoi.ngaySinh
-                            : Chuoi.dongNgay(Ngay.parse(kho.dob!)),
+                        _dob == null ? Chuoi.ngaySinh : Chuoi.dongNgay(_dob!),
                         style: TextStyle(
                           fontSize: 15,
-                          color: kho.dob == null ? Mau.mo : Mau.muc,
+                          color: _dob == null ? Mau.mo : Mau.muc,
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              Chuoi.chieuCao,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Mau.mo,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _cao,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(suffixText: Chuoi.cm),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -260,8 +242,8 @@ class _ManHoSoState extends State<ManHoSo> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: _ChipChon(
                   chu: Chuoi.heSoNhan[i],
-                  bat: (kho.activity - CongThuc.heSo[i]).abs() < 0.0001,
-                  onTap: () => kho.suaHoatDong(CongThuc.heSo[i]),
+                  bat: (_activity - CongThuc.heSo[i]).abs() < 0.0001,
+                  onTap: () => setState(() => _activity = CongThuc.heSo[i]),
                 ),
               ),
             const SizedBox(height: 20),
@@ -283,27 +265,10 @@ class _ManHoSoState extends State<ManHoSo> {
               ),
             ),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _dich,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: const InputDecoration(suffixText: Chuoi.kg),
-                    onSubmitted: (v) => kho.suaCanDich(v),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  height: 44,
-                  child: FilledButton(
-                    onPressed: () => kho.suaCanDich(_dich.text),
-                    child: const Text(Chuoi.luu),
-                  ),
-                ),
-              ],
+            TextField(
+              controller: _dich,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(suffixText: Chuoi.kg),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -319,132 +284,39 @@ class _ManHoSoState extends State<ManHoSo> {
               children: [
                 _ChipChon(
                   chu: Chuoi.nhip025,
-                  bat: (kho.nhipKg - 0.25).abs() < 0.0001,
-                  onTap: () => kho.suaNhip(0.25),
+                  bat: (_nhip - 0.25).abs() < 0.0001,
+                  onTap: () => setState(() => _nhip = 0.25),
                 ),
                 const SizedBox(width: 8),
                 _ChipChon(
                   chu: Chuoi.nhip05,
-                  bat: (kho.nhipKg - 0.5).abs() < 0.0001,
-                  onTap: () => kho.suaNhip(0.5),
+                  bat: (_nhip - 0.5).abs() < 0.0001,
+                  onTap: () => setState(() => _nhip = 0.5),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            const Text(
-              Chuoi.ghiTrongNgay,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Mau.muc,
+            SizedBox(
+              height: 44,
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _luu,
+                child: const Text(Chuoi.luuHoSo),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              Chuoi.canKg,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Mau.mo,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _can,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: const InputDecoration(
-                      hintText: Chuoi.kg,
-                      suffixText: Chuoi.kg,
-                    ),
-                    onSubmitted: (_) => _luuCan(),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  height: 44,
-                  child: FilledButton(
-                    onPressed: _luuCan,
-                    child: const Text(Chuoi.luu),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              Chuoi.eoCm,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Mau.mo,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _eo,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: const InputDecoration(suffixText: Chuoi.cm),
-                    onSubmitted: (v) => kho.ghiEo(v),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  height: 44,
-                  child: FilledButton(
-                    onPressed: () => kho.ghiEo(_eo.text),
-                    child: const Text(Chuoi.luu),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              Chuoi.moPhanTram,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Mau.mo,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _mo,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: const InputDecoration(suffixText: '%'),
-                    onSubmitted: (v) => kho.ghiMo(v),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  height: 44,
-                  child: FilledButton(
-                    onPressed: () => kho.ghiMo(_mo.text),
-                    child: const Text(Chuoi.luu),
-                  ),
-                ),
-              ],
             ),
             const SizedBox(height: 28),
             if (duSo) ...[
               _HangSo(
                 nhan: Chuoi.bmi,
                 giaTri: So.kg(bmi),
-                phu: kho.bmiNhan,
+                phu: CongThuc.bmiNhan(bmi),
               ),
+              if (mo != null)
+                _HangSo(
+                  nhan: Chuoi.moPhanTram,
+                  giaTri: So.kg(mo),
+                  phu: Chuoi.uocMo,
+                ),
               const Padding(
                 padding: EdgeInsets.only(bottom: 8),
                 child: Text(
@@ -458,31 +330,8 @@ class _ManHoSoState extends State<ManHoSo> {
                 giaTri: '${tdee.round()}',
                 phu: Chuoi.saiSo,
               ),
-              if (kho.kcalGoiYDoc != null)
-                _HangSo(
-                  nhan: Chuoi.kcalGoiY,
-                  giaTri: '${kho.kcalGoiYDoc}',
-                ),
-              if (kho.conToiDich != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    kho.conToiDich!,
-                    style: const TextStyle(fontSize: 15, color: Mau.muc),
-                  ),
-                ),
-              if (kho.nhipDoc != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    kho.nhipDoc!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Mau.mo,
-                      height: 1.35,
-                    ),
-                  ),
-                ),
+              if (goiY != null)
+                _HangSo(nhan: Chuoi.kcalGoiY, giaTri: '$goiY'),
             ] else
               Text(
                 kho.thieuCan ? Chuoi.themCan : Chuoi.thieuDuLieu,
@@ -565,6 +414,7 @@ class _ChipChon extends StatelessWidget {
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: Mau.muc,
+                height: 1.3,
               ),
             ),
           ),

@@ -32,9 +32,25 @@ void main() {
     expect(CongThuc.bmiNhan(null), isNull);
   });
 
-  test('kcal tap 0.0175 MET kg phut, thieu can thi khong tinh', () {
-    expect(CongThuc.kcalTap(met: 5.5, kg: 65, phut: 30), closeTo(0.0175 * 5.5 * 65 * 30, 0.01));
-    expect(CongThuc.kcalTap(met: 5.5, kg: null, phut: 30), isNull);
+  test('Deurenberg BMI tuoi gioi, khong persist', () {
+    expect(
+      CongThuc.moDeurenberg(bmi: 22, tuoi: 30, sex: 'nam'),
+      closeTo(1.20 * 22 + 0.23 * 30 - 10.8 - 5.4, 0.01),
+    );
+    expect(
+      CongThuc.moDeurenberg(bmi: 22, tuoi: 30, sex: 'nu'),
+      closeTo(1.20 * 22 + 0.23 * 30 - 5.4, 0.01),
+    );
+    expect(CongThuc.moDeurenberg(bmi: null, tuoi: 30, sex: 'nam'), isNull);
+  });
+
+  test('MET di bo 3,5 khang luc 5,0', () {
+    expect(CongThuc.metCua(CongThuc.loaiDiBo), 3.5);
+    expect(CongThuc.metCua(CongThuc.loaiKhangLuc), 5.0);
+    expect(
+      CongThuc.kcalTap(met: 3.5, kg: 70, phut: 30),
+      closeTo(0.0175 * 3.5 * 70 * 30, 0.01),
+    );
   });
 
   test('nhip 0,25 hoac 0,5 kg/tuan', () {

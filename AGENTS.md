@@ -7,7 +7,7 @@ Không IndexedDB. Không account. Không iCloud/Drive làm nguồn.
 
 Sandbox / mạng / AI / preview web: **tắt** trừ khi người dùng hỏi.
 
-Cổng hiện tại: **IA 3 tab**. Không App Store.
+Cổng hiện tại: **IA ghi trong ngày**. Không App Store. Không foods thật.
 
 ---
 
@@ -79,7 +79,7 @@ Một hàng `id = 1`.
 - target_kg REAL NULL
 - ten_goi TEXT NULL
 
-`schemaVersion` = 3. `ten_goi` (v2), `nhip_kg` + `eo_ins` + `mo_ins` (v3).
+`schemaVersion` = 4. `tap_ins` (loại + phút, PK ngày). `eo_ins` tuỳ. Không persist % mỡ.
 
 Không cột bmr / tdee / bmi / kcal.
 

@@ -105,28 +105,32 @@ void main() {
     await fut;
   });
 
-  testWidgets('chip can mo tab Tien do, ghi can cap nhat chip', (tester) async {
+  testWidgets('nut Ghi mo to, luu can cap nhat chip, giu so', (tester) async {
     tester.view.physicalSize = const Size(390, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(Chuoi.tienDo));
+    await tester.tap(find.text(Chuoi.ghi));
     await tester.pumpAndSettle();
-    expect(kho.tab, 1);
-    expect(find.text('Ghi thêm cân để thấy đường'), findsNothing);
+    expect(find.text(Chuoi.ghiTrongNgay), findsOneWidget);
+    expect(find.text('${Chuoi.anUong} · ${Chuoi.seLam}'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), '72,5');
-    await tester.tap(find.text(Chuoi.luu));
+    await tester.enterText(find.byType(TextField).first, '72,5');
+    await tester.tap(find.text(Chuoi.luu).first);
     await tester.pumpAndSettle();
-    expect(find.text('Ghi thêm cân để thấy đường'), findsNothing);
-    expect(find.textContaining('Cân hiện tại 72,5'), findsOneWidget);
     expect(find.text('72,5'), findsWidgets);
 
-    await tester.tap(find.text(Chuoi.homNay));
+    await tester.tapAt(const Offset(20, 20));
     await tester.pumpAndSettle();
     expect(find.text('Cân 72,5'), findsOneWidget);
+
+    await tester.tap(find.text(Chuoi.tienDo));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Cân hiện tại 72,5'), findsOneWidget);
+    expect(find.text(Chuoi.kcalTapSo(0)), findsOneWidget);
+    expect(find.text('Ghi thêm cân để thấy đường'), findsNothing);
   });
 
   testWidgets('cham tuan chi hien thi, khong doi ngay', (tester) async {
@@ -228,6 +232,8 @@ void main() {
     expect(find.text(Chuoi.uocTinh), findsWidgets);
     expect(find.text(Chuoi.itVanDong), findsOneWidget);
     expect(find.text(Chuoi.nhip05), findsOneWidget);
+    expect(find.text(Chuoi.luuHoSo), findsOneWidget);
+    expect(find.text(Chuoi.ghiTrongNgay), findsNothing);
     expect(find.text('70'), findsNothing);
     expect(find.text(Chuoi.bmi), findsNothing);
 

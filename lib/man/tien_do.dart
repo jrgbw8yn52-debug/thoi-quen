@@ -6,47 +6,15 @@ import 'package:flutter/services.dart';
 import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
-import '../ngay.dart';
-import '../so.dart';
 import '../widget/duong_can.dart';
 
-class ManTienDo extends StatefulWidget {
+class ManTienDo extends StatelessWidget {
   const ManTienDo({super.key, required this.kho});
 
   final Kho kho;
 
   @override
-  State<ManTienDo> createState() => _ManTienDoState();
-}
-
-class _ManTienDoState extends State<ManTienDo> {
-  final _can = TextEditingController();
-  DateTime? _gan;
-
-  Kho get kho => widget.kho;
-
-  @override
-  void dispose() {
-    _can.dispose();
-    super.dispose();
-  }
-
-  void _dongBoOCan() {
-    if (_gan != null && Ngay.cungNgay(_gan!, kho.selected)) return;
-    _gan = kho.selected;
-    final c = kho.canCua(kho.selected);
-    _can.text = c == null ? '' : So.kg(c.kg);
-  }
-
-  Future<void> _luuCan() async {
-    if (kho.khoaGhi) return;
-    await kho.ghiCan(_can.text);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    _dongBoOCan();
-    final kho = this.kho;
     final spark = kho.dsCan.reversed.map((c) => c.kg).toList();
     return SafeArea(
       bottom: false,
@@ -176,33 +144,14 @@ class _ManTienDoState extends State<ManTienDo> {
           ),
           const SizedBox(height: 8),
           if (spark.isNotEmpty) DuongCan(diem: spark, dich: kho.targetKg),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _can,
-                  enabled: !kho.khoaGhi,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: Chuoi.canKg,
-                    suffixText: Chuoi.kg,
-                  ),
-                  onSubmitted: (_) => _luuCan(),
-                ),
+          if (kho.daDoiDoc != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                kho.daDoiDoc!,
+                style: const TextStyle(fontSize: 14, color: Mau.mo),
               ),
-              const SizedBox(width: 10),
-              SizedBox(
-                height: 44,
-                child: FilledButton(
-                  onPressed: kho.khoaGhi ? null : _luuCan,
-                  child: const Text(Chuoi.luu),
-                ),
-              ),
-            ],
-          ),
+            ),
           if (kho.dongCanHienTai != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -211,6 +160,11 @@ class _ManTienDoState extends State<ManTienDo> {
                 style: const TextStyle(fontSize: 14, color: Mau.mo, height: 1.35),
               ),
             ),
+          const SizedBox(height: 8),
+          Text(
+            kho.chuKcalTap,
+            style: const TextStyle(fontSize: 15, color: Mau.muc),
+          ),
         ],
       ),
     );

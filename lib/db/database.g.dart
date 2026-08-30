@@ -1797,6 +1797,260 @@ class MoInsCompanion extends UpdateCompanion<MoIn> {
   }
 }
 
+class $TapInsTable extends TapIns with TableInfo<$TapInsTable, TapIn> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TapInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _loaiMeta = const VerificationMeta('loai');
+  @override
+  late final GeneratedColumn<String> loai = GeneratedColumn<String>(
+    'loai',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _phutMeta = const VerificationMeta('phut');
+  @override
+  late final GeneratedColumn<int> phut = GeneratedColumn<int>(
+    'phut',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [ngay, loai, phut];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tap_ins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TapIn> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    if (data.containsKey('loai')) {
+      context.handle(
+        _loaiMeta,
+        loai.isAcceptableOrUnknown(data['loai']!, _loaiMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_loaiMeta);
+    }
+    if (data.containsKey('phut')) {
+      context.handle(
+        _phutMeta,
+        phut.isAcceptableOrUnknown(data['phut']!, _phutMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_phutMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ngay};
+  @override
+  TapIn map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TapIn(
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+      loai: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}loai'],
+      )!,
+      phut: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}phut'],
+      )!,
+    );
+  }
+
+  @override
+  $TapInsTable createAlias(String alias) {
+    return $TapInsTable(attachedDatabase, alias);
+  }
+}
+
+class TapIn extends DataClass implements Insertable<TapIn> {
+  final String ngay;
+  final String loai;
+  final int phut;
+  const TapIn({required this.ngay, required this.loai, required this.phut});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ngay'] = Variable<String>(ngay);
+    map['loai'] = Variable<String>(loai);
+    map['phut'] = Variable<int>(phut);
+    return map;
+  }
+
+  TapInsCompanion toCompanion(bool nullToAbsent) {
+    return TapInsCompanion(
+      ngay: Value(ngay),
+      loai: Value(loai),
+      phut: Value(phut),
+    );
+  }
+
+  factory TapIn.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TapIn(
+      ngay: serializer.fromJson<String>(json['ngay']),
+      loai: serializer.fromJson<String>(json['loai']),
+      phut: serializer.fromJson<int>(json['phut']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ngay': serializer.toJson<String>(ngay),
+      'loai': serializer.toJson<String>(loai),
+      'phut': serializer.toJson<int>(phut),
+    };
+  }
+
+  TapIn copyWith({String? ngay, String? loai, int? phut}) => TapIn(
+    ngay: ngay ?? this.ngay,
+    loai: loai ?? this.loai,
+    phut: phut ?? this.phut,
+  );
+  TapIn copyWithCompanion(TapInsCompanion data) {
+    return TapIn(
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+      loai: data.loai.present ? data.loai.value : this.loai,
+      phut: data.phut.present ? data.phut.value : this.phut,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TapIn(')
+          ..write('ngay: $ngay, ')
+          ..write('loai: $loai, ')
+          ..write('phut: $phut')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ngay, loai, phut);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TapIn &&
+          other.ngay == this.ngay &&
+          other.loai == this.loai &&
+          other.phut == this.phut);
+}
+
+class TapInsCompanion extends UpdateCompanion<TapIn> {
+  final Value<String> ngay;
+  final Value<String> loai;
+  final Value<int> phut;
+  final Value<int> rowid;
+  const TapInsCompanion({
+    this.ngay = const Value.absent(),
+    this.loai = const Value.absent(),
+    this.phut = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TapInsCompanion.insert({
+    required String ngay,
+    required String loai,
+    required int phut,
+    this.rowid = const Value.absent(),
+  }) : ngay = Value(ngay),
+       loai = Value(loai),
+       phut = Value(phut);
+  static Insertable<TapIn> custom({
+    Expression<String>? ngay,
+    Expression<String>? loai,
+    Expression<int>? phut,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ngay != null) 'ngay': ngay,
+      if (loai != null) 'loai': loai,
+      if (phut != null) 'phut': phut,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TapInsCompanion copyWith({
+    Value<String>? ngay,
+    Value<String>? loai,
+    Value<int>? phut,
+    Value<int>? rowid,
+  }) {
+    return TapInsCompanion(
+      ngay: ngay ?? this.ngay,
+      loai: loai ?? this.loai,
+      phut: phut ?? this.phut,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (loai.present) {
+      map['loai'] = Variable<String>(loai.value);
+    }
+    if (phut.present) {
+      map['phut'] = Variable<int>(phut.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TapInsCompanion(')
+          ..write('ngay: $ngay, ')
+          ..write('loai: $loai, ')
+          ..write('phut: $phut, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1806,6 +2060,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WeighInsTable weighIns = $WeighInsTable(this);
   late final $EoInsTable eoIns = $EoInsTable(this);
   late final $MoInsTable moIns = $MoInsTable(this);
+  late final $TapInsTable tapIns = $TapInsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1817,6 +2072,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     weighIns,
     eoIns,
     moIns,
+    tapIns,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3046,6 +3302,160 @@ typedef $$MoInsTableProcessedTableManager =
       MoIn,
       PrefetchHooks Function()
     >;
+typedef $$TapInsTableCreateCompanionBuilder = TapInsCompanion Function({
+  required String ngay,
+  required String loai,
+  required int phut,
+  Value<int> rowid,
+});
+typedef $$TapInsTableUpdateCompanionBuilder = TapInsCompanion Function({
+  Value<String> ngay,
+  Value<String> loai,
+  Value<int> phut,
+  Value<int> rowid,
+});
+
+class $$TapInsTableFilterComposer
+    extends Composer<_$AppDatabase, $TapInsTable> {
+  $$TapInsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get loai => $composableBuilder(
+    column: $table.loai,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get phut => $composableBuilder(
+    column: $table.phut,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TapInsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TapInsTable> {
+  $$TapInsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get loai => $composableBuilder(
+    column: $table.loai,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get phut => $composableBuilder(
+    column: $table.phut,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TapInsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TapInsTable> {
+  $$TapInsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  GeneratedColumn<String> get loai =>
+      $composableBuilder(column: $table.loai, builder: (column) => column);
+
+  GeneratedColumn<int> get phut =>
+      $composableBuilder(column: $table.phut, builder: (column) => column);
+}
+
+class $$TapInsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TapInsTable,
+          TapIn,
+          $$TapInsTableFilterComposer,
+          $$TapInsTableOrderingComposer,
+          $$TapInsTableAnnotationComposer,
+          $$TapInsTableCreateCompanionBuilder,
+          $$TapInsTableUpdateCompanionBuilder,
+          (TapIn, BaseReferences<_$AppDatabase, $TapInsTable, TapIn>),
+          TapIn,
+          PrefetchHooks Function()
+        > {
+  $$TapInsTableTableManager(_$AppDatabase db, $TapInsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TapInsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TapInsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TapInsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> ngay = const Value.absent(),
+                Value<String> loai = const Value.absent(),
+                Value<int> phut = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TapInsCompanion(
+                ngay: ngay,
+                loai: loai,
+                phut: phut,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String ngay,
+                required String loai,
+                required int phut,
+                Value<int> rowid = const Value.absent(),
+              }) => TapInsCompanion.insert(
+                ngay: ngay,
+                loai: loai,
+                phut: phut,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TapInsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TapInsTable,
+      TapIn,
+      $$TapInsTableFilterComposer,
+      $$TapInsTableOrderingComposer,
+      $$TapInsTableAnnotationComposer,
+      $$TapInsTableCreateCompanionBuilder,
+      $$TapInsTableUpdateCompanionBuilder,
+      (TapIn, BaseReferences<_$AppDatabase, $TapInsTable, TapIn>),
+      TapIn,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3062,4 +3472,6 @@ class $AppDatabaseManager {
       $$EoInsTableTableManager(_db, _db.eoIns);
   $$MoInsTableTableManager get moIns =>
       $$MoInsTableTableManager(_db, _db.moIns);
+  $$TapInsTableTableManager get tapIns =>
+      $$TapInsTableTableManager(_db, _db.tapIns);
 }

@@ -85,7 +85,19 @@ class MoIns extends Table {
   Set<Column> get primaryKey => {ngay};
 }
 
-@DriftDatabase(tables: [Habits, Ticks, Profiles, WeighIns, EoIns, MoIns])
+class TapIns extends Table {
+  @override
+  String get tableName => 'tap_ins';
+
+  TextColumn get ngay => text()();
+  TextColumn get loai => text()();
+  IntColumn get phut => integer()();
+
+  @override
+  Set<Column> get primaryKey => {ngay};
+}
+
+@DriftDatabase(tables: [Habits, Ticks, Profiles, WeighIns, EoIns, MoIns, TapIns])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
 
@@ -94,7 +106,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -125,6 +137,9 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(profiles, profiles.nhipKg);
             await m.createTable(eoIns);
             await m.createTable(moIns);
+          }
+          if (from < 4) {
+            await m.createTable(tapIns);
           }
         },
         beforeOpen: (details) async {
@@ -307,6 +322,16 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  Future<void> ghiTap(DateTime ngay, String loai, int phut) async {
+    await into(tapIns).insertOnConflictUpdate(
+      TapInsCompanion.insert(ngay: Ngay.iso(ngay), loai: loai, phut: phut),
+    );
+  }
+
+  Future<List<TapIn>> dsTap() {
+    return (select(tapIns)..orderBy([(t) => OrderingTerm.desc(t.ngay)])).get();
+  }
+
   Future<List<EoIn>> dsEo() {
     return (select(eoIns)..orderBy([(e) => OrderingTerm.desc(e.ngay)])).get();
   }
@@ -385,6 +410,7 @@ class AppDatabase extends _$AppDatabase {
       try {
         await customStatement('INSERT INTO eo_ins SELECT * FROM src.eo_ins');
         await customStatement('INSERT INTO mo_ins SELECT * FROM src.mo_ins');
+        await customStatement('INSERT INTO tap_ins SELECT * FROM src.tap_ins');
       } catch (_) {}
     } finally {
       await customStatement('DETACH DATABASE src');
@@ -405,6 +431,7 @@ class AppDatabase extends _$AppDatabase {
     await delete(weighIns).go();
     await delete(eoIns).go();
     await delete(moIns).go();
+    await delete(tapIns).go();
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       const ProfilesCompanion(
         sex: Value(null),
