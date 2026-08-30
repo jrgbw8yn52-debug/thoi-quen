@@ -6,6 +6,7 @@ import '../mau.dart';
 import '../widget/chip_can.dart';
 import '../widget/dai_tuan.dart';
 import '../widget/hang_habit.dart';
+import '../widget/lan_ngay.dart';
 import 'mot_habit.dart';
 import 'them_habit.dart';
 
@@ -15,6 +16,7 @@ class ManHomNay extends StatelessWidget {
   final Kho kho;
 
   void _moThem(BuildContext context) {
+    if (!kho.themDuoc) return;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => ManThemHabit(kho: kho),
@@ -42,26 +44,47 @@ class ManHomNay extends StatelessWidget {
             child: ChipCan(chu: kho.chuChipCan, onTap: kho.moCoThe),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-            child: Text(
-              kho.dongNgay,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
-                height: 1.15,
-                letterSpacing: -0.4,
-                color: Mau.muc,
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                key: const Key('tieu-de-ngay'),
+                onTap: () => moLanNgay(context, kho),
+                borderRadius: BorderRadius.circular(12),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 44),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            kho.dongNgay,
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w600,
+                              height: 1.15,
+                              letterSpacing: -0.4,
+                              color: Mau.muc,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.expand_more, color: Mau.mo),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 6, 20, 8),
             child: Text(
-              kho.nTrenM,
+              kho.khoaGhi ? '${kho.nTrenM} · ${Chuoi.chiXem}' : kho.nTrenM,
               style: const TextStyle(fontSize: 15, color: Mau.mo, height: 1.3),
             ),
           ),
-          DaiTuan(tuan: kho.tuan, onChon: kho.chonNgay),
+          DaiTuan(tuan: kho.tuan),
           Expanded(
             child: kho.rong
                 ? _FirstRun(
@@ -81,6 +104,7 @@ class ManHomNay extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                         child: HangHabit(
                           hang: h,
+                          khoaGhi: kho.khoaGhi,
                           onTap: () => kho.toggle(h),
                           onChiTiet: () => _moMot(context, h.habit.id),
                         ),
@@ -108,7 +132,7 @@ class _NutThem extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44),
-          child: Center(
+          child: const Center(
             child: Text(
               Chuoi.themThoiQuen,
               style: TextStyle(
@@ -132,6 +156,15 @@ class _FirstRun extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kho.khoaGhi) {
+      return const Padding(
+        padding: EdgeInsets.fromLTRB(20, 8, 20, 24),
+        child: Text(
+          Chuoi.chiXem,
+          style: TextStyle(fontSize: 15, color: Mau.mo),
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       child: Column(

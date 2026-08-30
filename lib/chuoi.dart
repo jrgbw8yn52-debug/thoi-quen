@@ -29,6 +29,8 @@ abstract final class Chuoi {
   static const xoa = 'Xoá';
   static const daCoThoiQuen = 'Đã có thói quen này.';
   static const xoaKhoiMay = 'Xoá khỏi máy này? Không lấy lại được.';
+  static const chiXem = 'Chỉ xem.';
+  static const chonNgay = 'Chọn ngày';
   static const t2 = 'T2';
   static const t3 = 'T3';
   static const t4 = 'T4';

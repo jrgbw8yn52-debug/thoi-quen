@@ -186,6 +186,17 @@ class AppDatabase extends _$AppDatabase {
 
   Future<List<Tick>> dsTick() => select(ticks).get();
 
+  Future<void> ghiTick(Habit habit, DateTime ngay) async {
+    await into(ticks).insert(
+      TicksCompanion.insert(
+        habitId: habit.id,
+        ngay: Ngay.iso(ngay),
+        phut: Value(habit.phutMacDinh),
+      ),
+      mode: InsertMode.insertOrIgnore,
+    );
+  }
+
   Future<void> toggleTick(Habit habit, DateTime ngay) async {
     final iso = Ngay.iso(ngay);
     final cu = await (select(ticks)

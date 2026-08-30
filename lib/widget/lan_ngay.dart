@@ -1,0 +1,166 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+import '../chuoi.dart';
+import '../kho.dart';
+import '../mau.dart';
+import '../ngay.dart';
+
+Future<void> moLanNgay(BuildContext context, Kho kho) async {
+  final goc = kho.selected;
+  final ok = await showModalBottomSheet<bool>(
+    context: context,
+    backgroundColor: Mau.beMat,
+    builder: (ctx) => _LanNgay(kho: kho),
+  );
+  if (ok != true) kho.chonNgay(goc);
+}
+
+class _LanNgay extends StatefulWidget {
+  const _LanNgay({required this.kho});
+
+  final Kho kho;
+
+  @override
+  State<_LanNgay> createState() => _LanNgayState();
+}
+
+class _LanNgayState extends State<_LanNgay> {
+  static const _namLui = 5;
+
+  late int _nam;
+  late int _thang;
+  late int _ngay;
+  late int _namMin;
+  late FixedExtentScrollController _cNam;
+  late FixedExtentScrollController _cThang;
+  late FixedExtentScrollController _cNgay;
+
+  DateTime get _hom => widget.kho.homNay;
+
+  int get _soNam => _hom.year - _namMin + 1;
+
+  @override
+  void initState() {
+    super.initState();
+    final s = widget.kho.selected;
+    _nam = s.year;
+    _thang = s.month;
+    _ngay = s.day;
+    _namMin = _hom.year - _namLui;
+    _cNam = FixedExtentScrollController(initialItem: _nam - _namMin);
+    _cThang = FixedExtentScrollController(initialItem: _thang - 1);
+    _cNgay = FixedExtentScrollController(initialItem: _ngay - 1);
+  }
+
+  @override
+  void dispose() {
+    _cNam.dispose();
+    _cThang.dispose();
+    _cNgay.dispose();
+    super.dispose();
+  }
+
+  DateTime _hopLe(int nam, int thang, int ngay) {
+    final maxD = Ngay.soNgayThang(nam, thang);
+    var d = DateTime(nam, thang, ngay.clamp(1, maxD));
+    if (Ngay.sau(d, _hom)) d = _hom;
+    return d;
+  }
+
+  void _apDung() {
+    final d = _hopLe(_nam, _thang, _ngay);
+    _nam = d.year;
+    _thang = d.month;
+    _ngay = d.day;
+    widget.kho.chonNgay(d);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SizedBox(
+        height: 320,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text(Chuoi.huy),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      Chuoi.chonNgay,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Mau.muc,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text(Chuoi.xong),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: CupertinoPicker(
+                      scrollController: _cNgay,
+                      itemExtent: 36,
+                      onSelectedItemChanged: (i) {
+                        _ngay = i + 1;
+                        _apDung();
+                      },
+                      children: [
+                        for (var d = 1; d <= 31; d++)
+                          Center(child: Text('$d')),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: CupertinoPicker(
+                      scrollController: _cThang,
+                      itemExtent: 36,
+                      onSelectedItemChanged: (i) {
+                        _thang = i + 1;
+                        _apDung();
+                      },
+                      children: [
+                        for (var m = 1; m <= 12; m++)
+                          Center(child: Text(Chuoi.thang(m))),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: CupertinoPicker(
+                      scrollController: _cNam,
+                      itemExtent: 36,
+                      onSelectedItemChanged: (i) {
+                        _nam = _namMin + i;
+                        _apDung();
+                      },
+                      children: [
+                        for (var i = 0; i < _soNam; i++)
+                          Center(child: Text('${_namMin + i}')),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

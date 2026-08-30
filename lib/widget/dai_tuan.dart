@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
 
+/// Chỉ hiển thị tuần của ngày đang xem. Không đổi ngày.
 class DaiTuan extends StatelessWidget {
-  const DaiTuan({super.key, required this.tuan, required this.onChon});
+  const DaiTuan({super.key, required this.tuan});
 
   final List<ChamTuan> tuan;
-  final ValueChanged<DateTime> onChon;
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +21,6 @@ class DaiTuan extends StatelessWidget {
               child: _Cham(
                 thu: Chuoi.thuNgan[i],
                 cham: tuan[i],
-                onTap: tuan[i].tuongLai
-                    ? null
-                    : () {
-                        HapticFeedback.selectionClick();
-                        onChon(tuan[i].ngay);
-                      },
               ),
             ),
         ],
@@ -37,35 +30,30 @@ class DaiTuan extends StatelessWidget {
 }
 
 class _Cham extends StatelessWidget {
-  const _Cham({required this.thu, required this.cham, required this.onTap});
+  const _Cham({required this.thu, required this.cham});
 
   final String thu;
   final ChamTuan cham;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final mo = cham.tuongLai;
-    return InkWell(
-      onTap: onTap,
-      customBorder: const CircleBorder(),
-      child: SizedBox(
-        height: 56,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              thu,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: cham.laHomNay ? FontWeight.w700 : FontWeight.w500,
-                color: mo ? Mau.vien : (cham.laHomNay ? Mau.muc : Mau.mo),
-              ),
+    return SizedBox(
+      height: 56,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            thu,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: cham.laHomNay ? FontWeight.w700 : FontWeight.w500,
+              color: mo ? Mau.vien : (cham.laHomNay ? Mau.muc : Mau.mo),
             ),
-            const SizedBox(height: 6),
-            _HinhCham(cham: cham),
-          ],
-        ),
+          ),
+          const SizedBox(height: 6),
+          _HinhCham(cham: cham),
+        ],
       ),
     );
   }

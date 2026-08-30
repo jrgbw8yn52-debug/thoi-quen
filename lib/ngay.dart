@@ -39,6 +39,16 @@ abstract final class Ngay {
 
   static bool sau(DateTime a, DateTime b) => cat(a).isAfter(cat(b));
 
+  /// Ghi được nếu không tương lai và cách hôm nay không quá [cuaSoGhi] ngày.
+  static const cuaSoGhi = 7;
+
+  static bool ghiDuoc(DateTime ngay, DateTime homNay) {
+    final d = cat(ngay);
+    final h = cat(homNay);
+    if (d.isAfter(h)) return false;
+    return h.difference(d).inDays <= cuaSoGhi;
+  }
+
   static int soNgayThang(int nam, int thang) =>
       DateTime(nam, thang + 1, 0).day;
 

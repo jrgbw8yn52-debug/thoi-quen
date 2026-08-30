@@ -82,7 +82,8 @@ class Kho extends ChangeNotifier {
   int get mHabit => hang.length;
   bool get rong => hang.isEmpty;
   bool get xemHomNay => Ngay.cungNgay(selected, homNay);
-  bool get themDuoc => hang.length < AppDatabase.maxHabit;
+  bool get khoaGhi => !Ngay.ghiDuoc(selected, homNay);
+  bool get themDuoc => hang.length < AppDatabase.maxHabit && !khoaGhi;
 
   String get dongNgay => Chuoi.dongNgay(selected);
 
@@ -159,15 +160,20 @@ class Kho extends ChangeNotifier {
   /// UI đổi ngay, ghi Drift sau. Ghi tuần tự theo (habit, ngày).
   Future<void> toggle(HangHabitView h) => toggleNgay(h.habit, selected);
 
-  /// Ô tháng: đổi selectedDate rồi tick/hoàn tác đúng ngày đó.
+  /// Ô tháng: đổi selectedDate; tick chỉ khi ngày còn ghi được.
   Future<void> chonVaTick(Habit habit, DateTime ngay) {
     if (Ngay.sau(ngay, homNay)) return Future.value();
     selected = Ngay.cat(ngay);
+    if (!Ngay.ghiDuoc(ngay, homNay)) {
+      _dongBoHangVaTuan();
+      notifyListeners();
+      return Future.value();
+    }
     return toggleNgay(habit, ngay);
   }
 
   Future<void> toggleNgay(Habit habit, DateTime ngay) {
-    if (Ngay.sau(ngay, homNay)) return Future.value();
+    if (!Ngay.ghiDuoc(ngay, homNay)) return Future.value();
     final iso = Ngay.iso(ngay);
     final set = ticksIso.putIfAbsent(habit.id, () => <String>{});
     final bat = !set.contains(iso);
@@ -232,6 +238,11 @@ class Kho extends ChangeNotifier {
         met: met,
         phutMacDinh: phutMacDinh,
       );
+      if (id != null && Ngay.ghiDuoc(selected, homNay)) {
+        final ds = await db.dsHabit();
+        final h = ds.firstWhere((x) => x.id == id);
+        await db.ghiTick(h, selected);
+      }
       await tai();
       return id != null;
     } finally {

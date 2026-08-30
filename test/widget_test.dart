@@ -42,12 +42,12 @@ void main() {
     await kho.themPreset(ten: Chuoi.day6Gio);
     await kho.themPreset(ten: Chuoi.doc20Trang);
     final h = kho.hang.first.habit;
-    await kho.chonVaTick(h, DateTime(2026, 7, 15));
-    expect(kho.selected, DateTime(2026, 7, 15));
+    await kho.chonVaTick(h, DateTime(2026, 8, 24));
+    expect(kho.selected, DateTime(2026, 8, 24));
     expect(kho.hang.first.ticked, isTrue);
     expect(kho.hang.last.ticked, isFalse);
     expect(kho.nTick, 1);
-    expect(kho.tuan.first.ngay, DateTime(2026, 7, 13));
+    expect(kho.tuan.first.ngay, DateTime(2026, 8, 24));
   });
 
   test('themPreset song song mot ten mot hang', () async {
@@ -72,17 +72,16 @@ void main() {
     await tester.tap(find.text(Chuoi.day6Gio));
     await tester.pumpAndSettle();
 
-    expect(find.text('0/1 hôm nay'), findsOneWidget);
-    expect(find.text('0/25 tháng này'), findsOneWidget);
-
-    await tester.tap(find.text(Chuoi.day6Gio));
-    await tester.pumpAndSettle();
     expect(find.text('1/1 hôm nay'), findsOneWidget);
     expect(find.text('1/25 tháng này'), findsOneWidget);
 
     await tester.tap(find.text(Chuoi.day6Gio));
     await tester.pumpAndSettle();
     expect(find.text('0/1 hôm nay'), findsOneWidget);
+
+    await tester.tap(find.text(Chuoi.day6Gio));
+    await tester.pumpAndSettle();
+    expect(find.text('1/1 hôm nay'), findsOneWidget);
   });
 
   testWidgets('chip tap lien tiep khong nhan ban ten', (tester) async {
@@ -100,9 +99,9 @@ void main() {
     await kho.themPreset(ten: Chuoi.day6Gio);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
-    expect(kho.hang.single.ticked, isFalse);
-    final fut = kho.toggle(kho.hang.single);
     expect(kho.hang.single.ticked, isTrue);
+    final fut = kho.toggle(kho.hang.single);
+    expect(kho.hang.single.ticked, isFalse);
     await fut;
   });
 
@@ -123,15 +122,27 @@ void main() {
     expect(find.text('Cân 72,5'), findsOneWidget);
   });
 
-  testWidgets('cham tuan: thu hai tap duoc, xem ngay do', (tester) async {
+  testWidgets('cham tuan chi hien thi, khong doi ngay', (tester) async {
     await kho.themPreset(ten: Chuoi.day6Gio);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('T2'));
     await tester.pumpAndSettle();
-    expect(find.text('Thứ Hai, 24 tháng 8'), findsOneWidget);
-    expect(find.text('0/1 ngày 24/8'), findsOneWidget);
+    expect(find.text('Chủ Nhật, 30 tháng 8'), findsOneWidget);
+    expect(find.text('1/1 hôm nay'), findsOneWidget);
+  });
+
+  testWidgets('tieu de ngay mo con lan', (tester) async {
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('tieu-de-ngay')));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.chonNgay), findsOneWidget);
+    expect(find.text(Chuoi.thang(8)), findsWidgets);
+    await tester.tap(find.text(Chuoi.huy));
+    await tester.pumpAndSettle();
+    expect(find.text('Chủ Nhật, 30 tháng 8'), findsOneWidget);
   });
 
   testWidgets('mo mot habit: chuoi, xoa dung cau khoa', (tester) async {
@@ -141,8 +152,8 @@ void main() {
 
     await tester.tap(find.byKey(Key('chi-tiet-${kho.hang.single.habit.id}')));
     await tester.pumpAndSettle();
-    expect(find.text('Chuỗi 0 ngày'), findsOneWidget);
-    expect(find.text('Còn 25 ngày nữa là đạt 25'), findsOneWidget);
+    expect(find.text('Chuỗi 1 ngày'), findsOneWidget);
+    expect(find.text('Còn 24 ngày nữa là đạt 25'), findsOneWidget);
 
     await tester.tap(find.text(Chuoi.xoa));
     await tester.pumpAndSettle();
@@ -169,7 +180,29 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
     expect(find.text('Thứ Tư, 15 tháng 7'), findsOneWidget);
-    expect(find.text('1/1 ngày 15/7'), findsOneWidget);
+    expect(find.text('0/1 ngày 15/7 · Chỉ xem.'), findsOneWidget);
     expect(find.text(Chuoi.day6Gio), findsOneWidget);
+  });
+
+  test('habit moi tick dung ngay dang xem, khong backfill', () async {
+    kho.chonNgay(DateTime(2026, 8, 24));
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    final ticks = kho.ticksCua(kho.hang.single.habit.id);
+    expect(ticks, {'2026-08-24'});
+    expect(kho.hang.single.ticked, isTrue);
+    kho.chonNgay(DateTime(2026, 8, 30));
+    expect(kho.hang.single.ticked, isFalse);
+  });
+
+  test('khoa ghi: khong tick, khong them', () async {
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    final id = kho.hang.single.habit.id;
+    expect(kho.ticksCua(id), {'2026-08-30'});
+    kho.chonNgay(DateTime(2026, 8, 22));
+    expect(kho.khoaGhi, isTrue);
+    await kho.toggle(kho.hang.single);
+    expect(kho.ticksCua(id), {'2026-08-30'});
+    expect(await kho.themPreset(ten: Chuoi.doc20Trang), isFalse);
+    expect(kho.hang.length, 1);
   });
 }

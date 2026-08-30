@@ -11,28 +11,32 @@ class HangHabit extends StatelessWidget {
     required this.hang,
     required this.onTap,
     required this.onChiTiet,
+    this.khoaGhi = false,
   });
 
   final HangHabitView hang;
   final VoidCallback onTap;
   final VoidCallback onChiTiet;
+  final bool khoaGhi;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Mau.beMat,
       child: InkWell(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          onTap();
-        },
+        onTap: khoaGhi
+            ? null
+            : () {
+                HapticFeedback.selectionClick();
+                onTap();
+              },
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 56),
           child: Padding(
             padding: const EdgeInsets.only(left: 16),
             child: Row(
               children: [
-                _NutTick(bat: hang.ticked),
+                _NutTick(bat: hang.ticked, mo: khoaGhi),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Text(
@@ -75,9 +79,10 @@ class HangHabit extends StatelessWidget {
 }
 
 class _NutTick extends StatelessWidget {
-  const _NutTick({required this.bat});
+  const _NutTick({required this.bat, this.mo = false});
 
   final bool bat;
+  final bool mo;
 
   @override
   Widget build(BuildContext context) {
@@ -88,8 +93,11 @@ class _NutTick extends StatelessWidget {
       height: 22,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: bat ? Mau.reu : Colors.transparent,
-        border: Border.all(color: bat ? Mau.reu : Mau.muc, width: 1.6),
+        color: bat ? (mo ? Mau.reu.withValues(alpha: 0.45) : Mau.reu) : Colors.transparent,
+        border: Border.all(
+          color: bat ? Mau.reu : (mo ? Mau.vien : Mau.muc),
+          width: 1.6,
+        ),
       ),
       child: bat
           ? const Icon(Icons.check, size: 14, color: Mau.giay)

@@ -24,6 +24,15 @@ void main() {
     expect(Chuoi.dongNgay(DateTime(2026, 8, 24)), 'Thứ Hai, 24 tháng 8');
   });
 
+  test('ghiDuoc: hom nay va 7 ngay truoc, khoa ngay thu 8', () {
+    final hom = DateTime(2026, 8, 30);
+    expect(Ngay.ghiDuoc(hom, hom), isTrue);
+    expect(Ngay.ghiDuoc(DateTime(2026, 8, 23), hom), isTrue);
+    expect(Ngay.ghiDuoc(DateTime(2026, 8, 22), hom), isFalse);
+    expect(Ngay.ghiDuoc(DateTime(2026, 8, 31), hom), isFalse);
+    expect(Ngay.ghiDuoc(DateTime(2026, 7, 15), hom), isFalse);
+  });
+
   test('so ngay thang', () {
     expect(Ngay.soNgayThang(2026, 8), 31);
     expect(Ngay.soNgayThang(2026, 2), 28);
