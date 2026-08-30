@@ -6,7 +6,10 @@ import 'package:flutter/services.dart';
 import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
+import '../ngay.dart';
+import '../so.dart';
 import '../widget/duong_can.dart';
+import 'bao_cao.dart';
 
 class ManTienDo extends StatelessWidget {
   const ManTienDo({super.key, required this.kho});
@@ -21,14 +24,28 @@ class ManTienDo extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         children: [
-          const Text(
-            Chuoi.tienDo,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.4,
-              color: Mau.muc,
-            ),
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  Chuoi.tienDo,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.4,
+                    color: Mau.muc,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => ManBaoCao(kho: kho)),
+                  );
+                },
+                child: const Text(Chuoi.xemBaoCao),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           Text(
@@ -43,19 +60,29 @@ class ManTienDo extends StatelessWidget {
                 style: TextStyle(fontSize: 13, color: Mau.mo),
               ),
             ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            children: [
+              _Phin(chu: Chuoi.phinNgay, bat: kho.phin == 0, onTap: () => kho.chonPhin(0)),
+              _Phin(chu: Chuoi.tuanNhan, bat: kho.phin == 1, onTap: () => kho.chonPhin(1)),
+              _Phin(chu: Chuoi.thangNhan, bat: kho.phin == 2, onTap: () => kho.chonPhin(2)),
+              _Phin(chu: Chuoi.namNhan, bat: kho.phin == 3, onTap: () => kho.chonPhin(3)),
+            ],
+          ),
           const SizedBox(height: 24),
           Center(
             child: SizedBox(
               width: 148,
               height: 148,
               child: CustomPaint(
-                painter: _Vong(phan: kho.mHabit == 0 ? 0 : kho.nTick / kho.mHabit),
+                painter: _Vong(phan: kho.nTrenMKy.$2 == 0 ? 0 : kho.nTrenMKy.$1 / kho.nTrenMKy.$2),
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        Chuoi.phanTram(kho.phanTramNgay),
+                        Chuoi.phanTram(kho.phanTramKy),
                         style: const TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w600,
@@ -64,7 +91,7 @@ class ManTienDo extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        Chuoi.nTrenM(kho.nTick, kho.mHabit),
+                        Chuoi.nTrenM(kho.nTrenMKy.$1, kho.nTrenMKy.$2),
                         style: const TextStyle(fontSize: 15, color: Mau.mo),
                       ),
                     ],
@@ -73,98 +100,109 @@ class ManTienDo extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 28),
-          const Text(
-            Chuoi.tuanNhan,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Mau.mo,
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 72,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final c in kho.tuan)
-                  Expanded(
-                    child: _CotTuan(
-                      cot: c,
-                      onTap: c.tuongLai
-                          ? null
-                          : () {
-                              HapticFeedback.selectionClick();
-                              kho.chonNgay(c.ngay);
-                            },
+          if (kho.phin == 1) ...[
+            const SizedBox(height: 28),
+            const Text(Chuoi.tuanNhan, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 72,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final c in kho.tuan)
+                    Expanded(
+                      child: _CotTuan(
+                        cot: c,
+                        onTap: c.tuongLai
+                            ? null
+                            : () {
+                                HapticFeedback.selectionClick();
+                                kho.chonNgay(c.ngay);
+                              },
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            '${Chuoi.thang(kho.selected.month)} ${kho.selected.year}',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Mau.mo,
+          ],
+          if (kho.phin == 2) ...[
+            const SizedBox(height: 28),
+            Text(
+              '${Chuoi.thang(kho.selected.month)} ${kho.selected.year}',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
             ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 56,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final c in kho.cotThang)
-                  Expanded(
-                    child: _CotThangNho(
-                      cot: c,
-                      onTap: c.tuongLai
-                          ? null
-                          : () {
-                              HapticFeedback.selectionClick();
-                              kho.chonNgay(c.ngay);
-                            },
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 56,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final c in kho.cotThang)
+                    Expanded(
+                      child: _CotThangNho(
+                        cot: c,
+                        onTap: c.tuongLai
+                            ? null
+                            : () {
+                                HapticFeedback.selectionClick();
+                                kho.chonNgay(c.ngay);
+                              },
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
+          if (kho.phin == 3) ...[
+            const SizedBox(height: 28),
+            Text(
+              '${Chuoi.namNhan} ${kho.selected.year}',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 72,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final c in kho.cotNam)
+                    Expanded(
+                      child: _CotThangNho(
+                        cot: c,
+                        onTap: c.tuongLai
+                            ? null
+                            : () {
+                                HapticFeedback.selectionClick();
+                                final last = DateTime(c.ngay.year, c.ngay.month, Ngay.soNgayThang(c.ngay.year, c.ngay.month));
+                                kho.chonNgay(last.isAfter(kho.homNay) ? kho.homNay : last);
+                              },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 28),
           const Text(
             Chuoi.canKg,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Mau.mo,
-            ),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
           ),
           const SizedBox(height: 8),
-          if (spark.isNotEmpty) DuongCan(diem: spark, dich: kho.targetKg),
-          if (kho.daDoiDoc != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                kho.daDoiDoc!,
-                style: const TextStyle(fontSize: 14, color: Mau.mo),
-              ),
-            ),
-          if (kho.dongCanHienTai != null)
+          if (spark.isNotEmpty) DuongCan(diem: spark, dich: kho.targetKg, truc: true),
+          if (kho.banDauKg != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                kho.dongCanHienTai!,
-                style: const TextStyle(fontSize: 14, color: Mau.mo, height: 1.35),
+              child: Row(
+                children: [
+                  _SoCan(nhan: Chuoi.banDau, gia: kho.banDauKg!),
+                  _SoCan(nhan: Chuoi.hienTai, gia: kho.hienTaiKg!),
+                  if (kho.dsCan.length >= 2)
+                    _SoCan(nhan: Chuoi.doi, gia: So.kg(kho.dsCan.first.kg - kho.dsCan.last.kg)),
+                ],
               ),
             ),
           const SizedBox(height: 8),
-          Text(
-            kho.chuKcalTap,
-            style: const TextStyle(fontSize: 15, color: Mau.muc),
-          ),
+          Text(kho.chuKcalTap, style: const TextStyle(fontSize: 15, color: Mau.muc)),
         ],
       ),
     );
@@ -273,6 +311,59 @@ class _CotThangNho extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _Phin extends StatelessWidget {
+  const _Phin({required this.chu, required this.bat, required this.onTap});
+
+  final String chu;
+  final bool bat;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: bat ? Mau.chipBat : Mau.beMat,
+      shape: StadiumBorder(side: BorderSide(color: bat ? Mau.reu : Mau.vien)),
+      child: InkWell(
+        customBorder: const StadiumBorder(),
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 36),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text(
+              chu,
+              style: const TextStyle(fontSize: 14, color: Mau.muc),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SoCan extends StatelessWidget {
+  const _SoCan({required this.nhan, required this.gia});
+
+  final String nhan;
+  final String gia;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(nhan, style: const TextStyle(fontSize: 12, color: Mau.mo)),
+          Text(
+            gia,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Mau.muc),
+          ),
+        ],
       ),
     );
   }

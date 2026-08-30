@@ -86,6 +86,7 @@ class Kho extends ChangeNotifier {
   final DateTime homNay;
   late DateTime selected;
   int tab = 0;
+  int phin = 0;
 
   List<HangHabitView> hang = const [];
   List<ChamTuan> tuan = const [];
@@ -103,6 +104,7 @@ class Kho extends ChangeNotifier {
   List<EoIn> dsEo = const [];
   List<MoIn> dsMo = const [];
   List<TapIn> dsTap = const [];
+  List<ChiSoIn> dsChiSo = const [];
   bool dangTai = true;
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
@@ -208,23 +210,161 @@ class Kho extends ChangeNotifier {
       );
 
   String get chuKcalTap {
-    final t = tapCua(selected);
-    if (t == null) return Chuoi.kcalTapSo(0);
-    final k = CongThuc.kcalTap(
-      met: CongThuc.metCua(t.loai),
-      kg: canMoi?.kg,
-      phut: t.phut,
-    );
-    if (k == null) return Chuoi.thieuDuLieu;
-    return Chuoi.kcalTapSo(k.round());
+    final ds = tapNgay(selected);
+    if (ds.isEmpty) return Chuoi.kcalTapSo(0);
+    if (canMoi == null) return Chuoi.thieuDuLieu;
+    return Chuoi.kcalTapSo(kcalTapCuaNgay(selected));
   }
 
-  TapIn? tapCua(DateTime d) {
+  List<TapIn> tapNgay(DateTime d) {
     final iso = Ngay.iso(d);
-    for (final t in dsTap) {
-      if (t.ngay == iso) return t;
+    return [for (final t in dsTap) if (t.ngay == iso) t];
+  }
+
+  int kcalTapCuaNgay(DateTime d) {
+    final kg = canMoi?.kg;
+    var s = 0.0;
+    for (final t in tapNgay(d)) {
+      final k = CongThuc.kcalTap(
+        met: CongThuc.metCua(t.loai),
+        kg: kg,
+        phut: t.phut,
+      );
+      if (k != null) s += k;
+    }
+    return s.round();
+  }
+
+  ChiSoIn? chiSoCua(DateTime d) {
+    final iso = Ngay.iso(d);
+    for (final c in dsChiSo) {
+      if (c.ngay == iso) return c;
     }
     return null;
+  }
+
+  String? get dongTaiKhoan {
+    final t = CongThuc.tuoi(dob, homNay);
+    final kg = canMoi?.kg;
+    if (t == null || kg == null || heightCm == null) return null;
+    return Chuoi.tuoiCanCao('$t', So.kg(kg), So.kg(heightCm!));
+  }
+
+  DateTime? get duKienDoc => CongThuc.duKien(
+        homNay: homNay,
+        nhip: nhipKg,
+        kg: canMoi?.kg,
+        target: targetKg,
+      );
+
+  String? get banDauKg => dsCan.isEmpty ? null : So.kg(dsCan.last.kg);
+
+  String? get hienTaiKg => dsCan.isEmpty ? null : So.kg(dsCan.first.kg);
+
+  int get phanTramKy {
+    final r = _ky;
+    if (r.$2 == 0) return 0;
+    return ((r.$1 / r.$2) * 100).round();
+  }
+
+  (int, int) get nTrenMKy => _ky;
+
+  (int, int) get _ky {
+    switch (phin) {
+      case 1:
+        return _tickKhoang(
+          Ngay.thuHai(selected),
+          Ngay.thuHai(selected).add(const Duration(days: 6)),
+        );
+      case 2:
+        final a = Ngay.dauThang(selected);
+        final b = DateTime(
+          selected.year,
+          selected.month,
+          Ngay.soNgayThang(selected.year, selected.month),
+        );
+        return _tickKhoang(a, b);
+      case 3:
+        return _tickKhoang(
+          DateTime(selected.year, 1, 1),
+          DateTime(selected.year, 12, 31),
+        );
+      default:
+        return (nTick, mHabit);
+    }
+  }
+
+  (int, int) _tickKhoang(DateTime a, DateTime b) {
+    var tick = 0;
+    var tong = 0;
+    var d = Ngay.cat(a);
+    final end = Ngay.cat(b);
+    while (!d.isAfter(end)) {
+      if (!Ngay.sau(d, homNay)) {
+        tick += _tickCuaNgay(d);
+        tong += mHabit;
+      }
+      d = d.add(const Duration(days: 1));
+    }
+    return (tick, tong);
+  }
+
+  List<CotThang> get cotNam {
+    return [
+      for (var m = 1; m <= 12; m++)
+        CotThang(
+          ngay: DateTime(selected.year, m, 1),
+          tick: _tickKhoang(
+            DateTime(selected.year, m, 1),
+            DateTime(selected.year, m, Ngay.soNgayThang(selected.year, m)),
+          ).$1,
+          tong: _tickKhoang(
+            DateTime(selected.year, m, 1),
+            DateTime(selected.year, m, Ngay.soNgayThang(selected.year, m)),
+          ).$2,
+          dangXem: selected.month == m,
+          tuongLai: DateTime(selected.year, m, 1).isAfter(homNay),
+        ),
+    ];
+  }
+
+  List<(String, int)> kcalThang12() {
+    final out = <(String, int)>[];
+    var y = homNay.year;
+    var m = homNay.month;
+    for (var i = 0; i < 12; i++) {
+      final a = DateTime(y, m, 1);
+      final b = DateTime(y, m, Ngay.soNgayThang(y, m));
+      out.add(('${Chuoi.thang(m)} $y', _kcalKhoang(a, b)));
+      m--;
+      if (m == 0) {
+        m = 12;
+        y--;
+      }
+    }
+    return out.reversed.toList();
+  }
+
+  List<(String, int)> kcalTuan12() {
+    var thu = Ngay.thuHai(homNay);
+    final out = <(String, int)>[];
+    for (var i = 0; i < 12; i++) {
+      final b = thu.add(const Duration(days: 6));
+      out.add(('${thu.day}/${thu.month}', _kcalKhoang(thu, b)));
+      thu = thu.subtract(const Duration(days: 7));
+    }
+    return out.reversed.toList();
+  }
+
+  int _kcalKhoang(DateTime a, DateTime b) {
+    var s = 0;
+    var d = Ngay.cat(a);
+    final end = Ngay.cat(b);
+    while (!d.isAfter(end)) {
+      s += kcalTapCuaNgay(d);
+      d = d.add(const Duration(days: 1));
+    }
+    return s;
   }
 
   String? get dongCanHienTai {
@@ -308,6 +448,7 @@ class Kho extends ChangeNotifier {
     dsMo = await db.dsMo();
     moMoi = dsMo.isEmpty ? null : dsMo.first;
     dsTap = await db.dsTap();
+    dsChiSo = await db.dsChiSo();
     dangTai = false;
     notifyListeners();
   }
@@ -452,6 +593,20 @@ class Kho extends ChangeNotifier {
     notifyListeners();
   }
 
+  void chonPhin(int i) {
+    phin = i;
+    notifyListeners();
+  }
+
+  Future<bool> ghiCanKg(double kg, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    if (kg <= 0 || kg > 400) return false;
+    await db.ghiCan(d, kg);
+    await tai();
+    return true;
+  }
+
   Future<bool> ghiCan(String raw, {DateTime? ngay}) async {
     final d = Ngay.cat(ngay ?? selected);
     if (!Ngay.ghiDuoc(d, homNay)) return false;
@@ -485,22 +640,45 @@ class Kho extends ChangeNotifier {
   Future<bool> luuHoSo({
     required String ten,
     required String cao,
-    required String dich,
     required String? sex,
     required DateTime? dob,
     required double activity,
-    required double nhip,
   }) async {
     if (!CongThuc.heSo.contains(activity)) return false;
-    if (!CongThuc.nhipKg.contains(nhip)) return false;
     await db.suaProfile(
       tenGoi: Value(ten.trim().isEmpty ? null : ten.trim()),
       heightCm: Value(So.parseCm(cao) ?? heightCm),
-      targetKg: Value(So.parseKg(dich) ?? targetKg),
       sex: Value(sex),
       dob: Value(dob == null ? null : Ngay.iso(dob)),
       activity: Value(activity),
+    );
+    await tai();
+    return true;
+  }
+
+  Future<bool> luuMucTieu({required String dich, required double nhip}) async {
+    if (!CongThuc.nhipHopLe(nhip)) return false;
+    await db.suaProfile(
+      targetKg: Value(So.parseKg(dich) ?? targetKg ?? canMoi?.kg),
       nhipKg: Value(nhip),
+    );
+    await tai();
+    return true;
+  }
+
+  Future<bool> ghiChiSoNgay({
+    double? eo,
+    double? hong,
+    double? nguc,
+    double? bapTay,
+  }) async {
+    if (khoaGhi) return false;
+    await db.ghiChiSo(
+      selected,
+      eo: eo,
+      hong: hong,
+      nguc: nguc,
+      bapTay: bapTay,
     );
     await tai();
     return true;
@@ -517,7 +695,7 @@ class Kho extends ChangeNotifier {
   }
 
   Future<void> suaNhip(double v) async {
-    if (!CongThuc.nhipKg.contains(v)) return;
+    if (!CongThuc.nhipHopLe(v)) return;
     await db.suaProfile(nhipKg: Value(v));
     await tai();
   }

@@ -7,16 +7,48 @@ abstract final class CongThuc {
   static const mocA275 = 27.5;
 
   static const heSo = [1.2, 1.375, 1.55, 1.725, 1.9];
-  static const nhipKg = [0.25, 0.5];
   static const metDiBo = 3.5;
+  static const metChay = 8.0;
+  static const metDapXe = 6.8;
   static const metKhangLuc = 5.0;
+  static const metYoga = 3.0;
   static const loaiDiBo = 'di_bo';
+  static const loaiChay = 'chay';
+  static const loaiDapXe = 'dap_xe';
   static const loaiKhangLuc = 'khang_luc';
+  static const loaiYoga = 'yoga';
+
+  static const mon = [
+    (loai: loaiDiBo, met: metDiBo),
+    (loai: loaiChay, met: metChay),
+    (loai: loaiDapXe, met: metDapXe),
+    (loai: loaiKhangLuc, met: metKhangLuc),
+    (loai: loaiYoga, met: metYoga),
+  ];
 
   static double? metCua(String? loai) {
-    if (loai == loaiDiBo) return metDiBo;
-    if (loai == loaiKhangLuc) return metKhangLuc;
+    for (final m in mon) {
+      if (m.loai == loai) return m.met;
+    }
     return null;
+  }
+
+  static bool nhipHopLe(double v) {
+    if (v < 0 || v > 1) return false;
+    return ((v * 10).round() / 10 - v).abs() < 0.001;
+  }
+
+  static DateTime? duKien({
+    required DateTime homNay,
+    required double nhip,
+    double? kg,
+    double? target,
+  }) {
+    if (nhip <= 0 || kg == null || target == null) return null;
+    final d = (kg - target).abs();
+    if (d <= 0.05) return null;
+    final ngay = (d / nhip * 7).ceil();
+    return Ngay.cat(homNay).add(Duration(days: ngay));
   }
 
   /// Deurenberg 1991. Nam sex=1, nữ sex=0.
@@ -104,10 +136,17 @@ abstract final class CongThuc {
     if (kg == null || target == null) return null;
     final d = (kg - target).abs();
     if (d <= 0.05) return 'Đã đạt cân đích.';
+    if (nhip <= 0) return null;
     final tuan = (d / nhip).ceil();
+    final nhipViet = nhipVietChu(nhip);
     if (kg > target) {
-      return 'Khoảng $tuan tuần nếu giảm ${nhip == 0.25 ? '0,25' : '0,5'} kg/tuần.';
+      return 'Khoảng $tuan tuần nếu giảm $nhipViet kg/tuần.';
     }
-    return 'Khoảng $tuan tuần nếu tăng ${nhip == 0.25 ? '0,25' : '0,5'} kg/tuần.';
+    return 'Khoảng $tuan tuần nếu tăng $nhipViet kg/tuần.';
+  }
+
+  static String nhipVietChu(double nhip) {
+    final s = nhip.toStringAsFixed(1).replaceAll('.', ',');
+    return s.endsWith(',0') ? s.substring(0, s.length - 2) : s;
   }
 }

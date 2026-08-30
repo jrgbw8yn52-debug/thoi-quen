@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 
 import '../mau.dart';
+import '../so.dart';
 
 class DuongCan extends StatelessWidget {
-  const DuongCan({super.key, required this.diem, this.dich});
+  const DuongCan({super.key, required this.diem, this.dich, this.truc = false});
 
   final List<double> diem;
   final double? dich;
+  final bool truc;
 
   @override
   Widget build(BuildContext context) {
     if (diem.isEmpty) return const SizedBox.shrink();
     return SizedBox(
-      height: 56,
+      height: truc ? 72 : 56,
       child: LayoutBuilder(
         builder: (context, c) {
           return CustomPaint(
-            size: Size(c.maxWidth, 56),
-            painter: _VeDuong(diem, dich),
+            size: Size(c.maxWidth, truc ? 72 : 56),
+            painter: _VeDuong(diem, dich, truc),
           );
         },
       ),
@@ -26,10 +28,11 @@ class DuongCan extends StatelessWidget {
 }
 
 class _VeDuong extends CustomPainter {
-  _VeDuong(this.diem, this.dich);
+  _VeDuong(this.diem, this.dich, this.truc);
 
   final List<double> diem;
   final double? dich;
+  final bool truc;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -44,9 +47,27 @@ class _VeDuong extends CustomPainter {
       if (d < minV) minV = d;
       if (d > maxV) maxV = d;
     }
+    final left = truc ? 28.0 : 0.0;
     final span = (maxV - minV).abs() < 0.05 ? 1.0 : (maxV - minV);
     double yOf(double v) =>
-        size.height - ((v - minV) / span) * size.height;
+        size.height - ((v - minV) / span) * (size.height - 4) - 2;
+    double xOf(int i) {
+      final w = size.width - left;
+      if (diem.length == 1) return left + w / 2;
+      return left + w * i / (diem.length - 1);
+    }
+
+    if (truc) {
+      void veChu(String s, Offset o) {
+        final tp = TextPainter(
+          text: TextSpan(text: s, style: const TextStyle(fontSize: 10, color: Mau.mo)),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        tp.paint(canvas, o);
+      }
+      veChu(So.kg(maxV), Offset(0, 0));
+      veChu(So.kg(minV), Offset(0, size.height - 12));
+    }
 
     if (d != null) {
       final y = yOf(d);
@@ -54,7 +75,7 @@ class _VeDuong extends CustomPainter {
         ..color = Mau.mo
         ..strokeWidth = 1;
       const w = 6.0;
-      for (var x = 0.0; x < size.width; x += w * 2) {
+      for (var x = left; x < size.width; x += w * 2) {
         canvas.drawLine(Offset(x, y), Offset(x + w, y), dash);
       }
     }
@@ -67,9 +88,7 @@ class _VeDuong extends CustomPainter {
       ..strokeJoin = StrokeJoin.round;
     final path = Path();
     for (var i = 0; i < diem.length; i++) {
-      final x = diem.length == 1
-          ? size.width / 2
-          : size.width * i / (diem.length - 1);
+      final x = xOf(i);
       final y = yOf(diem[i]);
       if (i == 0) {
         path.moveTo(x, y);
@@ -82,16 +101,15 @@ class _VeDuong extends CustomPainter {
       ..color = Mau.reu
       ..style = PaintingStyle.fill;
     if (diem.length == 1) {
-      canvas.drawCircle(Offset(size.width / 2, yOf(diem.first)), 5, cham);
+      canvas.drawCircle(Offset(xOf(0), yOf(diem.first)), 5, cham);
     } else {
       for (var i = 0; i < diem.length; i++) {
-        final x = size.width * i / (diem.length - 1);
-        canvas.drawCircle(Offset(x, yOf(diem[i])), 3, cham);
+        canvas.drawCircle(Offset(xOf(i), yOf(diem[i])), 3, cham);
       }
     }
   }
 
   @override
   bool shouldRepaint(covariant _VeDuong old) =>
-      old.diem != diem || old.dich != dich;
+      old.diem != diem || old.dich != dich || old.truc != truc;
 }

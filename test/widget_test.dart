@@ -66,7 +66,6 @@ void main() {
 
     expect(find.text('Chủ Nhật, 30 tháng 8 2026'), findsOneWidget);
     expect(find.text('0/0 hôm nay'), findsOneWidget);
-    expect(find.text(Chuoi.themCan), findsOneWidget);
     expect(find.text(Chuoi.day6Gio), findsOneWidget);
 
     await tester.tap(find.text(Chuoi.day6Gio));
@@ -105,43 +104,44 @@ void main() {
     await fut;
   });
 
-  testWidgets('nut Ghi mo to, luu can cap nhat chip, giu so', (tester) async {
+  testWidgets('nut + mo luoi 4 o, luu can cap nhat Tien do', (tester) async {
     tester.view.physicalSize = const Size(390, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(Chuoi.ghi));
+    await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.ghiTrongNgay), findsOneWidget);
-    expect(find.text('${Chuoi.anUong} · ${Chuoi.seLam}'), findsOneWidget);
+    expect(find.text(Chuoi.canNang), findsOneWidget);
+    expect(find.text('${Chuoi.nhatKy}\n${Chuoi.seLam}'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField).first, '72,5');
-    await tester.tap(find.text(Chuoi.luu).first);
+    await tester.tap(find.text(Chuoi.canNang));
     await tester.pumpAndSettle();
-    expect(find.text('72,5'), findsWidgets);
-
-    await tester.tapAt(const Offset(20, 20));
+    expect(find.text(Chuoi.canNang), findsWidgets);
+    await tester.tap(find.text('+'));
     await tester.pumpAndSettle();
-    expect(find.text('Cân 72,5'), findsOneWidget);
+    await tester.tap(find.text(Chuoi.luu));
+    await tester.pumpAndSettle();
 
+    expect(kho.canMoi, isNotNull);
     await tester.tap(find.text(Chuoi.tienDo));
     await tester.pumpAndSettle();
-    expect(find.textContaining('Cân hiện tại 72,5'), findsOneWidget);
-    expect(find.text(Chuoi.kcalTapSo(0)), findsOneWidget);
+    expect(find.text(Chuoi.banDau), findsOneWidget);
+    expect(find.text(Chuoi.hienTai), findsOneWidget);
     expect(find.text('Ghi thêm cân để thấy đường'), findsNothing);
+    expect(find.text(Chuoi.kcalTapSo(0)), findsOneWidget);
   });
 
-  testWidgets('cham tuan chi hien thi, khong doi ngay', (tester) async {
+  testWidgets('cham tuan doi selectedDate', (tester) async {
     await kho.themPreset(ten: Chuoi.day6Gio);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('T2'));
     await tester.pumpAndSettle();
-    expect(find.text('Chủ Nhật, 30 tháng 8 2026'), findsOneWidget);
-    expect(find.text('1/1 hôm nay'), findsOneWidget);
+    expect(kho.selected, DateTime(2026, 8, 24));
+    expect(find.text('Thứ Hai, 24 tháng 8 2026'), findsOneWidget);
   });
 
   testWidgets('tieu de ngay mo con lan', (tester) async {
@@ -220,18 +220,17 @@ void main() {
   testWidgets('Co the: disclaimer, thieu du lieu, khong bia 70, Nguon', (tester) async {
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(Chuoi.caiDat));
+    await tester.tap(find.text(Chuoi.taiKhoan));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.hoSoChiSo), findsOneWidget);
+    expect(find.text(Chuoi.taiKhoan), findsWidgets);
     expect(find.text(Chuoi.xoaDuLieu), findsOneWidget);
     expect(find.text(Chuoi.nguonDisclaimer), findsOneWidget);
     expect(find.text(Chuoi.phienBan), findsOneWidget);
 
-    await tester.tap(find.text(Chuoi.hoSoChiSo));
+    await tester.tap(find.text(Chuoi.thieuDuLieu).first);
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.uocTinh), findsWidgets);
     expect(find.text(Chuoi.itVanDong), findsOneWidget);
-    expect(find.text(Chuoi.nhip05), findsOneWidget);
     expect(find.text(Chuoi.luuHoSo), findsOneWidget);
     expect(find.text(Chuoi.ghiTrongNgay), findsNothing);
     expect(find.text('70'), findsNothing);
@@ -252,9 +251,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.tienDo));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.phanTram(100)), findsOneWidget);
-    expect(find.text('1/1'), findsOneWidget);
-
+    await tester.tap(find.text(Chuoi.tuanNhan));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('T2').last);
     await tester.pumpAndSettle();
     expect(kho.selected, DateTime(2026, 8, 24));

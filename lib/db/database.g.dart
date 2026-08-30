@@ -1802,6 +1802,19 @@ class $TapInsTable extends TapIns with TableInfo<$TapInsTable, TapIn> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $TapInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
   static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
   @override
   late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
@@ -1830,7 +1843,7 @@ class $TapInsTable extends TapIns with TableInfo<$TapInsTable, TapIn> {
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [ngay, loai, phut];
+  List<GeneratedColumn> get $columns => [id, ngay, loai, phut];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1843,6 +1856,9 @@ class $TapInsTable extends TapIns with TableInfo<$TapInsTable, TapIn> {
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
     if (data.containsKey('ngay')) {
       context.handle(
         _ngayMeta,
@@ -1871,11 +1887,15 @@ class $TapInsTable extends TapIns with TableInfo<$TapInsTable, TapIn> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {ngay};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   TapIn map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return TapIn(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
       ngay: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}ngay'],
@@ -1898,13 +1918,20 @@ class $TapInsTable extends TapIns with TableInfo<$TapInsTable, TapIn> {
 }
 
 class TapIn extends DataClass implements Insertable<TapIn> {
+  final int id;
   final String ngay;
   final String loai;
   final int phut;
-  const TapIn({required this.ngay, required this.loai, required this.phut});
+  const TapIn({
+    required this.id,
+    required this.ngay,
+    required this.loai,
+    required this.phut,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
     map['ngay'] = Variable<String>(ngay);
     map['loai'] = Variable<String>(loai);
     map['phut'] = Variable<int>(phut);
@@ -1913,6 +1940,7 @@ class TapIn extends DataClass implements Insertable<TapIn> {
 
   TapInsCompanion toCompanion(bool nullToAbsent) {
     return TapInsCompanion(
+      id: Value(id),
       ngay: Value(ngay),
       loai: Value(loai),
       phut: Value(phut),
@@ -1925,6 +1953,7 @@ class TapIn extends DataClass implements Insertable<TapIn> {
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TapIn(
+      id: serializer.fromJson<int>(json['id']),
       ngay: serializer.fromJson<String>(json['ngay']),
       loai: serializer.fromJson<String>(json['loai']),
       phut: serializer.fromJson<int>(json['phut']),
@@ -1934,19 +1963,22 @@ class TapIn extends DataClass implements Insertable<TapIn> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
       'ngay': serializer.toJson<String>(ngay),
       'loai': serializer.toJson<String>(loai),
       'phut': serializer.toJson<int>(phut),
     };
   }
 
-  TapIn copyWith({String? ngay, String? loai, int? phut}) => TapIn(
+  TapIn copyWith({int? id, String? ngay, String? loai, int? phut}) => TapIn(
+    id: id ?? this.id,
     ngay: ngay ?? this.ngay,
     loai: loai ?? this.loai,
     phut: phut ?? this.phut,
   );
   TapIn copyWithCompanion(TapInsCompanion data) {
     return TapIn(
+      id: data.id.present ? data.id.value : this.id,
       ngay: data.ngay.present ? data.ngay.value : this.ngay,
       loai: data.loai.present ? data.loai.value : this.loai,
       phut: data.phut.present ? data.phut.value : this.phut,
@@ -1956,6 +1988,7 @@ class TapIn extends DataClass implements Insertable<TapIn> {
   @override
   String toString() {
     return (StringBuffer('TapIn(')
+          ..write('id: $id, ')
           ..write('ngay: $ngay, ')
           ..write('loai: $loai, ')
           ..write('phut: $phut')
@@ -1964,59 +1997,397 @@ class TapIn extends DataClass implements Insertable<TapIn> {
   }
 
   @override
-  int get hashCode => Object.hash(ngay, loai, phut);
+  int get hashCode => Object.hash(id, ngay, loai, phut);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TapIn &&
+          other.id == this.id &&
           other.ngay == this.ngay &&
           other.loai == this.loai &&
           other.phut == this.phut);
 }
 
 class TapInsCompanion extends UpdateCompanion<TapIn> {
+  final Value<int> id;
   final Value<String> ngay;
   final Value<String> loai;
   final Value<int> phut;
-  final Value<int> rowid;
   const TapInsCompanion({
+    this.id = const Value.absent(),
     this.ngay = const Value.absent(),
     this.loai = const Value.absent(),
     this.phut = const Value.absent(),
-    this.rowid = const Value.absent(),
   });
   TapInsCompanion.insert({
+    this.id = const Value.absent(),
     required String ngay,
     required String loai,
     required int phut,
-    this.rowid = const Value.absent(),
   }) : ngay = Value(ngay),
        loai = Value(loai),
        phut = Value(phut);
   static Insertable<TapIn> custom({
+    Expression<int>? id,
     Expression<String>? ngay,
     Expression<String>? loai,
     Expression<int>? phut,
-    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (id != null) 'id': id,
       if (ngay != null) 'ngay': ngay,
       if (loai != null) 'loai': loai,
       if (phut != null) 'phut': phut,
-      if (rowid != null) 'rowid': rowid,
     });
   }
 
   TapInsCompanion copyWith({
+    Value<int>? id,
     Value<String>? ngay,
     Value<String>? loai,
     Value<int>? phut,
-    Value<int>? rowid,
   }) {
     return TapInsCompanion(
+      id: id ?? this.id,
       ngay: ngay ?? this.ngay,
       loai: loai ?? this.loai,
       phut: phut ?? this.phut,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (loai.present) {
+      map['loai'] = Variable<String>(loai.value);
+    }
+    if (phut.present) {
+      map['phut'] = Variable<int>(phut.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TapInsCompanion(')
+          ..write('id: $id, ')
+          ..write('ngay: $ngay, ')
+          ..write('loai: $loai, ')
+          ..write('phut: $phut')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ChiSoInsTable extends ChiSoIns with TableInfo<$ChiSoInsTable, ChiSoIn> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChiSoInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _eoMeta = const VerificationMeta('eo');
+  @override
+  late final GeneratedColumn<double> eo = GeneratedColumn<double>(
+    'eo',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hongMeta = const VerificationMeta('hong');
+  @override
+  late final GeneratedColumn<double> hong = GeneratedColumn<double>(
+    'hong',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ngucMeta = const VerificationMeta('nguc');
+  @override
+  late final GeneratedColumn<double> nguc = GeneratedColumn<double>(
+    'nguc',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bapTayMeta = const VerificationMeta('bapTay');
+  @override
+  late final GeneratedColumn<double> bapTay = GeneratedColumn<double>(
+    'bap_tay',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [ngay, eo, hong, nguc, bapTay];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'chi_so';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ChiSoIn> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    if (data.containsKey('eo')) {
+      context.handle(_eoMeta, eo.isAcceptableOrUnknown(data['eo']!, _eoMeta));
+    }
+    if (data.containsKey('hong')) {
+      context.handle(
+        _hongMeta,
+        hong.isAcceptableOrUnknown(data['hong']!, _hongMeta),
+      );
+    }
+    if (data.containsKey('nguc')) {
+      context.handle(
+        _ngucMeta,
+        nguc.isAcceptableOrUnknown(data['nguc']!, _ngucMeta),
+      );
+    }
+    if (data.containsKey('bap_tay')) {
+      context.handle(
+        _bapTayMeta,
+        bapTay.isAcceptableOrUnknown(data['bap_tay']!, _bapTayMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ngay};
+  @override
+  ChiSoIn map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChiSoIn(
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+      eo: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}eo'],
+      ),
+      hong: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}hong'],
+      ),
+      nguc: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}nguc'],
+      ),
+      bapTay: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}bap_tay'],
+      ),
+    );
+  }
+
+  @override
+  $ChiSoInsTable createAlias(String alias) {
+    return $ChiSoInsTable(attachedDatabase, alias);
+  }
+}
+
+class ChiSoIn extends DataClass implements Insertable<ChiSoIn> {
+  final String ngay;
+  final double? eo;
+  final double? hong;
+  final double? nguc;
+  final double? bapTay;
+  const ChiSoIn({
+    required this.ngay,
+    this.eo,
+    this.hong,
+    this.nguc,
+    this.bapTay,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ngay'] = Variable<String>(ngay);
+    if (!nullToAbsent || eo != null) {
+      map['eo'] = Variable<double>(eo);
+    }
+    if (!nullToAbsent || hong != null) {
+      map['hong'] = Variable<double>(hong);
+    }
+    if (!nullToAbsent || nguc != null) {
+      map['nguc'] = Variable<double>(nguc);
+    }
+    if (!nullToAbsent || bapTay != null) {
+      map['bap_tay'] = Variable<double>(bapTay);
+    }
+    return map;
+  }
+
+  ChiSoInsCompanion toCompanion(bool nullToAbsent) {
+    return ChiSoInsCompanion(
+      ngay: Value(ngay),
+      eo: eo == null && nullToAbsent ? const Value.absent() : Value(eo),
+      hong: hong == null && nullToAbsent ? const Value.absent() : Value(hong),
+      nguc: nguc == null && nullToAbsent ? const Value.absent() : Value(nguc),
+      bapTay: bapTay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bapTay),
+    );
+  }
+
+  factory ChiSoIn.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChiSoIn(
+      ngay: serializer.fromJson<String>(json['ngay']),
+      eo: serializer.fromJson<double?>(json['eo']),
+      hong: serializer.fromJson<double?>(json['hong']),
+      nguc: serializer.fromJson<double?>(json['nguc']),
+      bapTay: serializer.fromJson<double?>(json['bapTay']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ngay': serializer.toJson<String>(ngay),
+      'eo': serializer.toJson<double?>(eo),
+      'hong': serializer.toJson<double?>(hong),
+      'nguc': serializer.toJson<double?>(nguc),
+      'bapTay': serializer.toJson<double?>(bapTay),
+    };
+  }
+
+  ChiSoIn copyWith({
+    String? ngay,
+    Value<double?> eo = const Value.absent(),
+    Value<double?> hong = const Value.absent(),
+    Value<double?> nguc = const Value.absent(),
+    Value<double?> bapTay = const Value.absent(),
+  }) => ChiSoIn(
+    ngay: ngay ?? this.ngay,
+    eo: eo.present ? eo.value : this.eo,
+    hong: hong.present ? hong.value : this.hong,
+    nguc: nguc.present ? nguc.value : this.nguc,
+    bapTay: bapTay.present ? bapTay.value : this.bapTay,
+  );
+  ChiSoIn copyWithCompanion(ChiSoInsCompanion data) {
+    return ChiSoIn(
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+      eo: data.eo.present ? data.eo.value : this.eo,
+      hong: data.hong.present ? data.hong.value : this.hong,
+      nguc: data.nguc.present ? data.nguc.value : this.nguc,
+      bapTay: data.bapTay.present ? data.bapTay.value : this.bapTay,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChiSoIn(')
+          ..write('ngay: $ngay, ')
+          ..write('eo: $eo, ')
+          ..write('hong: $hong, ')
+          ..write('nguc: $nguc, ')
+          ..write('bapTay: $bapTay')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ngay, eo, hong, nguc, bapTay);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChiSoIn &&
+          other.ngay == this.ngay &&
+          other.eo == this.eo &&
+          other.hong == this.hong &&
+          other.nguc == this.nguc &&
+          other.bapTay == this.bapTay);
+}
+
+class ChiSoInsCompanion extends UpdateCompanion<ChiSoIn> {
+  final Value<String> ngay;
+  final Value<double?> eo;
+  final Value<double?> hong;
+  final Value<double?> nguc;
+  final Value<double?> bapTay;
+  final Value<int> rowid;
+  const ChiSoInsCompanion({
+    this.ngay = const Value.absent(),
+    this.eo = const Value.absent(),
+    this.hong = const Value.absent(),
+    this.nguc = const Value.absent(),
+    this.bapTay = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ChiSoInsCompanion.insert({
+    required String ngay,
+    this.eo = const Value.absent(),
+    this.hong = const Value.absent(),
+    this.nguc = const Value.absent(),
+    this.bapTay = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : ngay = Value(ngay);
+  static Insertable<ChiSoIn> custom({
+    Expression<String>? ngay,
+    Expression<double>? eo,
+    Expression<double>? hong,
+    Expression<double>? nguc,
+    Expression<double>? bapTay,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ngay != null) 'ngay': ngay,
+      if (eo != null) 'eo': eo,
+      if (hong != null) 'hong': hong,
+      if (nguc != null) 'nguc': nguc,
+      if (bapTay != null) 'bap_tay': bapTay,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ChiSoInsCompanion copyWith({
+    Value<String>? ngay,
+    Value<double?>? eo,
+    Value<double?>? hong,
+    Value<double?>? nguc,
+    Value<double?>? bapTay,
+    Value<int>? rowid,
+  }) {
+    return ChiSoInsCompanion(
+      ngay: ngay ?? this.ngay,
+      eo: eo ?? this.eo,
+      hong: hong ?? this.hong,
+      nguc: nguc ?? this.nguc,
+      bapTay: bapTay ?? this.bapTay,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2027,11 +2398,17 @@ class TapInsCompanion extends UpdateCompanion<TapIn> {
     if (ngay.present) {
       map['ngay'] = Variable<String>(ngay.value);
     }
-    if (loai.present) {
-      map['loai'] = Variable<String>(loai.value);
+    if (eo.present) {
+      map['eo'] = Variable<double>(eo.value);
     }
-    if (phut.present) {
-      map['phut'] = Variable<int>(phut.value);
+    if (hong.present) {
+      map['hong'] = Variable<double>(hong.value);
+    }
+    if (nguc.present) {
+      map['nguc'] = Variable<double>(nguc.value);
+    }
+    if (bapTay.present) {
+      map['bap_tay'] = Variable<double>(bapTay.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -2041,10 +2418,12 @@ class TapInsCompanion extends UpdateCompanion<TapIn> {
 
   @override
   String toString() {
-    return (StringBuffer('TapInsCompanion(')
+    return (StringBuffer('ChiSoInsCompanion(')
           ..write('ngay: $ngay, ')
-          ..write('loai: $loai, ')
-          ..write('phut: $phut, ')
+          ..write('eo: $eo, ')
+          ..write('hong: $hong, ')
+          ..write('nguc: $nguc, ')
+          ..write('bapTay: $bapTay, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2061,6 +2440,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $EoInsTable eoIns = $EoInsTable(this);
   late final $MoInsTable moIns = $MoInsTable(this);
   late final $TapInsTable tapIns = $TapInsTable(this);
+  late final $ChiSoInsTable chiSoIns = $ChiSoInsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2073,6 +2453,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     eoIns,
     moIns,
     tapIns,
+    chiSoIns,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3303,16 +3684,16 @@ typedef $$MoInsTableProcessedTableManager =
       PrefetchHooks Function()
     >;
 typedef $$TapInsTableCreateCompanionBuilder = TapInsCompanion Function({
+  Value<int> id,
   required String ngay,
   required String loai,
   required int phut,
-  Value<int> rowid,
 });
 typedef $$TapInsTableUpdateCompanionBuilder = TapInsCompanion Function({
+  Value<int> id,
   Value<String> ngay,
   Value<String> loai,
   Value<int> phut,
-  Value<int> rowid,
 });
 
 class $$TapInsTableFilterComposer
@@ -3324,6 +3705,11 @@ class $$TapInsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get ngay => $composableBuilder(
     column: $table.ngay,
     builder: (column) => ColumnFilters(column),
@@ -3349,6 +3735,11 @@ class $$TapInsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get ngay => $composableBuilder(
     column: $table.ngay,
     builder: (column) => ColumnOrderings(column),
@@ -3374,6 +3765,9 @@ class $$TapInsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
   GeneratedColumn<String> get ngay =>
       $composableBuilder(column: $table.ngay, builder: (column) => column);
 
@@ -3410,29 +3804,23 @@ class $$TapInsTableTableManager
               $$TapInsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$TapInsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> ngay = const Value.absent(),
-                Value<String> loai = const Value.absent(),
-                Value<int> phut = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => TapInsCompanion(
-                ngay: ngay,
-                loai: loai,
-                phut: phut,
-                rowid: rowid,
-              ),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> ngay = const Value.absent(),
+            Value<String> loai = const Value.absent(),
+            Value<int> phut = const Value.absent(),
+          }) => TapInsCompanion(id: id, ngay: ngay, loai: loai, phut: phut),
           createCompanionCallback:
               ({
+                Value<int> id = const Value.absent(),
                 required String ngay,
                 required String loai,
                 required int phut,
-                Value<int> rowid = const Value.absent(),
               }) => TapInsCompanion.insert(
+                id: id,
                 ngay: ngay,
                 loai: loai,
                 phut: phut,
-                rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -3456,6 +3844,198 @@ typedef $$TapInsTableProcessedTableManager =
       TapIn,
       PrefetchHooks Function()
     >;
+typedef $$ChiSoInsTableCreateCompanionBuilder = ChiSoInsCompanion Function({
+  required String ngay,
+  Value<double?> eo,
+  Value<double?> hong,
+  Value<double?> nguc,
+  Value<double?> bapTay,
+  Value<int> rowid,
+});
+typedef $$ChiSoInsTableUpdateCompanionBuilder = ChiSoInsCompanion Function({
+  Value<String> ngay,
+  Value<double?> eo,
+  Value<double?> hong,
+  Value<double?> nguc,
+  Value<double?> bapTay,
+  Value<int> rowid,
+});
+
+class $$ChiSoInsTableFilterComposer
+    extends Composer<_$AppDatabase, $ChiSoInsTable> {
+  $$ChiSoInsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get eo => $composableBuilder(
+    column: $table.eo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get hong => $composableBuilder(
+    column: $table.hong,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get nguc => $composableBuilder(
+    column: $table.nguc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get bapTay => $composableBuilder(
+    column: $table.bapTay,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ChiSoInsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChiSoInsTable> {
+  $$ChiSoInsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get eo => $composableBuilder(
+    column: $table.eo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get hong => $composableBuilder(
+    column: $table.hong,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get nguc => $composableBuilder(
+    column: $table.nguc,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get bapTay => $composableBuilder(
+    column: $table.bapTay,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ChiSoInsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChiSoInsTable> {
+  $$ChiSoInsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  GeneratedColumn<double> get eo =>
+      $composableBuilder(column: $table.eo, builder: (column) => column);
+
+  GeneratedColumn<double> get hong =>
+      $composableBuilder(column: $table.hong, builder: (column) => column);
+
+  GeneratedColumn<double> get nguc =>
+      $composableBuilder(column: $table.nguc, builder: (column) => column);
+
+  GeneratedColumn<double> get bapTay =>
+      $composableBuilder(column: $table.bapTay, builder: (column) => column);
+}
+
+class $$ChiSoInsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ChiSoInsTable,
+          ChiSoIn,
+          $$ChiSoInsTableFilterComposer,
+          $$ChiSoInsTableOrderingComposer,
+          $$ChiSoInsTableAnnotationComposer,
+          $$ChiSoInsTableCreateCompanionBuilder,
+          $$ChiSoInsTableUpdateCompanionBuilder,
+          (ChiSoIn, BaseReferences<_$AppDatabase, $ChiSoInsTable, ChiSoIn>),
+          ChiSoIn,
+          PrefetchHooks Function()
+        > {
+  $$ChiSoInsTableTableManager(_$AppDatabase db, $ChiSoInsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChiSoInsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChiSoInsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChiSoInsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> ngay = const Value.absent(),
+                Value<double?> eo = const Value.absent(),
+                Value<double?> hong = const Value.absent(),
+                Value<double?> nguc = const Value.absent(),
+                Value<double?> bapTay = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ChiSoInsCompanion(
+                ngay: ngay,
+                eo: eo,
+                hong: hong,
+                nguc: nguc,
+                bapTay: bapTay,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String ngay,
+                Value<double?> eo = const Value.absent(),
+                Value<double?> hong = const Value.absent(),
+                Value<double?> nguc = const Value.absent(),
+                Value<double?> bapTay = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ChiSoInsCompanion.insert(
+                ngay: ngay,
+                eo: eo,
+                hong: hong,
+                nguc: nguc,
+                bapTay: bapTay,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ChiSoInsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ChiSoInsTable,
+      ChiSoIn,
+      $$ChiSoInsTableFilterComposer,
+      $$ChiSoInsTableOrderingComposer,
+      $$ChiSoInsTableAnnotationComposer,
+      $$ChiSoInsTableCreateCompanionBuilder,
+      $$ChiSoInsTableUpdateCompanionBuilder,
+      (ChiSoIn, BaseReferences<_$AppDatabase, $ChiSoInsTable, ChiSoIn>),
+      ChiSoIn,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3474,4 +4054,6 @@ class $AppDatabaseManager {
       $$MoInsTableTableManager(_db, _db.moIns);
   $$TapInsTableTableManager get tapIns =>
       $$TapInsTableTableManager(_db, _db.tapIns);
+  $$ChiSoInsTableTableManager get chiSoIns =>
+      $$ChiSoInsTableTableManager(_db, _db.chiSoIns);
 }

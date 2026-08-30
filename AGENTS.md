@@ -7,7 +7,7 @@ Không IndexedDB. Không account. Không iCloud/Drive làm nguồn.
 
 Sandbox / mạng / AI / preview web: **tắt** trừ khi người dùng hỏi.
 
-Cổng hiện tại: **IA ghi trong ngày**. Không App Store. Không foods thật.
+Cổng hiện tại: **IA Tài khoản + lưới 4 ô**. Không foods thật. Không Health/ảnh cân/chia sẻ/IAP.
 
 ---
 

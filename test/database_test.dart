@@ -33,8 +33,8 @@ void main() {
     expect(await db.canMoiNhat(), isNull);
   });
 
-  test('schemaVersion = 4', () {
-    expect(db.schemaVersion, 4);
+  test('schemaVersion = 5', () {
+    expect(db.schemaVersion, 5);
   });
 
   test('ticks UNIQUE (habit_id, ngay)', () async {

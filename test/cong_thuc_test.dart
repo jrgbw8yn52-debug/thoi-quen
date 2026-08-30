@@ -44,13 +44,20 @@ void main() {
     expect(CongThuc.moDeurenberg(bmi: null, tuoi: 30, sex: 'nam'), isNull);
   });
 
-  test('MET di bo 3,5 khang luc 5,0', () {
+  test('MET 5 mon', () {
     expect(CongThuc.metCua(CongThuc.loaiDiBo), 3.5);
-    expect(CongThuc.metCua(CongThuc.loaiKhangLuc), 5.0);
-    expect(
-      CongThuc.kcalTap(met: 3.5, kg: 70, phut: 30),
-      closeTo(0.0175 * 3.5 * 70 * 30, 0.01),
-    );
+    expect(CongThuc.metCua(CongThuc.loaiChay), 8);
+    expect(CongThuc.metCua(CongThuc.loaiDapXe), 6.8);
+    expect(CongThuc.metCua(CongThuc.loaiKhangLuc), 5);
+    expect(CongThuc.metCua(CongThuc.loaiYoga), 3);
+  });
+
+  test('nhip hop le 0-1 buoc 0,1', () {
+    expect(CongThuc.nhipHopLe(0.5), isTrue);
+    expect(CongThuc.nhipHopLe(0), isTrue);
+    expect(CongThuc.nhipHopLe(1), isTrue);
+    expect(CongThuc.nhipHopLe(0.3), isTrue);
+    expect(CongThuc.nhipHopLe(1.1), isFalse);
   });
 
   test('nhip 0,25 hoac 0,5 kg/tuan', () {

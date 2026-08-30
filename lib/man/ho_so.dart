@@ -19,12 +19,10 @@ class ManHoSo extends StatefulWidget {
 
 class _ManHoSoState extends State<ManHoSo> {
   final _cao = TextEditingController();
-  final _dich = TextEditingController();
   final _goi = TextEditingController();
   String? _sex;
   DateTime? _dob;
   double _activity = 1.2;
-  double _nhip = 0.5;
   bool _nap = false;
 
   Kho get kho => widget.kho;
@@ -33,12 +31,10 @@ class _ManHoSoState extends State<ManHoSo> {
     if (_nap) return;
     _nap = true;
     if (kho.heightCm != null) _cao.text = So.kg(kho.heightCm!);
-    if (kho.targetKg != null) _dich.text = So.kg(kho.targetKg!);
     if (kho.tenGoi != null) _goi.text = kho.tenGoi!;
     _sex = kho.sex;
     _dob = kho.dob == null ? null : Ngay.parse(kho.dob!);
     _activity = kho.activity;
-    _nhip = kho.nhipKg;
   }
 
   Future<void> _moSinh() async {
@@ -55,18 +51,15 @@ class _ManHoSoState extends State<ManHoSo> {
     await kho.luuHoSo(
       ten: _goi.text,
       cao: _cao.text,
-      dich: _dich.text,
       sex: _sex,
       dob: _dob,
       activity: _activity,
-      nhip: _nhip,
     );
   }
 
   @override
   void dispose() {
     _cao.dispose();
-    _dich.dispose();
     _goi.dispose();
     super.dispose();
   }
@@ -90,9 +83,9 @@ class _ManHoSoState extends State<ManHoSo> {
     final mo = CongThuc.moDeurenberg(bmi: bmi, tuoi: tuoi, sex: _sex);
     final goiY = CongThuc.kcalGoiY(
       tdee: tdee,
-      nhip: _nhip,
+      nhip: kho.nhipKg,
       kg: kho.canMoi?.kg,
-      target: So.parseKg(_dich.text) ?? kho.targetKg,
+      target: kho.targetKg,
     );
     final duSo = bmi != null && bmr != null && tdee != null;
 
@@ -246,55 +239,6 @@ class _ManHoSoState extends State<ManHoSo> {
                   onTap: () => setState(() => _activity = CongThuc.heSo[i]),
                 ),
               ),
-            const SizedBox(height: 20),
-            const Text(
-              Chuoi.mucTieuPhan,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Mau.muc,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              Chuoi.canDich,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Mau.mo,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _dich,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(suffixText: Chuoi.kg),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              Chuoi.nhipTuan,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Mau.mo,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _ChipChon(
-                  chu: Chuoi.nhip025,
-                  bat: (_nhip - 0.25).abs() < 0.0001,
-                  onTap: () => setState(() => _nhip = 0.25),
-                ),
-                const SizedBox(width: 8),
-                _ChipChon(
-                  chu: Chuoi.nhip05,
-                  bat: (_nhip - 0.5).abs() < 0.0001,
-                  onTap: () => setState(() => _nhip = 0.5),
-                ),
-              ],
-            ),
             const SizedBox(height: 20),
             SizedBox(
               height: 44,

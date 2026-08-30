@@ -89,15 +89,36 @@ class TapIns extends Table {
   @override
   String get tableName => 'tap_ins';
 
+  IntColumn get id => integer().autoIncrement()();
   TextColumn get ngay => text()();
   TextColumn get loai => text()();
   IntColumn get phut => integer()();
+}
+
+class ChiSoIns extends Table {
+  @override
+  String get tableName => 'chi_so';
+
+  TextColumn get ngay => text()();
+  RealColumn get eo => real().nullable()();
+  RealColumn get hong => real().nullable()();
+  RealColumn get nguc => real().nullable()();
+  RealColumn get bapTay => real().nullable()();
 
   @override
   Set<Column> get primaryKey => {ngay};
 }
 
-@DriftDatabase(tables: [Habits, Ticks, Profiles, WeighIns, EoIns, MoIns, TapIns])
+@DriftDatabase(tables: [
+  Habits,
+  Ticks,
+  Profiles,
+  WeighIns,
+  EoIns,
+  MoIns,
+  TapIns,
+  ChiSoIns,
+])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
 
@@ -106,7 +127,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -140,6 +161,26 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 4) {
             await m.createTable(tapIns);
+          }
+          if (from < 5) {
+            await customStatement('''
+CREATE TABLE IF NOT EXISTS tap_ins_moi (
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  ngay TEXT NOT NULL,
+  loai TEXT NOT NULL,
+  phut INTEGER NOT NULL
+)''');
+            await customStatement(
+              'INSERT INTO tap_ins_moi (ngay, loai, phut) SELECT ngay, loai, phut FROM tap_ins',
+            );
+            await customStatement('DROP TABLE tap_ins');
+            await customStatement(
+              'ALTER TABLE tap_ins_moi RENAME TO tap_ins',
+            );
+            await m.createTable(chiSoIns);
+            await customStatement(
+              'INSERT INTO chi_so (ngay, eo) SELECT ngay, cm FROM eo_ins',
+            );
           }
         },
         beforeOpen: (details) async {
@@ -323,9 +364,31 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> ghiTap(DateTime ngay, String loai, int phut) async {
-    await into(tapIns).insertOnConflictUpdate(
+    await into(tapIns).insert(
       TapInsCompanion.insert(ngay: Ngay.iso(ngay), loai: loai, phut: phut),
     );
+  }
+
+  Future<void> ghiChiSo(
+    DateTime ngay, {
+    double? eo,
+    double? hong,
+    double? nguc,
+    double? bapTay,
+  }) async {
+    await into(chiSoIns).insertOnConflictUpdate(
+      ChiSoInsCompanion.insert(
+        ngay: Ngay.iso(ngay),
+        eo: Value(eo),
+        hong: Value(hong),
+        nguc: Value(nguc),
+        bapTay: Value(bapTay),
+      ),
+    );
+  }
+
+  Future<List<ChiSoIn>> dsChiSo() {
+    return (select(chiSoIns)..orderBy([(c) => OrderingTerm.desc(c.ngay)])).get();
   }
 
   Future<List<TapIn>> dsTap() {
@@ -411,6 +474,7 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('INSERT INTO eo_ins SELECT * FROM src.eo_ins');
         await customStatement('INSERT INTO mo_ins SELECT * FROM src.mo_ins');
         await customStatement('INSERT INTO tap_ins SELECT * FROM src.tap_ins');
+        await customStatement('INSERT INTO chi_so SELECT * FROM src.chi_so');
       } catch (_) {}
     } finally {
       await customStatement('DETACH DATABASE src');
@@ -432,6 +496,7 @@ class AppDatabase extends _$AppDatabase {
     await delete(eoIns).go();
     await delete(moIns).go();
     await delete(tapIns).go();
+    await delete(chiSoIns).go();
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       const ProfilesCompanion(
         sex: Value(null),

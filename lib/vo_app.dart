@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'chuoi.dart';
 import 'kho.dart';
 import 'man/cai_dat.dart';
-import 'man/ghi_ngay.dart';
 import 'man/hom_nay.dart';
+import 'man/luoi_ghi.dart';
 import 'man/tien_do.dart';
 import 'mau.dart';
+import 'widget/thanh_day.dart';
 
 class VoApp extends StatelessWidget {
   const VoApp({super.key, required this.kho});
 
   final Kho kho;
-
-  int get _dest => kho.tab == 0 ? 0 : kho.tab + 1;
 
   @override
   Widget build(BuildContext context) {
@@ -43,40 +41,13 @@ class VoApp extends StatelessWidget {
               children: [
                 ManHomNay(kho: kho),
                 ManTienDo(kho: kho),
-                ManCaiDat(kho: kho),
+                ManTaiKhoan(kho: kho),
               ],
             ),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: _dest,
-              onDestinationSelected: (i) {
-                if (i == 1) {
-                  moToGhi(context, kho);
-                  return;
-                }
-                kho.chonTab(i == 0 ? 0 : i - 1);
-              },
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.check_circle_outline),
-                  selectedIcon: Icon(Icons.check_circle),
-                  label: Chuoi.homNay,
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.add_circle_outline),
-                  selectedIcon: Icon(Icons.add_circle),
-                  label: Chuoi.ghi,
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.insights_outlined),
-                  selectedIcon: Icon(Icons.insights),
-                  label: Chuoi.tienDo,
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.tune),
-                  selectedIcon: Icon(Icons.tune),
-                  label: Chuoi.caiDat,
-                ),
-              ],
+            bottomNavigationBar: ThanhDay(
+              tab: kho.tab,
+              onTab: kho.chonTab,
+              onCong: () => moLuoiGhi(context, kho),
             ),
           ),
         );

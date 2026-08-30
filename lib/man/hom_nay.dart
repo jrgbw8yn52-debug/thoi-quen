@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
-import '../widget/chip_can.dart';
 import '../widget/dai_tuan.dart';
 import '../widget/hang_habit.dart';
 import '../widget/lan_ngay.dart';
@@ -39,10 +38,6 @@ class ManHomNay extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-            child: ChipCan(chu: kho.chuChipCan, onTap: kho.moTienDo),
-          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
             child: Material(
@@ -84,7 +79,7 @@ class ManHomNay extends StatelessWidget {
               style: const TextStyle(fontSize: 15, color: Mau.mo, height: 1.3),
             ),
           ),
-          DaiTuan(tuan: kho.tuan),
+          DaiTuan(tuan: kho.tuan, onChon: kho.chonNgay),
           Expanded(
             child: kho.rong
                 ? _FirstRun(

@@ -4,6 +4,7 @@ abstract final class Chuoi {
   static const homNay = 'Hôm nay';
   static const tienDo = 'Tiến độ';
   static const caiDat = 'Cài đặt';
+  static const taiKhoan = 'Tài khoản';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';
   static const xong = 'Xong';
@@ -61,6 +62,7 @@ abstract final class Chuoi {
   static const khongCoBanSao = 'Không có bản sao.';
   static const canKg = 'Cân kg';
   static const tuanNhan = 'Tuần';
+  static const thangNhan = 'Tháng';
   static const hienTai = 'Hiện tại';
   static const mucTieuPhan = 'Mục tiêu';
   static const ghiTrongNgay = 'Ghi trong ngày';
@@ -68,17 +70,34 @@ abstract final class Chuoi {
   static const luuHoSo = 'Lưu hồ sơ';
   static const tap = 'Tập';
   static const diBo = 'Đi bộ';
+  static const chay = 'Chạy';
+  static const dapXe = 'Đạp xe';
   static const khangLuc = 'Kháng lực';
+  static const yoga = 'Yoga';
   static const anUong = 'Ăn uống';
+  static const nhatKy = 'Nhật ký';
   static const seLam = 'Sẽ làm';
   static const uocMo = 'Ước tính ±5–8';
   static const kcalTapNhan = 'Kcal tập';
-  static const eoCm = 'Eo cm';
+  static const eoCm = 'Eo';
+  static const hongCm = 'Hông';
+  static const ngucCm = 'Ngực';
+  static const bapTayCm = 'Bắp tay';
   static const moPhanTram = '% mỡ';
   static const nhipTuan = 'Nhịp kg/tuần';
-  static const nhip025 = '0,25 kg/tuần';
   static const nhip05 = '0,5 kg/tuần';
   static const kcalGoiY = 'Kcal/ngày gợi ý';
+  static const canNang = 'Cân nặng';
+  static const hoatDongO = 'Hoạt động';
+  static const chiSo = 'Chỉ số';
+  static const xemBaoCao = 'Xem báo cáo';
+  static const banDau = 'Ban đầu';
+  static const doi = 'Đổi';
+  static const phinNgay = 'Ngày';
+  static const namNhan = 'Năm';
+  static const baoCao = 'Báo cáo';
+  static const trenNhipBacSi = 'Trên 0,5 kg/tuần nên có bác sĩ.';
+  static const duKienHoanThanh = 'Dự kiến hoàn thành';
   static const itVanDong = '1,2 Ít vận động — ngồi nhiều';
   static const nheVanDong = '1,375 Nhẹ — 1–3 buổi/tuần';
   static const vuaVanDong = '1,55 Vừa — 3–5 buổi/tuần';
@@ -144,6 +163,12 @@ abstract final class Chuoi {
   static String kcalTapSo(int n) => 'Kcal tập $n';
 
   static String daDoi(String x) => 'Đã đổi $x kg';
+
+  static String tuoiCanCao(String tuoi, String kg, String cm) =>
+      '$tuoi tuổi · $kg kg · $cm cm';
+
+  static String duKienNgay(DateTime d) =>
+      '$duKienHoanThanh ${dongNgay(d)}';
 
   static String chipCanDat(String kg) => 'Cân $kg · $datMucTieu';
 
