@@ -39,6 +39,7 @@ class _LanNgay extends StatefulWidget {
 
 class _LanNgayState extends State<_LanNgay> {
   static const _namLui = 5;
+  static const _namToi = 3;
 
   late int _nam;
   late int _thang;
@@ -50,7 +51,7 @@ class _LanNgayState extends State<_LanNgay> {
 
   DateTime get _hom => widget.kho.homNay;
 
-  int get _soNam => _hom.year - _namMin + 1;
+  int get _soNam => _namLui + 1 + _namToi;
 
   @override
   void initState() {
@@ -75,9 +76,7 @@ class _LanNgayState extends State<_LanNgay> {
 
   DateTime _hopLe(int nam, int thang, int ngay) {
     final maxD = Ngay.soNgayThang(nam, thang);
-    var d = DateTime(nam, thang, ngay.clamp(1, maxD));
-    if (Ngay.sau(d, _hom)) d = _hom;
-    return d;
+    return DateTime(nam, thang, ngay.clamp(1, maxD));
   }
 
   void _apDung() {

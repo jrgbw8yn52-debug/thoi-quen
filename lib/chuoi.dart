@@ -153,6 +153,12 @@ abstract final class Chuoi {
 
   static String nTrenMHomNay(int n, int m) => '$n/$m hôm nay';
 
+  static String homNayNgay(DateTime d) =>
+      'hôm nay ${d.day}/${d.month}/${d.year}';
+
+  static String nTrenMHomNayCoNam(int n, int m, DateTime d) =>
+      '$n/$m ${homNayNgay(d)}';
+
   static String nTrenMNgay(int n, int m, DateTime d) =>
       '$n/$m ngày ${d.day}/${d.month}';
 

@@ -39,14 +39,14 @@ abstract final class Ngay {
 
   static bool sau(DateTime a, DateTime b) => cat(a).isAfter(cat(b));
 
-  /// Ghi được nếu không tương lai và cách hôm nay không quá [cuaSoGhi] ngày.
+  /// Ghi được nếu cách hôm nay không quá [cuaSoGhi] ngày (quá khứ hoặc tương lai).
   static const cuaSoGhi = 7;
 
   static bool ghiDuoc(DateTime ngay, DateTime homNay) {
     final d = cat(ngay);
     final h = cat(homNay);
-    if (d.isAfter(h)) return false;
-    return h.difference(d).inDays <= cuaSoGhi;
+    final delta = d.difference(h).inDays;
+    return delta >= -cuaSoGhi && delta <= cuaSoGhi;
   }
 
   static int soNgayThang(int nam, int thang) =>

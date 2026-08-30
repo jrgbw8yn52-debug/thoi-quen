@@ -127,6 +127,18 @@ class Kho extends ChangeNotifier {
     return Chuoi.nTrenMNgay(nTick, mHabit, selected);
   }
 
+  int get nTickHom => _tickCuaNgay(homNay);
+  int get mHom => _tongCuaNgay(homNay);
+
+  bool get tuanChuaHomNay =>
+      Ngay.cungNgay(Ngay.thuHai(selected), Ngay.thuHai(homNay));
+
+  bool hienO(Habit h, DateTime d) => Thu.hien(
+        thuBit: h.thuBit,
+        createdOn: Ngay.cat(h.taoLuc),
+        d: d,
+      );
+
   int get phanTramNgay {
     if (mHabit == 0) return 0;
     return ((nTick / mHabit) * 100).round();
@@ -149,7 +161,7 @@ class Kho extends ChangeNotifier {
     final iso = Ngay.iso(d);
     var n = 0;
     for (final h in dsHien) {
-      if (!Thu.hop(h.thuBit, d)) continue;
+      if (!hienO(h, d)) continue;
       if (ticksCua(h.id).contains(iso)) n++;
     }
     return n;
@@ -158,7 +170,7 @@ class Kho extends ChangeNotifier {
   int _tongCuaNgay(DateTime d) {
     var n = 0;
     for (final h in dsHien) {
-      if (Thu.hop(h.thuBit, d)) n++;
+      if (hienO(h, d)) n++;
     }
     return n;
   }
@@ -308,10 +320,8 @@ class Kho extends ChangeNotifier {
     var d = Ngay.cat(a);
     final end = Ngay.cat(b);
     while (!d.isAfter(end)) {
-      if (!Ngay.sau(d, homNay)) {
-        tick += _tickCuaNgay(d);
-        tong += _tongCuaNgay(d);
-      }
+      tick += _tickCuaNgay(d);
+      tong += _tongCuaNgay(d);
       d = d.add(const Duration(days: 1));
     }
     return (tick, tong);
@@ -452,7 +462,6 @@ class Kho extends ChangeNotifier {
   }
 
   void chonNgay(DateTime d) {
-    if (Ngay.sau(d, homNay)) return;
     selected = Ngay.cat(d);
     _dongBoHangVaTuan();
     notifyListeners();
@@ -463,7 +472,6 @@ class Kho extends ChangeNotifier {
 
   /// Ô tháng: đổi selectedDate; tick chỉ khi ngày còn ghi được.
   Future<void> chonVaTick(Habit habit, DateTime ngay) {
-    if (Ngay.sau(ngay, homNay)) return Future.value();
     selected = Ngay.cat(ngay);
     if (!Ngay.ghiDuoc(ngay, homNay)) {
       _dongBoHangVaTuan();
@@ -503,7 +511,7 @@ class Kho extends ChangeNotifier {
     final isoSel = Ngay.iso(selected);
     final ds = [
       for (final h in dsHien)
-        if (Thu.hop(h.thuBit, selected))
+        if (hienO(h, selected))
           HangHabitView(
             habit: h,
             ticked: ticksCua(h.id).contains(isoSel),
@@ -555,10 +563,11 @@ class Kho extends ChangeNotifier {
         phutMacDinh: phutMacDinh,
         thuBit: thuBit,
         gioNhac: gioNhac,
+        createdOn: homNay,
       );
       if (id != null &&
           Ngay.ghiDuoc(selected, homNay) &&
-          Thu.hop(thuBit, selected)) {
+          Thu.hien(thuBit: thuBit, createdOn: homNay, d: selected)) {
         final ds = await db.dsHabit();
         final h = ds.firstWhere((x) => x.id == id);
         await db.ghiTick(h, selected);

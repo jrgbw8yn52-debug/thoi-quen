@@ -24,7 +24,14 @@ abstract final class Thu {
 
   static bool hop(String? raw, DateTime d) => tach(raw).contains(d.weekday);
 
-  static bool hopIso(String? raw, int weekday) => tach(raw).contains(weekday);
+  static bool hien({
+    required String thuBit,
+    required DateTime createdOn,
+    required DateTime d,
+  }) {
+    if (Ngay.truoc(d, createdOn)) return false;
+    return hop(thuBit, d);
+  }
 
   static List<DateTime> ngayTrongTuan(String? raw, DateTime chon) {
     return [

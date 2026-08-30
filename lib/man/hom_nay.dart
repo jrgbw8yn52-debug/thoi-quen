@@ -66,12 +66,27 @@ class ManHomNay extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 6, 20, 8),
-            child: Text(
-              kho.khoaGhi ? '${kho.nTrenM} · ${Chuoi.chiXem}' : kho.nTrenM,
-              style: const TextStyle(fontSize: 15, color: Mau.mo, height: 1.3),
+            child: Text.rich(
+              TextSpan(
+                style: const TextStyle(fontSize: 15, color: Mau.mo, height: 1.3),
+                children: [
+                  TextSpan(text: '${kho.nTickHom}/${kho.mHom} '),
+                  TextSpan(
+                    text: Chuoi.homNayNgay(kho.homNay),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: Mau.muc,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          DaiTuan(tuan: kho.tuan, onChon: kho.chonNgay),
+          DaiTuan(
+            tuan: kho.tuan,
+            onChon: kho.chonNgay,
+            tuanChuaHomNay: kho.tuanChuaHomNay,
+          ),
           Expanded(
             child: kho.rong
                 ? _FirstRun(

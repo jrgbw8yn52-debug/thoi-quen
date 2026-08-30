@@ -113,9 +113,7 @@ class ManTienDo extends StatelessWidget {
                     Expanded(
                       child: _CotTuan(
                         cot: c,
-                        onTap: c.tuongLai
-                            ? null
-                            : () {
+                        onTap: () {
                                 HapticFeedback.selectionClick();
                                 kho.chonNgay(c.ngay);
                               },
@@ -141,9 +139,7 @@ class ManTienDo extends StatelessWidget {
                     Expanded(
                       child: _CotThangNho(
                         cot: c,
-                        onTap: c.tuongLai
-                            ? null
-                            : () {
+                        onTap: () {
                                 HapticFeedback.selectionClick();
                                 kho.chonNgay(c.ngay);
                               },
@@ -169,12 +165,10 @@ class ManTienDo extends StatelessWidget {
                     Expanded(
                       child: _CotThangNho(
                         cot: c,
-                        onTap: c.tuongLai
-                            ? null
-                            : () {
+                        onTap: () {
                                 HapticFeedback.selectionClick();
                                 final last = DateTime(c.ngay.year, c.ngay.month, Ngay.soNgayThang(c.ngay.year, c.ngay.month));
-                                kho.chonNgay(last.isAfter(kho.homNay) ? kho.homNay : last);
+                                kho.chonNgay(last);
                               },
                       ),
                     ),

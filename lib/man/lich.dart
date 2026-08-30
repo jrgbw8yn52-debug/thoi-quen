@@ -19,7 +19,8 @@ class ManLich extends StatefulWidget {
 }
 
 class _ManLichState extends State<ManLich> {
-  bool _nam = false;
+  /// 0 lưới tháng, 1 danh sách năm, 2 12 tháng.
+  int _cheDo = 0;
   late DateTime _thang;
   late DateTime _selGan;
 
@@ -42,6 +43,11 @@ class _ManLichState extends State<ManLich> {
     _selGan = kho.selected;
   }
 
+  List<int> get _dsNam {
+    final y = kho.homNay.year;
+    return [for (var i = y - 2; i <= y + 4; i++) i];
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -51,37 +57,38 @@ class _ManLichState extends State<ManLich> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => setState(() => _nam = !_nam),
-                borderRadius: BorderRadius.circular(12),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 44),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _nam
-                                ? '${_thang.year}'
-                                : '${Chuoi.thang(_thang.month)} ${_thang.year}',
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.4,
-                              color: Mau.muc,
-                            ),
-                          ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () => setState(() => _cheDo = 2),
+                      child: Text(
+                        Chuoi.thang(_thang.month),
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.4,
+                          color: Mau.muc,
                         ),
-                        Icon(
-                          _nam ? Icons.expand_less : Icons.expand_more,
-                          color: Mau.mo,
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () => setState(() => _cheDo = 1),
+                      child: Text(
+                        '${_thang.year}',
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.4,
+                          color: Mau.muc,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -92,19 +99,30 @@ class _ManLichState extends State<ManLich> {
               child: Text(Chuoi.chiXem, style: TextStyle(fontSize: 13, color: Mau.mo)),
             ),
           Expanded(
-            child: _nam
-                ? _LuoiNam(
-                    thang: _thang.month,
-                    onThang: (m) {
-                      setState(() {
-                        _thang = DateTime(_thang.year, m, 1);
-                        _nam = false;
-                      });
-                    },
-                  )
-                : _LuoiThang(kho: kho, thang: _thang),
+            child: switch (_cheDo) {
+              1 => _LuoiCacNam(
+                  nam: _thang.year,
+                  ds: _dsNam,
+                  onNam: (y) {
+                    setState(() {
+                      _thang = DateTime(y, _thang.month, 1);
+                      _cheDo = 2;
+                    });
+                  },
+                ),
+              2 => _LuoiNam(
+                  thang: _thang.month,
+                  onThang: (m) {
+                    setState(() {
+                      _thang = DateTime(_thang.year, m, 1);
+                      _cheDo = 0;
+                    });
+                  },
+                ),
+              _ => _LuoiThang(kho: kho, thang: _thang),
+            },
           ),
-          if (!_nam)
+          if (_cheDo == 0)
             SizedBox(
               height: 220,
               child: kho.hang.isEmpty
@@ -188,34 +206,47 @@ class _LuoiThang extends StatelessWidget {
                 final d = DateTime(y, m, ngay);
                 final hom = Ngay.cungNgay(d, kho.homNay);
                 final xem = Ngay.cungNgay(d, kho.selected);
-                final tuongLai = Ngay.sau(d, kho.homNay);
                 return InkWell(
-                  onTap: tuongLai
-                      ? null
-                      : () {
-                          HapticFeedback.selectionClick();
-                          kho.chonNgay(d);
-                        },
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    kho.chonNgay(d);
+                  },
                   child: Center(
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: xem ? Mau.chipBat : Colors.transparent,
-                        border: hom
-                            ? Border.all(color: Mau.reu, width: 2)
-                            : (xem ? Border.all(color: Mau.muc) : null),
-                      ),
-                      child: Text(
-                        '$ngay',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: hom ? FontWeight.w700 : FontWeight.w500,
-                          color: tuongLai ? Mau.vien : Mau.muc,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: xem ? Mau.chipBat : Colors.transparent,
+                            border: xem ? Border.all(color: Mau.muc) : null,
+                          ),
+                          child: Text(
+                            '$ngay',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: hom ? FontWeight.w700 : FontWeight.w500,
+                              color: Mau.muc,
+                            ),
+                          ),
                         ),
-                      ),
+                        SizedBox(
+                          height: 6,
+                          child: hom
+                              ? Container(
+                                  width: 5,
+                                  height: 5,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Mau.reu,
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -224,6 +255,45 @@ class _LuoiThang extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LuoiCacNam extends StatelessWidget {
+  const _LuoiCacNam({
+    required this.nam,
+    required this.ds,
+    required this.onNam,
+  });
+
+  final int nam;
+  final List<int> ds;
+  final ValueChanged<int> onNam;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+      children: [
+        for (final y in ds)
+          InkWell(
+            onTap: () => onNam(y),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '$y',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: y == nam ? FontWeight.w700 : FontWeight.w500,
+                    color: Mau.muc,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

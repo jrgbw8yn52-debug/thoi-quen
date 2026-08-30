@@ -45,7 +45,9 @@ class HangHabit extends StatelessWidget {
                   const SizedBox(width: 14),
                   Expanded(
                     child: Text(
-                      hang.habit.ten,
+                      hang.habit.gioNhac == null
+                          ? hang.habit.ten
+                          : '${hang.habit.ten} · ${Chuoi.gioNhacChu(hang.habit.gioNhac!)}',
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
