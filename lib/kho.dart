@@ -1,6 +1,8 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/foundation.dart';
 
 import 'chuoi.dart';
+import 'cong_thuc.dart';
 import 'db/database.dart';
 import 'ngay.dart';
 import 'so.dart';
@@ -70,6 +72,10 @@ class Kho extends ChangeNotifier {
   List<WeighIn> dsCan = const [];
   WeighIn? canMoi;
   double? targetKg;
+  String? sex;
+  double? heightCm;
+  String? dob;
+  double activity = 1.2;
   bool dangTai = true;
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
@@ -102,6 +108,19 @@ class Kho extends ChangeNotifier {
     if (con <= 0.05) return Chuoi.chipCanDat(kg);
     return Chuoi.chipCanCon(kg, So.kg(con));
   }
+
+  bool get thieuCan => canMoi == null;
+
+  double? get bmiDoc => CongThuc.bmi(canMoi?.kg, heightCm);
+
+  double? get bmrDoc => CongThuc.bmr(
+        sex: sex,
+        kg: canMoi?.kg,
+        cm: heightCm,
+        tuoi: CongThuc.tuoi(dob, homNay),
+      );
+
+  double? get tdeeDoc => CongThuc.tdee(bmrDoc, activity);
 
   bool daCoTen(String ten) {
     final k = Ten.khoa(ten);
@@ -144,6 +163,10 @@ class Kho extends ChangeNotifier {
 
     final p = await db.docProfile();
     targetKg = p.targetKg;
+    sex = p.sex;
+    heightCm = p.heightCm;
+    dob = p.dob;
+    activity = p.activity;
     dsCan = await db.dsCan();
     canMoi = dsCan.isEmpty ? null : dsCan.first;
     dangTai = false;
@@ -289,6 +312,39 @@ class Kho extends ChangeNotifier {
     final kg = So.parseKg(raw);
     if (kg == null) return false;
     await db.ghiCan(homNay, kg);
+    await tai();
+    return true;
+  }
+
+  Future<void> suaGioi(String v) async {
+    await db.suaProfile(sex: Value(v));
+    await tai();
+  }
+
+  Future<bool> suaChieuCao(String raw) async {
+    final cm = So.parseCm(raw);
+    if (cm == null) return false;
+    await db.suaProfile(heightCm: Value(cm));
+    await tai();
+    return true;
+  }
+
+  Future<void> suaNgaySinh(DateTime d) async {
+    if (Ngay.sau(d, homNay)) return;
+    await db.suaProfile(dob: Value(Ngay.iso(d)));
+    await tai();
+  }
+
+  Future<void> suaHoatDong(double v) async {
+    if (!CongThuc.heSo.contains(v)) return;
+    await db.suaProfile(activity: Value(v));
+    await tai();
+  }
+
+  Future<bool> suaCanDich(String raw) async {
+    final kg = So.parseKg(raw);
+    if (kg == null) return false;
+    await db.suaProfile(targetKg: Value(kg));
     await tai();
     return true;
   }

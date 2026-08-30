@@ -31,6 +31,26 @@ abstract final class Chuoi {
   static const xoaKhoiMay = 'Xoá khỏi máy này? Không lấy lại được.';
   static const chiXem = 'Chỉ xem.';
   static const chonNgay = 'Chọn ngày';
+  static const uocTinh = 'Ước tính, không thay lời bác sĩ. Không chẩn đoán hay điều trị.';
+  static const nguon = 'Nguồn';
+  static const gioi = 'Giới';
+  static const nam = 'Nam';
+  static const nu = 'Nữ';
+  static const chieuCao = 'Chiều cao';
+  static const cm = 'cm';
+  static const ngaySinh = 'Ngày sinh';
+  static const mucHoatDong = 'Mức hoạt động';
+  static const canDich = 'Cân đích';
+  static const bmi = 'BMI';
+  static const bmr = 'BMR';
+  static const tdee = 'TDEE';
+  static const mocA = 'Mốc Á 23 / 27,5';
+  static const saiSo = 'sai số ±200–400';
+  static const mifflin = 'Mifflin 1990 (BMR)';
+  static const whoA = 'WHO châu Á (mốc BMI)';
+  static const compendium = 'Compendium of Physical Activities (MET)';
+  static const heSoKhongMifflin =
+      'Hệ số hoạt động TDEE không nằm trong paper Mifflin.';
   static const t2 = 'T2';
   static const t3 = 'T3';
   static const t4 = 'T4';
@@ -52,7 +72,7 @@ abstract final class Chuoi {
   static const thuNgan = [t2, t3, t4, t5, t6, t7, cn];
 
   static String dongNgay(DateTime d) {
-    return '${thu[d.weekday - 1]}, ${d.day} tháng ${d.month}';
+    return '${thu[d.weekday - 1]}, ${d.day} tháng ${d.month} ${d.year}';
   }
 
   static String nTrenMHomNay(int n, int m) => '$n/$m hôm nay';

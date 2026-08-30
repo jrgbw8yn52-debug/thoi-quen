@@ -7,7 +7,7 @@ Không IndexedDB. Không account. Không iCloud/Drive làm nguồn.
 
 Sandbox / mạng / AI / preview web: **tắt** trừ khi người dùng hỏi.
 
-Cổng hiện tại: **3 xong**. Không làm cổng 4 cho đến khi được bảo chạy tiếp.
+Cổng hiện tại: **4 xong**. Không làm cổng 5 cho đến khi được bảo chạy tiếp.
 
 ---
 
@@ -84,7 +84,7 @@ Không bảng foods. Không macro.
 ## Màn hình
 
 ### 1) Home — cổng 2
-- Dòng ngày: `Thứ …, d tháng m` (vi, tự viết, không phụ thuộc locale máy). **Tap dòng ngày** mở con lăn ngày/tháng/năm. Đổi lăn = đổi `selectedDate` + list habit ngày đó. Huỷ trả ngày lúc mở.
+- Dòng ngày: `Thứ …, d tháng m yyyy`. **Tap dòng ngày** mở con lăn ngày/tháng/năm. Đổi lăn = đổi `selectedDate` + list. Huỷ trả ngày lúc mở.
 - `n/m hôm nay` khi đang xem hôm nay. Ngày khác: `n/m ngày d/m`. Ngày khóa ghi thêm `· Chỉ xem.`
 - Hàng habit: tên + `x/N tháng này`. Cả hàng tick ngày đang xem nếu còn ghi được; tap lại hoàn tác; không dialog.
 - Dải 7 chấm tuần của ngày đang xem: **chỉ hiển thị**, không đổi ngày.
@@ -109,9 +109,8 @@ Dải 28–31 ngày của tháng đang xem (chỉ màn này, không đưa lên H
 Sửa / Xoá. Confirm xoá đúng câu: `Xoá khỏi máy này? Không lấy lại được.`
 Nếu có MET: hiện kcal buổi (tính lúc đọc) — cổng 5.
 
-### 4) Cơ thể — cổng 4, chưa đủ
-Cổng 2 chỉ: nhập cân hôm nay + danh sách cân, để chip Home có đường đi.
-Cổng 4: cân đích, sparkline, BMI mốc Á 23 / 27,5, BMR Mifflin–St Jeor 1990 lúc đọc,
+### 4) Cơ thể — cổng 4
+Cân hôm nay, cân đích, sparkline (≥2 lần cân), BMI mốc Á 23 / 27,5, BMR Mifflin–St Jeor 1990 lúc đọc,
 TDEE = BMR × hệ số, không persist BMI/BMR/TDEE/kcal.
 Cạnh TDEE: `sai số ±200–400`.
 Thiếu chiều cao hoặc cân hoặc ngày sinh hoặc giới → ẩn số, hiện `Thiếu dữ liệu` / `Thêm cân`. Không bịa 70 kg.
@@ -143,12 +142,12 @@ Thêm: `Hai máy cùng ghi sẽ lệch. Chỉ một máy ghi.`
 
 1. Drift + 4 bảng + schemaVersion.
 2. First-run chips + Home tick + 7 chấm + chip cân.
-3. Thêm habit (N mặc định 25) + màn một habit (dải tháng + chuỗi + xoá). **← đang dừng ở đây**
-4. Cơ thể + sparkline + công thức lúc đọc + disclaimer + nguồn.
+3. Thêm habit (N mặc định 25) + màn một habit (dải tháng + chuỗi + xoá).
+4. Cơ thể + sparkline + công thức lúc đọc + disclaimer + nguồn. **← đang dừng ở đây**
 5. MET/phút trên habit vận động + kcal lúc đọc.
 6. Xuất VACUUM INTO / khôi phục thay toàn bộ. Round-trip một máy.
 
-Dừng sau cổng 3 để chạy tay trước khi làm cổng 4.
+Dừng sau cổng 4 để chạy tay trước khi làm cổng 5.
 
 ---
 
@@ -178,6 +177,6 @@ Sau khi sửa bảng: bump `schemaVersion`, viết `onUpgrade`, chạy lại bui
 - `lib/man/cai_dat.dart` — Cài đặt (mỏng ở cổng 2).
 - `lib/ten.dart` — chuẩn hoá tên, một tên = một hàng.
 - `lib/man/them_habit.dart` — thêm / sửa, stepper N.
-- `lib/man/mot_habit.dart` — dải tháng, chuỗi, xoá.
+- `lib/cong_thuc.dart` — BMI / BMR / TDEE lúc đọc, không persist.
 
 Test không được bịa số. Test UI không được chứa chuỗi cấm.

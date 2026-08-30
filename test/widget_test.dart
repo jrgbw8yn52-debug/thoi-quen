@@ -34,7 +34,7 @@ void main() {
     expect(kho.selected, DateTime(2026, 7, 15));
     expect(kho.tuan.first.ngay, DateTime(2026, 7, 13));
     expect(kho.tuan.last.ngay, DateTime(2026, 7, 19));
-    expect(kho.dongNgay, 'Thứ Tư, 15 tháng 7');
+    expect(kho.dongNgay, 'Thứ Tư, 15 tháng 7 2026');
     expect(kho.nTrenM, '0/1 ngày 15/7');
   });
 
@@ -64,7 +64,7 @@ void main() {
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
 
-    expect(find.text('Chủ Nhật, 30 tháng 8'), findsOneWidget);
+    expect(find.text('Chủ Nhật, 30 tháng 8 2026'), findsOneWidget);
     expect(find.text('0/0 hôm nay'), findsOneWidget);
     expect(find.text(Chuoi.themCan), findsOneWidget);
     expect(find.text(Chuoi.day6Gio), findsOneWidget);
@@ -113,8 +113,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.canHomNay), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), '72,5');
-    await tester.tap(find.text(Chuoi.luu));
+    await tester.enterText(find.byType(TextField).first, '72,5');
+    await tester.tap(find.text(Chuoi.luu).first);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text(Chuoi.homNay));
@@ -129,7 +129,7 @@ void main() {
 
     await tester.tap(find.text('T2'));
     await tester.pumpAndSettle();
-    expect(find.text('Chủ Nhật, 30 tháng 8'), findsOneWidget);
+    expect(find.text('Chủ Nhật, 30 tháng 8 2026'), findsOneWidget);
     expect(find.text('1/1 hôm nay'), findsOneWidget);
   });
 
@@ -142,7 +142,7 @@ void main() {
     expect(find.text(Chuoi.thang(8)), findsWidgets);
     await tester.tap(find.text(Chuoi.huy));
     await tester.pumpAndSettle();
-    expect(find.text('Chủ Nhật, 30 tháng 8'), findsOneWidget);
+    expect(find.text('Chủ Nhật, 30 tháng 8 2026'), findsOneWidget);
   });
 
   testWidgets('mo mot habit: chuoi, xoa dung cau khoa', (tester) async {
@@ -179,7 +179,7 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
-    expect(find.text('Thứ Tư, 15 tháng 7'), findsOneWidget);
+    expect(find.text('Thứ Tư, 15 tháng 7 2026'), findsOneWidget);
     expect(find.text('0/1 ngày 15/7 · Chỉ xem.'), findsOneWidget);
     expect(find.text(Chuoi.day6Gio), findsOneWidget);
   });
@@ -204,5 +204,22 @@ void main() {
     expect(kho.ticksCua(id), {'2026-08-30'});
     expect(await kho.themPreset(ten: Chuoi.doc20Trang), isFalse);
     expect(kho.hang.length, 1);
+  });
+
+  testWidgets('Co the: disclaimer, thieu du lieu, khong bia 70, Nguon', (tester) async {
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.coThe));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.uocTinh), findsOneWidget);
+    expect(find.text(Chuoi.themCan), findsWidgets);
+    expect(find.text('70'), findsNothing);
+    expect(find.text(Chuoi.bmi), findsNothing);
+
+    await tester.tap(find.text(Chuoi.nguon));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.mifflin), findsOneWidget);
+    expect(find.text(Chuoi.whoA), findsOneWidget);
+    expect(find.text(Chuoi.heSoKhongMifflin), findsOneWidget);
   });
 }

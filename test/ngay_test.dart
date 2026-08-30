@@ -20,8 +20,9 @@ void main() {
   });
 
   test('dong ngay tieng Viet, khong phu thuoc locale may', () {
-    expect(Chuoi.dongNgay(DateTime(2026, 8, 30)), 'Chủ Nhật, 30 tháng 8');
-    expect(Chuoi.dongNgay(DateTime(2026, 8, 24)), 'Thứ Hai, 24 tháng 8');
+    expect(Chuoi.dongNgay(DateTime(2026, 8, 30)), 'Chủ Nhật, 30 tháng 8 2026');
+    expect(Chuoi.dongNgay(DateTime(2026, 8, 24)), 'Thứ Hai, 24 tháng 8 2026');
+    expect(Chuoi.dongNgay(DateTime(2026, 8, 27)), 'Thứ Năm, 27 tháng 8 2026');
   });
 
   test('ghiDuoc: hom nay va 7 ngay truoc, khoa ngay thu 8', () {

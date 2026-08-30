@@ -13,7 +13,9 @@ void main() {
     expect(Chuoi.nTrenMHomNay(1, 3), '1/3 hôm nay');
     expect(Chuoi.xTrenNThangNay(4, 25), '4/25 tháng này');
     expect(Chuoi.themCan, 'Thêm cân');
-    expect(Chuoi.duLieuChiTrenMay, 'Dữ liệu chỉ trên máy này.');
+    expect(Chuoi.uocTinh, contains('không thay lời bác sĩ'));
+    expect(Chuoi.saiSo, 'sai số ±200–400');
+    expect(Chuoi.mocA, 'Mốc Á 23 / 27,5');
   });
 
   test('so kg dau phay Viet, khong bia', () {

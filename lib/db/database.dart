@@ -258,4 +258,22 @@ class AppDatabase extends _$AppDatabase {
       WeighInsCompanion.insert(ngay: Ngay.iso(ngay), kg: kg),
     );
   }
+
+  Future<void> suaProfile({
+    Value<String?> sex = const Value.absent(),
+    Value<double?> heightCm = const Value.absent(),
+    Value<String?> dob = const Value.absent(),
+    Value<double> activity = const Value.absent(),
+    Value<double?> targetKg = const Value.absent(),
+  }) async {
+    await (update(profiles)..where((p) => p.id.equals(1))).write(
+      ProfilesCompanion(
+        sex: sex,
+        heightCm: heightCm,
+        dob: dob,
+        activity: activity,
+        targetKg: targetKg,
+      ),
+    );
+  }
 }
