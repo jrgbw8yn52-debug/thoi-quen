@@ -26,10 +26,21 @@ abstract final class Chuoi {
   static const thieuDuLieu = 'Thiếu dữ liệu';
   static const chuaCoCan = 'Chưa có lần cân.';
   static const themThoiQuen = 'Thêm thói quen';
+  static const lich = 'Lịch';
   static const sua = 'Sửa';
   static const xoa = 'Xoá';
   static const daCoThoiQuen = 'Đã có thói quen này.';
   static const xoaKhoiMay = 'Xoá khỏi máy này? Không lấy lại được.';
+  static const boTickNgay = 'Bỏ tick ngày đang xem';
+  static const boTickTuan = 'Bỏ tick các ngày đã chọn trong tuần này';
+  static const boTickThang = 'Bỏ tick các ngày đã chọn trong tháng này';
+  static const xoaKhoiDs = 'Xoá thói quen khỏi danh sách';
+  static const gioNhac = 'Giờ nhắc';
+  static const tat = 'Tắt';
+  static const batNhac = 'Bật';
+  static const sa = 'SA';
+  static const ch = 'CH';
+  static const phaiChonThu = 'Chọn ít nhất một thứ.';
   static const chiXem = 'Chỉ xem.';
   static const chonNgay = 'Chọn ngày';
   static const uocTinh = 'Ước tính, không thay lời bác sĩ. Không chẩn đoán hay điều trị.';
@@ -186,4 +197,13 @@ abstract final class Chuoi {
   static String phanTram(int p) => '$p%';
 
   static String nTrenM(int n, int m) => '$n/$m';
+
+  static String gioNhacChu(int phut) {
+    var h = phut ~/ 60;
+    final m = (phut % 60).toString().padLeft(2, '0');
+    final chieu = h >= 12;
+    var h12 = h % 12;
+    if (h12 == 0) h12 = 12;
+    return '$h12:$m ${chieu ? ch : sa}';
+  }
 }

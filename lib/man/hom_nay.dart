@@ -6,8 +6,8 @@ import '../mau.dart';
 import '../widget/dai_tuan.dart';
 import '../widget/hang_habit.dart';
 import '../widget/lan_ngay.dart';
-import 'mot_habit.dart';
 import 'them_habit.dart';
+import 'xoa_habit.dart';
 
 class ManHomNay extends StatelessWidget {
   const ManHomNay({super.key, required this.kho});
@@ -19,14 +19,6 @@ class ManHomNay extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => ManThemHabit(kho: kho),
-      ),
-    );
-  }
-
-  void _moMot(BuildContext context, int id) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => ManMotHabit(kho: kho, habitId: id),
       ),
     );
   }
@@ -95,14 +87,21 @@ class ManHomNay extends StatelessWidget {
                         return _NutThem(onTap: () => _moThem(context));
                       }
                       final h = kho.hang[i];
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: HangHabit(
-                          hang: h,
-                          khoaGhi: kho.khoaGhi,
-                          onTap: () => kho.toggle(h),
-                          onChiTiet: () => _moMot(context, h.habit.id),
-                        ),
+                      return HangHabit(
+                        hang: h,
+                        khoaGhi: kho.khoaGhi,
+                        onTap: () => kho.toggle(h),
+                        onSua: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => ManThemHabit(
+                                kho: kho,
+                                habit: h.habit,
+                              ),
+                            ),
+                          );
+                        },
+                        onXoa: () => moXoaHabit(context, kho, h.habit),
                       );
                     },
                   ),

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:thoi_quen/chuoi.dart';
 import 'package:thoi_quen/db/database.dart';
 import 'package:thoi_quen/kho.dart';
+import 'package:thoi_quen/man/mot_habit.dart';
 import 'package:thoi_quen/mau.dart';
 import 'package:thoi_quen/vo_app.dart';
 
@@ -72,7 +73,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('1/1 hôm nay'), findsOneWidget);
-    expect(find.text('1/25 tháng này'), findsOneWidget);
 
     await tester.tap(find.text(Chuoi.day6Gio));
     await tester.pumpAndSettle();
@@ -158,10 +158,11 @@ void main() {
 
   testWidgets('mo mot habit: chuoi, xoa dung cau khoa', (tester) async {
     await kho.themPreset(ten: Chuoi.day6Gio);
-    await tester.pumpWidget(_app(kho));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(Key('chi-tiet-${kho.hang.single.habit.id}')));
+    final id = kho.hang.single.habit.id;
+    await tester.pumpWidget(MaterialApp(
+      theme: Mau.theme(),
+      home: ManMotHabit(kho: kho, habitId: id),
+    ));
     await tester.pumpAndSettle();
     expect(find.text('Chuỗi 1 ngày'), findsOneWidget);
     expect(find.text('Còn 24 ngày nữa là đạt 25'), findsOneWidget);
@@ -171,27 +172,27 @@ void main() {
     expect(find.text(Chuoi.xoaKhoiMay), findsOneWidget);
     await tester.tap(find.text(Chuoi.huy));
     await tester.pumpAndSettle();
-    expect(kho.hang.length, 1);
+    expect(kho.dsHien.length, 1);
   });
 
-  testWidgets('o thang doi selectedDate, Back Home theo ngay do', (tester) async {
+  testWidgets('Lich: bam ngay doi selectedDate, Home theo', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
     await kho.themPreset(ten: Chuoi.day6Gio);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(Key('chi-tiet-${kho.hang.single.habit.id}')));
+    await tester.tap(find.text(Chuoi.lich));
     await tester.pumpAndSettle();
+    expect(find.text('Tháng 8 2026'), findsOneWidget);
+    await tester.tap(find.text('24'));
+    await tester.pumpAndSettle();
+    expect(kho.selected, DateTime(2026, 8, 24));
 
-    await tester.tap(find.byIcon(Icons.chevron_left));
+    await tester.tap(find.text(Chuoi.homNay));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('o-ngay-2026-07-15')));
-    await tester.pumpAndSettle();
-    expect(kho.selected, DateTime(2026, 7, 15));
-
-    await tester.tap(find.byIcon(Icons.arrow_back));
-    await tester.pumpAndSettle();
-    expect(find.text('Thứ Tư, 15 tháng 7 2026'), findsOneWidget);
-    expect(find.text('0/1 ngày 15/7 · Chỉ xem.'), findsOneWidget);
+    expect(find.text('Thứ Hai, 24 tháng 8 2026'), findsOneWidget);
     expect(find.text(Chuoi.day6Gio), findsOneWidget);
   });
 
@@ -203,6 +204,23 @@ void main() {
     expect(kho.hang.single.ticked, isTrue);
     kho.chonNgay(DateTime(2026, 8, 30));
     expect(kho.hang.single.ticked, isFalse);
+  });
+
+  test('an khoi ds giu tick, khong hien Home', () async {
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    final id = kho.hang.single.habit.id;
+    expect(kho.ticksCua(id), {'2026-08-30'});
+    await kho.anKhoiDs(id);
+    expect(kho.dsHien, isEmpty);
+    expect(kho.hang, isEmpty);
+    expect(kho.ticksCua(id), {'2026-08-30'});
+  });
+
+  test('habit chi T2 khong hien CN', () async {
+    await kho.themPreset(ten: Chuoi.day6Gio, thuBit: '1');
+    expect(kho.hang, isEmpty);
+    kho.chonNgay(DateTime(2026, 8, 24));
+    expect(kho.hang.single.habit.ten, Chuoi.day6Gio);
   });
 
   test('khoa ghi: khong tick, khong them', () async {
@@ -253,7 +271,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.tuanNhan));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('T2').last);
+    await tester.tap(find.text('T2').first);
+    await tester.pumpAndSettle();
     await tester.pumpAndSettle();
     expect(kho.selected, DateTime(2026, 8, 24));
     await tester.tap(find.text(Chuoi.homNay));

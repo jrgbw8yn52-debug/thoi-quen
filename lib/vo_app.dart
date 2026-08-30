@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'kho.dart';
 import 'man/cai_dat.dart';
 import 'man/hom_nay.dart';
+import 'man/lich.dart';
 import 'man/luoi_ghi.dart';
 import 'man/tien_do.dart';
 import 'mau.dart';
@@ -40,6 +41,7 @@ class VoApp extends StatelessWidget {
               index: kho.tab,
               children: [
                 ManHomNay(kho: kho),
+                ManLich(kho: kho),
                 ManTienDo(kho: kho),
                 ManTaiKhoan(kho: kho),
               ],

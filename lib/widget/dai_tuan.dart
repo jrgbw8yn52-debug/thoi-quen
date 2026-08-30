@@ -76,8 +76,8 @@ class _HinhCham extends StatelessWidget {
     final du = cham.tong > 0 && cham.tick >= cham.tong;
     final motPhan = cham.tick > 0 && !du;
     return Container(
-      width: size + (cham.dangXem ? 8 : 0),
-      height: size + (cham.dangXem ? 8 : 0),
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(

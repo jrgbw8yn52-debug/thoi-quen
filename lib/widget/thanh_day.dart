@@ -32,6 +32,13 @@ class ThanhDay extends StatelessWidget {
                 chon: tab == 0,
                 onTap: () => onTab(0),
               ),
+              _Muc(
+                icon: Icons.calendar_today_outlined,
+                bat: Icons.calendar_today,
+                chu: Chuoi.lich,
+                chon: tab == 1,
+                onTap: () => onTab(1),
+              ),
               Expanded(
                 child: Center(
                   child: Material(
@@ -53,15 +60,15 @@ class ThanhDay extends StatelessWidget {
                 icon: Icons.insights_outlined,
                 bat: Icons.insights,
                 chu: Chuoi.tienDo,
-                chon: tab == 1,
-                onTap: () => onTab(1),
+                chon: tab == 2,
+                onTap: () => onTab(2),
               ),
               _Muc(
                 icon: Icons.person_outline,
                 bat: Icons.person,
                 chu: Chuoi.taiKhoan,
-                chon: tab == 2,
-                onTap: () => onTab(2),
+                chon: tab == 3,
+                onTap: () => onTab(3),
               ),
             ],
           ),

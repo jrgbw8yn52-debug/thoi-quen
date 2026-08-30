@@ -10,66 +10,147 @@ class HangHabit extends StatelessWidget {
     super.key,
     required this.hang,
     required this.onTap,
-    required this.onChiTiet,
+    required this.onSua,
+    required this.onXoa,
     this.khoaGhi = false,
   });
 
   final HangHabitView hang;
   final VoidCallback onTap;
-  final VoidCallback onChiTiet;
+  final VoidCallback onSua;
+  final VoidCallback onXoa;
   final bool khoaGhi;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Mau.beMat,
-      child: InkWell(
-        onTap: khoaGhi
-            ? null
-            : () {
-                HapticFeedback.selectionClick();
-                onTap();
-              },
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 56),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: Row(
-              children: [
-                _NutTick(bat: hang.ticked, mo: khoaGhi),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    hang.habit.ten,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      height: 1.2,
-                      color: Mau.muc,
+    return HangVuot(
+      onSua: onSua,
+      onXoa: onXoa,
+      child: Material(
+        color: Mau.beMat,
+        child: InkWell(
+          onTap: khoaGhi
+              ? null
+              : () {
+                  HapticFeedback.selectionClick();
+                  onTap();
+                },
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 56),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  _NutTick(bat: hang.ticked, mo: khoaGhi),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      hang.habit.ten,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                        height: 1.2,
+                        color: Mau.muc,
+                      ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HangVuot extends StatefulWidget {
+  const HangVuot({
+    super.key,
+    required this.child,
+    required this.onSua,
+    required this.onXoa,
+  });
+
+  final Widget child;
+  final VoidCallback onSua;
+  final VoidCallback onXoa;
+
+  @override
+  State<HangVuot> createState() => _HangVuotState();
+}
+
+class _HangVuotState extends State<HangVuot> {
+  double _x = 0;
+  static const _rong = 176.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                _Nut(
+                  chu: Chuoi.sua,
+                  mau: Mau.mo,
+                  onTap: widget.onSua,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  Chuoi.xTrenNThangNay(hang.xThang, hang.habit.mucTieuThang),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    height: 1.2,
-                    color: Mau.mo,
-                  ),
-                ),
-                SizedBox(
-                  width: 44,
-                  height: 56,
-                  child: IconButton(
-                    key: Key('chi-tiet-${hang.habit.id}'),
-                    padding: EdgeInsets.zero,
-                    tooltip: Chuoi.thoiQuen,
-                    onPressed: onChiTiet,
-                    icon: const Icon(Icons.chevron_right, color: Mau.mo),
-                  ),
+                _Nut(
+                  chu: Chuoi.xoa,
+                  mau: Mau.canhBao,
+                  onTap: widget.onXoa,
                 ),
               ],
+            ),
+          ),
+          GestureDetector(
+            onHorizontalDragUpdate: (d) {
+              setState(() {
+                _x = (_x + d.delta.dx).clamp(-_rong, 0);
+              });
+            },
+            onHorizontalDragEnd: (_) {
+              setState(() {
+                _x = _x < -_rong / 2 ? -_rong : 0;
+              });
+            },
+            child: Transform.translate(
+              offset: Offset(_x, 0),
+              child: widget.child,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Nut extends StatelessWidget {
+  const _Nut({required this.chu, required this.mau, required this.onTap});
+
+  final String chu;
+  final Color mau;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: mau,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: 88,
+          child: Center(
+            child: Text(
+              chu,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Mau.giay,
+              ),
             ),
           ),
         ),

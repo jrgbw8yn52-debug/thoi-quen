@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../chuoi.dart';
@@ -5,6 +6,7 @@ import '../db/database.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../ten.dart';
+import '../thu.dart';
 
 class ManThemHabit extends StatefulWidget {
   const ManThemHabit({super.key, required this.kho, this.habit});
@@ -18,7 +20,9 @@ class ManThemHabit extends StatefulWidget {
 
 class _ManThemHabitState extends State<ManThemHabit> {
   late final TextEditingController _ten;
-  late int _n;
+  late Set<int> _thu;
+  bool _nhac = false;
+  int _gio = 7 * 60;
   String? _loi;
 
   bool get _sua => widget.habit != null;
@@ -28,7 +32,14 @@ class _ManThemHabitState extends State<ManThemHabit> {
     super.initState();
     final h = widget.habit;
     _ten = TextEditingController(text: h?.ten ?? '');
-    _n = h?.mucTieuThang ?? 25;
+    _thu = h == null
+        ? {widget.kho.selected.weekday}
+        : Thu.tach(h.thuBit);
+    final g = h?.gioNhac;
+    if (g != null) {
+      _nhac = true;
+      _gio = g;
+    }
   }
 
   @override
@@ -41,15 +52,27 @@ class _ManThemHabitState extends State<ManThemHabit> {
     setState(() => _loi = null);
     final ten = _ten.text;
     if (Ten.sach(ten).isEmpty) return;
+    if (_thu.isEmpty) {
+      setState(() => _loi = Chuoi.phaiChonThu);
+      return;
+    }
+    final bit = Thu.goi(_thu);
+    final gio = _nhac ? _gio : null;
     final bool ok;
     if (_sua) {
       ok = await widget.kho.suaHabit(
         id: widget.habit!.id,
         ten: ten,
-        mucTieuThang: _n,
+        thuBit: bit,
+        gioNhac: gio,
+        xoaGioNhac: !_nhac,
       );
     } else {
-      ok = await widget.kho.themPreset(ten: ten, mucTieuThang: _n);
+      ok = await widget.kho.themPreset(
+        ten: ten,
+        thuBit: bit,
+        gioNhac: gio,
+      );
     }
     if (!mounted) return;
     if (!ok) {
@@ -59,8 +82,43 @@ class _ManThemHabitState extends State<ManThemHabit> {
     Navigator.pop(context, true);
   }
 
+  Future<void> _moGio() async {
+    if (widget.kho.khoaGhi && !_sua) return;
+    var tam = _gio;
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Mau.beMat,
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 180,
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  use24hFormat: false,
+                  initialDateTime: DateTime(2026, 1, 1, tam ~/ 60, tam % 60),
+                  onDateTimeChanged: (d) => tam = d.hour * 60 + d.minute,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() => _gio = tam);
+                  Navigator.pop(ctx);
+                },
+                child: const Text(Chuoi.xong),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final khoaNhac = widget.kho.khoaGhi;
     return Scaffold(
       backgroundColor: Mau.giay,
       body: SafeArea(
@@ -89,9 +147,28 @@ class _ManThemHabitState extends State<ManThemHabit> {
                   counterText: '',
                 ),
               ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (var i = 1; i <= 7; i++)
+                    _ChipThu(
+                      chu: Chuoi.thuNgan[i - 1],
+                      bat: _thu.contains(i),
+                      onTap: () => setState(() {
+                        if (_thu.contains(i)) {
+                          _thu.remove(i);
+                        } else {
+                          _thu.add(i);
+                        }
+                      }),
+                    ),
+                ],
+              ),
               const SizedBox(height: 20),
               const Text(
-                Chuoi.mucTieu,
+                Chuoi.gioNhac,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -101,37 +178,27 @@ class _ManThemHabitState extends State<ManThemHabit> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  _NutBuoc(
-                    chu: '−',
-                    onTap: () {
-                      if (_n <= 1) return;
-                      setState(() => _n--);
-                    },
+                  _ChipThu(
+                    chu: Chuoi.tat,
+                    bat: !_nhac,
+                    onTap: khoaNhac ? null : () => setState(() => _nhac = false),
                   ),
-                  Expanded(
-                    child: Text(
-                      '$_n',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w600,
-                        color: Mau.muc,
-                      ),
+                  const SizedBox(width: 8),
+                  _ChipThu(
+                    chu: Chuoi.batNhac,
+                    bat: _nhac,
+                    onTap: khoaNhac
+                        ? null
+                        : () => setState(() => _nhac = true),
+                  ),
+                  if (_nhac) ...[
+                    const SizedBox(width: 12),
+                    TextButton(
+                      onPressed: khoaNhac ? null : _moGio,
+                      child: Text(Chuoi.gioNhacChu(_gio)),
                     ),
-                  ),
-                  _NutBuoc(
-                    chu: '+',
-                    onTap: () {
-                      if (_n >= 31) return;
-                      setState(() => _n++);
-                    },
-                  ),
+                  ],
                 ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                Chuoi.nNgayTrongThang(_n),
-                style: const TextStyle(fontSize: 14, color: Mau.mo),
               ),
               if (_loi != null) ...[
                 const SizedBox(height: 12),
@@ -168,28 +235,26 @@ class _ManThemHabitState extends State<ManThemHabit> {
   }
 }
 
-class _NutBuoc extends StatelessWidget {
-  const _NutBuoc({required this.chu, required this.onTap});
+class _ChipThu extends StatelessWidget {
+  const _ChipThu({required this.chu, required this.bat, required this.onTap});
 
   final String chu;
-  final VoidCallback onTap;
+  final bool bat;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: Material(
-        color: Mau.beMat,
-        shape: const CircleBorder(side: BorderSide(color: Mau.vien)),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: Center(
-            child: Text(
-              chu,
-              style: const TextStyle(fontSize: 22, color: Mau.muc, height: 1),
-            ),
+    return Material(
+      color: bat ? Mau.chipBat : Mau.beMat,
+      shape: StadiumBorder(side: BorderSide(color: bat ? Mau.reu : Mau.vien)),
+      child: InkWell(
+        customBorder: const StadiumBorder(),
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: Text(chu, style: const TextStyle(fontSize: 15, color: Mau.muc)),
           ),
         ),
       ),

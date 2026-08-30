@@ -72,6 +72,40 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, Habit> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _thuBitMeta = const VerificationMeta('thuBit');
+  @override
+  late final GeneratedColumn<String> thuBit = GeneratedColumn<String>(
+    'thu_bit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('1234567'),
+  );
+  static const VerificationMeta _gioNhacMeta = const VerificationMeta(
+    'gioNhac',
+  );
+  @override
+  late final GeneratedColumn<int> gioNhac = GeneratedColumn<int>(
+    'gio_nhac',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _anMeta = const VerificationMeta('an');
+  @override
+  late final GeneratedColumn<bool> an = GeneratedColumn<bool>(
+    'an',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("an" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _taoLucMeta = const VerificationMeta('taoLuc');
   @override
   late final GeneratedColumn<DateTime> taoLuc = GeneratedColumn<DateTime>(
@@ -89,6 +123,9 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, Habit> {
     met,
     phutMacDinh,
     thuTu,
+    thuBit,
+    gioNhac,
+    an,
     taoLuc,
   ];
   @override
@@ -144,6 +181,21 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, Habit> {
         thuTu.isAcceptableOrUnknown(data['thu_tu']!, _thuTuMeta),
       );
     }
+    if (data.containsKey('thu_bit')) {
+      context.handle(
+        _thuBitMeta,
+        thuBit.isAcceptableOrUnknown(data['thu_bit']!, _thuBitMeta),
+      );
+    }
+    if (data.containsKey('gio_nhac')) {
+      context.handle(
+        _gioNhacMeta,
+        gioNhac.isAcceptableOrUnknown(data['gio_nhac']!, _gioNhacMeta),
+      );
+    }
+    if (data.containsKey('an')) {
+      context.handle(_anMeta, an.isAcceptableOrUnknown(data['an']!, _anMeta));
+    }
     if (data.containsKey('tao_luc')) {
       context.handle(
         _taoLucMeta,
@@ -185,6 +237,18 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, Habit> {
         DriftSqlType.int,
         data['${effectivePrefix}thu_tu'],
       )!,
+      thuBit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}thu_bit'],
+      )!,
+      gioNhac: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gio_nhac'],
+      ),
+      an: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}an'],
+      )!,
       taoLuc: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}tao_luc'],
@@ -205,6 +269,9 @@ class Habit extends DataClass implements Insertable<Habit> {
   final double? met;
   final int? phutMacDinh;
   final int thuTu;
+  final String thuBit;
+  final int? gioNhac;
+  final bool an;
   final DateTime taoLuc;
   const Habit({
     required this.id,
@@ -213,6 +280,9 @@ class Habit extends DataClass implements Insertable<Habit> {
     this.met,
     this.phutMacDinh,
     required this.thuTu,
+    required this.thuBit,
+    this.gioNhac,
+    required this.an,
     required this.taoLuc,
   });
   @override
@@ -228,6 +298,11 @@ class Habit extends DataClass implements Insertable<Habit> {
       map['phut_mac_dinh'] = Variable<int>(phutMacDinh);
     }
     map['thu_tu'] = Variable<int>(thuTu);
+    map['thu_bit'] = Variable<String>(thuBit);
+    if (!nullToAbsent || gioNhac != null) {
+      map['gio_nhac'] = Variable<int>(gioNhac);
+    }
+    map['an'] = Variable<bool>(an);
     map['tao_luc'] = Variable<DateTime>(taoLuc);
     return map;
   }
@@ -242,6 +317,11 @@ class Habit extends DataClass implements Insertable<Habit> {
           ? const Value.absent()
           : Value(phutMacDinh),
       thuTu: Value(thuTu),
+      thuBit: Value(thuBit),
+      gioNhac: gioNhac == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gioNhac),
+      an: Value(an),
       taoLuc: Value(taoLuc),
     );
   }
@@ -258,6 +338,9 @@ class Habit extends DataClass implements Insertable<Habit> {
       met: serializer.fromJson<double?>(json['met']),
       phutMacDinh: serializer.fromJson<int?>(json['phutMacDinh']),
       thuTu: serializer.fromJson<int>(json['thuTu']),
+      thuBit: serializer.fromJson<String>(json['thuBit']),
+      gioNhac: serializer.fromJson<int?>(json['gioNhac']),
+      an: serializer.fromJson<bool>(json['an']),
       taoLuc: serializer.fromJson<DateTime>(json['taoLuc']),
     );
   }
@@ -271,6 +354,9 @@ class Habit extends DataClass implements Insertable<Habit> {
       'met': serializer.toJson<double?>(met),
       'phutMacDinh': serializer.toJson<int?>(phutMacDinh),
       'thuTu': serializer.toJson<int>(thuTu),
+      'thuBit': serializer.toJson<String>(thuBit),
+      'gioNhac': serializer.toJson<int?>(gioNhac),
+      'an': serializer.toJson<bool>(an),
       'taoLuc': serializer.toJson<DateTime>(taoLuc),
     };
   }
@@ -282,6 +368,9 @@ class Habit extends DataClass implements Insertable<Habit> {
     Value<double?> met = const Value.absent(),
     Value<int?> phutMacDinh = const Value.absent(),
     int? thuTu,
+    String? thuBit,
+    Value<int?> gioNhac = const Value.absent(),
+    bool? an,
     DateTime? taoLuc,
   }) => Habit(
     id: id ?? this.id,
@@ -290,6 +379,9 @@ class Habit extends DataClass implements Insertable<Habit> {
     met: met.present ? met.value : this.met,
     phutMacDinh: phutMacDinh.present ? phutMacDinh.value : this.phutMacDinh,
     thuTu: thuTu ?? this.thuTu,
+    thuBit: thuBit ?? this.thuBit,
+    gioNhac: gioNhac.present ? gioNhac.value : this.gioNhac,
+    an: an ?? this.an,
     taoLuc: taoLuc ?? this.taoLuc,
   );
   Habit copyWithCompanion(HabitsCompanion data) {
@@ -304,6 +396,9 @@ class Habit extends DataClass implements Insertable<Habit> {
           ? data.phutMacDinh.value
           : this.phutMacDinh,
       thuTu: data.thuTu.present ? data.thuTu.value : this.thuTu,
+      thuBit: data.thuBit.present ? data.thuBit.value : this.thuBit,
+      gioNhac: data.gioNhac.present ? data.gioNhac.value : this.gioNhac,
+      an: data.an.present ? data.an.value : this.an,
       taoLuc: data.taoLuc.present ? data.taoLuc.value : this.taoLuc,
     );
   }
@@ -317,14 +412,27 @@ class Habit extends DataClass implements Insertable<Habit> {
           ..write('met: $met, ')
           ..write('phutMacDinh: $phutMacDinh, ')
           ..write('thuTu: $thuTu, ')
+          ..write('thuBit: $thuBit, ')
+          ..write('gioNhac: $gioNhac, ')
+          ..write('an: $an, ')
           ..write('taoLuc: $taoLuc')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, ten, mucTieuThang, met, phutMacDinh, thuTu, taoLuc);
+  int get hashCode => Object.hash(
+    id,
+    ten,
+    mucTieuThang,
+    met,
+    phutMacDinh,
+    thuTu,
+    thuBit,
+    gioNhac,
+    an,
+    taoLuc,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -335,6 +443,9 @@ class Habit extends DataClass implements Insertable<Habit> {
           other.met == this.met &&
           other.phutMacDinh == this.phutMacDinh &&
           other.thuTu == this.thuTu &&
+          other.thuBit == this.thuBit &&
+          other.gioNhac == this.gioNhac &&
+          other.an == this.an &&
           other.taoLuc == this.taoLuc);
 }
 
@@ -345,6 +456,9 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
   final Value<double?> met;
   final Value<int?> phutMacDinh;
   final Value<int> thuTu;
+  final Value<String> thuBit;
+  final Value<int?> gioNhac;
+  final Value<bool> an;
   final Value<DateTime> taoLuc;
   const HabitsCompanion({
     this.id = const Value.absent(),
@@ -353,6 +467,9 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     this.met = const Value.absent(),
     this.phutMacDinh = const Value.absent(),
     this.thuTu = const Value.absent(),
+    this.thuBit = const Value.absent(),
+    this.gioNhac = const Value.absent(),
+    this.an = const Value.absent(),
     this.taoLuc = const Value.absent(),
   });
   HabitsCompanion.insert({
@@ -362,6 +479,9 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     this.met = const Value.absent(),
     this.phutMacDinh = const Value.absent(),
     this.thuTu = const Value.absent(),
+    this.thuBit = const Value.absent(),
+    this.gioNhac = const Value.absent(),
+    this.an = const Value.absent(),
     required DateTime taoLuc,
   }) : ten = Value(ten),
        taoLuc = Value(taoLuc);
@@ -372,6 +492,9 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     Expression<double>? met,
     Expression<int>? phutMacDinh,
     Expression<int>? thuTu,
+    Expression<String>? thuBit,
+    Expression<int>? gioNhac,
+    Expression<bool>? an,
     Expression<DateTime>? taoLuc,
   }) {
     return RawValuesInsertable({
@@ -381,6 +504,9 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
       if (met != null) 'met': met,
       if (phutMacDinh != null) 'phut_mac_dinh': phutMacDinh,
       if (thuTu != null) 'thu_tu': thuTu,
+      if (thuBit != null) 'thu_bit': thuBit,
+      if (gioNhac != null) 'gio_nhac': gioNhac,
+      if (an != null) 'an': an,
       if (taoLuc != null) 'tao_luc': taoLuc,
     });
   }
@@ -392,6 +518,9 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     Value<double?>? met,
     Value<int?>? phutMacDinh,
     Value<int>? thuTu,
+    Value<String>? thuBit,
+    Value<int?>? gioNhac,
+    Value<bool>? an,
     Value<DateTime>? taoLuc,
   }) {
     return HabitsCompanion(
@@ -401,6 +530,9 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
       met: met ?? this.met,
       phutMacDinh: phutMacDinh ?? this.phutMacDinh,
       thuTu: thuTu ?? this.thuTu,
+      thuBit: thuBit ?? this.thuBit,
+      gioNhac: gioNhac ?? this.gioNhac,
+      an: an ?? this.an,
       taoLuc: taoLuc ?? this.taoLuc,
     );
   }
@@ -426,6 +558,15 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
     if (thuTu.present) {
       map['thu_tu'] = Variable<int>(thuTu.value);
     }
+    if (thuBit.present) {
+      map['thu_bit'] = Variable<String>(thuBit.value);
+    }
+    if (gioNhac.present) {
+      map['gio_nhac'] = Variable<int>(gioNhac.value);
+    }
+    if (an.present) {
+      map['an'] = Variable<bool>(an.value);
+    }
     if (taoLuc.present) {
       map['tao_luc'] = Variable<DateTime>(taoLuc.value);
     }
@@ -441,6 +582,9 @@ class HabitsCompanion extends UpdateCompanion<Habit> {
           ..write('met: $met, ')
           ..write('phutMacDinh: $phutMacDinh, ')
           ..write('thuTu: $thuTu, ')
+          ..write('thuBit: $thuBit, ')
+          ..write('gioNhac: $gioNhac, ')
+          ..write('an: $an, ')
           ..write('taoLuc: $taoLuc')
           ..write(')'))
         .toString();
@@ -2474,6 +2618,9 @@ typedef $$HabitsTableCreateCompanionBuilder = HabitsCompanion Function({
   Value<double?> met,
   Value<int?> phutMacDinh,
   Value<int> thuTu,
+  Value<String> thuBit,
+  Value<int?> gioNhac,
+  Value<bool> an,
   required DateTime taoLuc,
 });
 typedef $$HabitsTableUpdateCompanionBuilder = HabitsCompanion Function({
@@ -2483,6 +2630,9 @@ typedef $$HabitsTableUpdateCompanionBuilder = HabitsCompanion Function({
   Value<double?> met,
   Value<int?> phutMacDinh,
   Value<int> thuTu,
+  Value<String> thuBit,
+  Value<int?> gioNhac,
+  Value<bool> an,
   Value<DateTime> taoLuc,
 });
 
@@ -2546,6 +2696,21 @@ class $$HabitsTableFilterComposer
 
   ColumnFilters<int> get thuTu => $composableBuilder(
     column: $table.thuTu,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get thuBit => $composableBuilder(
+    column: $table.thuBit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get gioNhac => $composableBuilder(
+    column: $table.gioNhac,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get an => $composableBuilder(
+    column: $table.an,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2619,6 +2784,21 @@ class $$HabitsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get thuBit => $composableBuilder(
+    column: $table.thuBit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get gioNhac => $composableBuilder(
+    column: $table.gioNhac,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get an => $composableBuilder(
+    column: $table.an,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get taoLuc => $composableBuilder(
     column: $table.taoLuc,
     builder: (column) => ColumnOrderings(column),
@@ -2655,6 +2835,15 @@ class $$HabitsTableAnnotationComposer
 
   GeneratedColumn<int> get thuTu =>
       $composableBuilder(column: $table.thuTu, builder: (column) => column);
+
+  GeneratedColumn<String> get thuBit =>
+      $composableBuilder(column: $table.thuBit, builder: (column) => column);
+
+  GeneratedColumn<int> get gioNhac =>
+      $composableBuilder(column: $table.gioNhac, builder: (column) => column);
+
+  GeneratedColumn<bool> get an =>
+      $composableBuilder(column: $table.an, builder: (column) => column);
 
   GeneratedColumn<DateTime> get taoLuc =>
       $composableBuilder(column: $table.taoLuc, builder: (column) => column);
@@ -2719,6 +2908,9 @@ class $$HabitsTableTableManager
                 Value<double?> met = const Value.absent(),
                 Value<int?> phutMacDinh = const Value.absent(),
                 Value<int> thuTu = const Value.absent(),
+                Value<String> thuBit = const Value.absent(),
+                Value<int?> gioNhac = const Value.absent(),
+                Value<bool> an = const Value.absent(),
                 Value<DateTime> taoLuc = const Value.absent(),
               }) => HabitsCompanion(
                 id: id,
@@ -2727,6 +2919,9 @@ class $$HabitsTableTableManager
                 met: met,
                 phutMacDinh: phutMacDinh,
                 thuTu: thuTu,
+                thuBit: thuBit,
+                gioNhac: gioNhac,
+                an: an,
                 taoLuc: taoLuc,
               ),
           createCompanionCallback:
@@ -2737,6 +2932,9 @@ class $$HabitsTableTableManager
                 Value<double?> met = const Value.absent(),
                 Value<int?> phutMacDinh = const Value.absent(),
                 Value<int> thuTu = const Value.absent(),
+                Value<String> thuBit = const Value.absent(),
+                Value<int?> gioNhac = const Value.absent(),
+                Value<bool> an = const Value.absent(),
                 required DateTime taoLuc,
               }) => HabitsCompanion.insert(
                 id: id,
@@ -2745,6 +2943,9 @@ class $$HabitsTableTableManager
                 met: met,
                 phutMacDinh: phutMacDinh,
                 thuTu: thuTu,
+                thuBit: thuBit,
+                gioNhac: gioNhac,
+                an: an,
                 taoLuc: taoLuc,
               ),
           withReferenceMapper: (p0) => p0

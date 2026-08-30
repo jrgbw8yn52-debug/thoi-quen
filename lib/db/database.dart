@@ -19,6 +19,9 @@ class Habits extends Table {
   RealColumn get met => real().nullable()();
   IntColumn get phutMacDinh => integer().nullable()();
   IntColumn get thuTu => integer().withDefault(const Constant(0))();
+  TextColumn get thuBit => text().withDefault(const Constant('1234567'))();
+  IntColumn get gioNhac => integer().nullable()();
+  BoolColumn get an => boolean().withDefault(const Constant(false))();
   DateTimeColumn get taoLuc => dateTime()();
 }
 
@@ -127,7 +130,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -182,6 +185,11 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
               'INSERT INTO chi_so (ngay, eo) SELECT ngay, cm FROM eo_ins',
             );
           }
+          if (from < 6) {
+            await m.addColumn(habits, habits.thuBit);
+            await m.addColumn(habits, habits.gioNhac);
+            await m.addColumn(habits, habits.an);
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
@@ -190,12 +198,22 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
       );
 
   Future<int> soHabit() async {
-    final r = await (select(habits)).get();
+    final r = await (select(habits)..where((h) => h.an.equals(false))).get();
     return r.length;
+  }
+
+  Future<List<Habit>> dsHabitTatCa() {
+    return (select(habits)
+          ..orderBy([
+            (h) => OrderingTerm.asc(h.thuTu),
+            (h) => OrderingTerm.asc(h.id),
+          ]))
+        .get();
   }
 
   Future<List<Habit>> dsHabit() {
     return (select(habits)
+          ..where((h) => h.an.equals(false))
           ..orderBy([
             (h) => OrderingTerm.asc(h.thuTu),
             (h) => OrderingTerm.asc(h.id),
@@ -208,19 +226,24 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     int mucTieuThang = 25,
     double? met,
     int? phutMacDinh,
+    String thuBit = '1234567',
+    int? gioNhac,
   }) async {
     final tenSach = Ten.sach(ten);
     if (tenSach.isEmpty) return null;
-    final ds = await dsHabit();
-    if (ds.length >= maxHabit) return null;
-    if (ds.any((h) => Ten.trung(h.ten, tenSach))) return null;
+    final hien = await dsHabit();
+    if (hien.length >= maxHabit) return null;
+    final tat = await dsHabitTatCa();
+    if (tat.any((h) => Ten.trung(h.ten, tenSach))) return null;
     return into(habits).insert(
       HabitsCompanion.insert(
         ten: tenSach,
         mucTieuThang: Value(mucTieuThang),
         met: Value(met),
         phutMacDinh: Value(phutMacDinh),
-        thuTu: Value(ds.length),
+        thuTu: Value(hien.length),
+        thuBit: Value(thuBit),
+        gioNhac: Value(gioNhac),
         taoLuc: DateTime.now(),
       ),
     );
@@ -229,20 +252,40 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
   Future<bool> suaHabit({
     required int id,
     required String ten,
-    required int mucTieuThang,
+    int? mucTieuThang,
+    String? thuBit,
+    int? gioNhac,
+    bool xoaGioNhac = false,
   }) async {
     final tenSach = Ten.sach(ten);
     if (tenSach.isEmpty) return false;
-    if (mucTieuThang < 1 || mucTieuThang > 31) return false;
-    final ds = await dsHabit();
-    if (ds.any((h) => h.id != id && Ten.trung(h.ten, tenSach))) return false;
+    final tat = await dsHabitTatCa();
+    if (tat.any((h) => h.id != id && Ten.trung(h.ten, tenSach))) return false;
     final n = await (update(habits)..where((h) => h.id.equals(id))).write(
       HabitsCompanion(
         ten: Value(tenSach),
-        mucTieuThang: Value(mucTieuThang),
+        mucTieuThang: mucTieuThang == null
+            ? const Value.absent()
+            : Value(mucTieuThang),
+        thuBit: thuBit == null ? const Value.absent() : Value(thuBit),
+        gioNhac: xoaGioNhac
+            ? const Value(null)
+            : (gioNhac == null ? const Value.absent() : Value(gioNhac)),
       ),
     );
     return n > 0;
+  }
+
+  Future<void> anHabit(int id) async {
+    await (update(habits)..where((h) => h.id.equals(id))).write(
+      const HabitsCompanion(an: Value(true)),
+    );
+  }
+
+  Future<void> xoaTick(int habitId, DateTime ngay) async {
+    await (delete(ticks)
+          ..where((t) => t.habitId.equals(habitId) & t.ngay.equals(Ngay.iso(ngay))))
+        .go();
   }
 
   Future<void> xoaHabit(int id) async {
@@ -250,7 +293,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
   }
 
   Future<void> gopTenTrung() async {
-    final ds = await dsHabit();
+    final ds = await dsHabitTatCa();
     final giu = <String, Habit>{};
     for (final h in ds) {
       final k = Ten.khoa(h.ten);
