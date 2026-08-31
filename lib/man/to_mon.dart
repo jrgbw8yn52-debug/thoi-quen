@@ -605,6 +605,12 @@ class ToMonDaLuu extends StatelessWidget {
     );
   }
 
+  Future<void> _xoa(Food f) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    await Future<void>.delayed(Duration.zero);
+    await kho.xoaMon(f.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -660,6 +666,14 @@ class ToMonDaLuu extends StatelessWidget {
                                 key: Key('sua-mon-kho-${f.id}'),
                                 onPressed: () => _sua(context, f),
                                 child: const Text(Chuoi.sua),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 44,
+                              child: TextButton(
+                                key: Key('xoa-mon-kho-${f.id}'),
+                                onPressed: () => _xoa(f),
+                                child: const Text(Chuoi.xoa, style: TextStyle(color: Mau.canhBao)),
                               ),
                             ),
                           ],

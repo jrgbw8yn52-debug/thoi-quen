@@ -648,6 +648,10 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await (delete(foodLogs)..where((l) => l.id.equals(id))).go();
   }
 
+  Future<void> xoaMon(int id) async {
+    await (delete(foods)..where((f) => f.id.equals(id))).go();
+  }
+
   Future<void> suaLog(
     int id, {
     int? kcal,

@@ -329,6 +329,8 @@ abstract final class Chuoi {
 
   static String tongKcalTieuThu(int n) => 'Tổng kcal tiêu thụ: $n';
 
+  static String napTieu(int n, int m) => 'Nạp $n · Tiêu thụ $m';
+
   static String dongMon(String ten, int kcal, {double? g}) {
     if (g == null) return '$ten · $kcal';
     return '$ten · ${So.kg(g)} g · $kcal';

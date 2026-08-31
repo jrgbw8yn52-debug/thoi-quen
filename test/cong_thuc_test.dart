@@ -127,6 +127,16 @@ BEO: 28
     final thieu = CongThuc.docMon('không có số');
     expect(thieu.kcal, isNull);
     expect(thieu.dam, isNull);
+
+    final motHang = CongThuc.docMon(
+      'MON: Bò lúc lắc KHOI_LUONG: 250 KCAL: 520 DAM: 40 BOT: 12 BEO: 28',
+    );
+    expect(motHang.ten, 'Bò lúc lắc');
+    expect(motHang.gram, 250);
+    expect(motHang.kcal, 520);
+    expect(motHang.dam, 40);
+    expect(motHang.bot, 12);
+    expect(motHang.beo, 28);
   });
 
   test('lua tap: gap 0 sang, bo 1-2 giu so, gap 3 luu noi', () {

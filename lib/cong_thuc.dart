@@ -195,35 +195,41 @@ abstract final class CongThuc {
 
   static final _soRe = RegExp(r'(\d+(?:[.,]\d+)?)');
 
-  static String? _dongNhan(String vanBan, String khoa) {
-    final re = RegExp(
-      '^\\s*${RegExp.escape(khoa)}\\s*:\\s*(.+)\\s*\$',
-      caseSensitive: false,
-      multiLine: true,
-    );
-    final m = re.firstMatch(vanBan);
-    if (m == null) return null;
-    final t = m.group(1)!.trim();
-    return t.isEmpty ? null : t;
+  static final _nhanRe = RegExp(
+    r'(MON|KHOI_LUONG|KCAL|DAM|BOT|BEO)\s*:\s*',
+    caseSensitive: false,
+  );
+
+  static Map<String, String> _tachNhan(String vanBan) {
+    final ms = _nhanRe.allMatches(vanBan).toList();
+    final out = <String, String>{};
+    for (var i = 0; i < ms.length; i++) {
+      final khoa = ms[i].group(1)!.toUpperCase();
+      final start = ms[i].end;
+      final end = i + 1 < ms.length ? ms[i + 1].start : vanBan.length;
+      final v = vanBan.substring(start, end).trim();
+      if (v.isNotEmpty) out[khoa] = v;
+    }
+    return out;
   }
 
-  static double? _soNhan(String vanBan, String khoa) {
-    final c = _dongNhan(vanBan, khoa);
-    if (c == null) return null;
-    final m = _soRe.firstMatch(c);
+  static double? _soChu(String? raw) {
+    if (raw == null) return null;
+    final m = _soRe.firstMatch(raw);
     if (m == null) return null;
     return double.tryParse(m.group(1)!.replaceAll(',', '.'));
   }
 
-  /// Ưu tiên MON: / KHOI_LUONG: / KCAL: / DAM: / BOT: / BEO:
+  /// Ưu tiên MON: / KHOI_LUONG: / KCAL: / DAM: / BOT: / BEO: cả khối, một hàng cũng được.
   /// Không có KCAL: thì bắt số trước kcal|calo|năng lượng. Không bịa.
   static DocMon docMon(String vanBan) {
-    final ten = _dongNhan(vanBan, 'MON');
-    final gramRaw = _soNhan(vanBan, 'KHOI_LUONG');
-    final kcalRaw = _soNhan(vanBan, 'KCAL');
-    final dam = _soNhan(vanBan, 'DAM');
-    final bot = _soNhan(vanBan, 'BOT');
-    final beo = _soNhan(vanBan, 'BEO');
+    final nhan = _tachNhan(vanBan);
+    final ten = nhan['MON'];
+    final gramRaw = _soChu(nhan['KHOI_LUONG']);
+    final kcalRaw = _soChu(nhan['KCAL']);
+    final dam = _soChu(nhan['DAM']);
+    final bot = _soChu(nhan['BOT']);
+    final beo = _soChu(nhan['BEO']);
     int? kcal;
     if (kcalRaw != null) {
       final n = kcalRaw.round();

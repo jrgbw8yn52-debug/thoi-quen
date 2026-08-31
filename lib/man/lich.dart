@@ -6,7 +6,7 @@ import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
 import 'thoi_khoa.dart';
-import '../widget/hang_habit.dart';
+import 'to_ngay.dart';
 
 class ManLich extends StatefulWidget {
   const ManLich({super.key, required this.kho});
@@ -122,7 +122,7 @@ class _ManLichState extends State<ManLich> {
                         ),
                       ),
                     ),
-                    if (!Ngay.cungThang(_thang, kho.homNay) || !kho.xemHomNay)
+                    if (!Ngay.cungThang(_thang, kho.homNay))
                       IconButton(
                         key: const Key('nut-hom-nay'),
                         padding: EdgeInsets.zero,
@@ -194,45 +194,6 @@ class _ManLichState extends State<ManLich> {
                 ),
             },
           ),
-          if (_cheDo == 0)
-            SizedBox(
-              height: 240,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
-                    child: Text(
-                      Chuoi.hoanThanhThoiQuen(
-                        kho.hang.where((h) => h.ticked).length,
-                        kho.hang.length,
-                      ),
-                      style: const TextStyle(fontSize: 15, color: Mau.mo),
-                    ),
-                  ),
-                  Expanded(
-                    child: kho.hang.isEmpty
-                        ? const SizedBox.shrink()
-                        : ListView.separated(
-                            padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
-                            itemCount: kho.hang.length,
-                            separatorBuilder: (_, _) => const SizedBox(height: 6),
-                            itemBuilder: (context, i) {
-                              final h = kho.hang[i];
-                              return HangHabit(
-                                hang: h,
-                                khoaGhi: true,
-                                choVuot: false,
-                                onTap: () {},
-                                onSua: () {},
-                                onXoa: () {},
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              ),
-            ),
         ],
       ),
     );
@@ -284,10 +245,12 @@ class _LuoiThang extends StatelessWidget {
                 final d = DateTime(y, m, ngay);
                 final hom = Ngay.cungNgay(d, kho.homNay);
                 final xem = Ngay.cungNgay(d, kho.selected);
+                final lua = kho.phutTapCuaNgay(d) > 0;
                 return InkWell(
+                  key: Key('lua-ngay-${Ngay.iso(d)}'),
                   onTap: () {
                     HapticFeedback.selectionClick();
-                    kho.chonNgay(d);
+                    moToNgay(context, kho, d);
                   },
                   child: Center(
                     child: Column(
@@ -312,15 +275,12 @@ class _LuoiThang extends StatelessWidget {
                           ),
                         ),
                         SizedBox(
-                          height: 6,
-                          child: hom
-                              ? Container(
-                                  width: 5,
-                                  height: 5,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Mau.reu,
-                                  ),
+                          height: 14,
+                          child: lua
+                              ? const Icon(
+                                  Icons.local_fire_department,
+                                  size: 12,
+                                  color: Mau.canhBao,
                                 )
                               : null,
                         ),
