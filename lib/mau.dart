@@ -1,16 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-/// Nền tối + thép + rêu. Không neon, không tím, không vàng gold, không AEGIS.
+/// Cam–đen. Không neon, không tím, không vàng gold, không AEGIS.
+/// Lửa #ffb020 — không dùng cam nút cho lửa.
 abstract final class Mau {
-  static const giay = Color(0xFF0C0D0B);
-  static const beMat = Color(0xFF161714);
-  static const muc = Color(0xFFE7E4DC);
-  static const mo = Color(0xFFB9C0B8);
-  static const reu = Color(0xFF3D9A7A);
-  static const canhBao = Color(0xFFC45C4A);
-  static const vien = Color(0xFF2E322F);
-  static const chipBat = Color(0xFF1E2C26);
+  static const giay = Color(0xFF100E0C);
+  static const beMat = Color(0xFF1C1713);
+  static const muc = Color(0xFFF3ECE4);
+  static const mo = Color(0xFFC4B6A8);
+  static const reu = Color(0xFFE85D04);
+  static const today = Color(0xFFFF7A2F);
+  static const lua = Color(0xFFFFB020);
+  static const canhBao = Color(0xFFD94A38);
+  static const vien = Color(0xFF3A322C);
+  static const chipBat = Color(0xFF2A1C14);
 
   static ThemeData theme() {
     const scheme = ColorScheme.dark(

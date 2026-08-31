@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Flat running-person app icon. Background #0c0d0b, figure #e7e4dc, accent #3d9a7a."""
+"""Flat running-person app icon. Background #100e0c, figure #f3ece4, accent #e85d04."""
 from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-BG = (12, 13, 11, 255)
-FIG = (231, 228, 220, 255)
-ACC = (61, 154, 122, 255)
+BG = (16, 14, 12, 255)
+FIG = (243, 236, 228, 255)
+ACC = (232, 93, 4, 255)
 
 
 def capsule(draw, a, b, r, fill):
@@ -92,6 +92,19 @@ def save_all():
         dest = root / "android/app/src/main/res" / folder / "ic_launcher.png"
         dest.parent.mkdir(parents=True, exist_ok=True)
         master.resize((px, px), Image.Resampling.LANCZOS).save(dest, "PNG")
+    macos = {
+        "app_icon_16.png": 16,
+        "app_icon_32.png": 32,
+        "app_icon_64.png": 64,
+        "app_icon_128.png": 128,
+        "app_icon_256.png": 256,
+        "app_icon_512.png": 512,
+        "app_icon_1024.png": 1024,
+    }
+    mac_dir = root / "macos/Runner/Assets.xcassets/AppIcon.appiconset"
+    mac_dir.mkdir(parents=True, exist_ok=True)
+    for name, px in macos.items():
+        master.resize((px, px), Image.Resampling.LANCZOS).save(mac_dir / name, "PNG")
     print("ok", ios / "Icon-App-1024x1024@1x.png")
 
 

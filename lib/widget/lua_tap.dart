@@ -17,7 +17,7 @@ class LuaTapHien extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mau = lua.sang ? Mau.canhBao : Mau.mo;
+    final mau = lua.sang ? Mau.lua : Mau.mo;
     final icon = to ? 28.0 : 22.0;
     final chu = to ? 20.0 : 16.0;
     final nut = Material(

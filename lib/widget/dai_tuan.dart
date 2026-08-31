@@ -65,7 +65,7 @@ class _Cham extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: phongHomNay ? FontWeight.w700 : FontWeight.w500,
-                color: phongHomNay ? Mau.muc : Mau.mo,
+                color: phongHomNay ? Mau.today : Mau.mo,
               ),
             ),
             const SizedBox(height: 6),

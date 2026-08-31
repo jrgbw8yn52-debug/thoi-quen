@@ -8,6 +8,7 @@ void main() {
     expect(Chuoi.xong, 'Xong');
     expect(Chuoi.caiDat, 'Cài đặt');
     expect(Chuoi.thoiQuen, 'Thói quen');
+    expect(Chuoi.tenApp, 'Habits');
     expect(Chuoi.mucTieu, 'Mục tiêu');
     expect(Chuoi.chuoiNgay, 'Chuỗi');
     expect(Chuoi.nTrenMHomNay(1, 3), '1/3 hôm nay');

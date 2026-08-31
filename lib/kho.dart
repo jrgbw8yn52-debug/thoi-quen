@@ -206,6 +206,14 @@ class Kho extends ChangeNotifier {
     return n;
   }
 
+  int tickCuaNgay(DateTime d) => _tickCuaNgay(d);
+
+  int tongCuaNgay(DateTime d) => _tongCuaNgay(d);
+
+  LuaTap luaTapCua(DateTime d) {
+    return CongThuc.luaTap([for (final t in dsTap) t.ngay], d);
+  }
+
   WeighIn? canCua(DateTime d) {
     final iso = Ngay.iso(d);
     for (final c in dsCan) {
@@ -629,8 +637,10 @@ class Kho extends ChangeNotifier {
     var d = Ngay.cat(a);
     final end = Ngay.cat(b);
     while (!d.isAfter(end)) {
-      tick += _tickCuaNgay(d);
-      tong += _tongCuaNgay(d);
+      if (!Ngay.sau(d, homNay)) {
+        tick += _tickCuaNgay(d);
+        tong += _tongCuaNgay(d);
+      }
       d = d.add(const Duration(days: 1));
     }
     return (tick, tong);

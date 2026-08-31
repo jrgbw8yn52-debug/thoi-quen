@@ -5,6 +5,7 @@ import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
+import '../widget/the_ngay.dart';
 import 'thoi_khoa.dart';
 import 'to_ngay.dart';
 
@@ -183,14 +184,27 @@ class _ManLichState extends State<ManLich> {
                     });
                   },
                 ),
-              _ => PageView.builder(
-                  controller: _trang,
-                  itemCount: _soTrang,
-                  onPageChanged: (i) {
-                    setState(() => _thang = _thangCua(i));
-                  },
-                  itemBuilder: (context, i) =>
-                      _LuoiThang(kho: kho, thang: _thangCua(i)),
+              _ => Column(
+                  children: [
+                    Expanded(
+                      child: PageView.builder(
+                        controller: _trang,
+                        itemCount: _soTrang,
+                        onPageChanged: (i) {
+                          setState(() => _thang = _thangCua(i));
+                        },
+                        itemBuilder: (context, i) =>
+                            _LuoiThang(kho: kho, thang: _thangCua(i)),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                      child: TheNgayDangXem(
+                        key: const Key('the-ngay-dang-xem'),
+                        kho: kho,
+                      ),
+                    ),
+                  ],
                 ),
             },
           ),
@@ -270,7 +284,7 @@ class _LuoiThang extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: hom ? FontWeight.w700 : FontWeight.w500,
-                              color: Mau.muc,
+                              color: hom ? Mau.today : Mau.muc,
                             ),
                           ),
                         ),
@@ -280,7 +294,7 @@ class _LuoiThang extends StatelessWidget {
                               ? const Icon(
                                   Icons.local_fire_department,
                                   size: 12,
-                                  color: Mau.canhBao,
+                                  color: Mau.lua,
                                 )
                               : null,
                         ),

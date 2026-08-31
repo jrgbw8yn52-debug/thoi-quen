@@ -9,6 +9,7 @@ import '../mau.dart';
 import '../ngay.dart';
 import '../widget/hang_habit.dart';
 import '../widget/picker_mon.dart';
+import '../widget/the_ngay.dart';
 import 'to_mon.dart';
 
 Future<void> moToNgay(BuildContext context, Kho kho, DateTime ngay) async {
@@ -112,6 +113,12 @@ class _ToNgayState extends State<ToNgay> {
                     padding: EdgeInsets.only(top: 4),
                     child: Text(Chuoi.chiXem, style: TextStyle(fontSize: 13, color: Mau.mo)),
                   ),
+                const SizedBox(height: 12),
+                TheNgayDangXem(
+                  key: const Key('the-ngay-to'),
+                  kho: kho,
+                  ngay: ngay,
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   Chuoi.thoiQuen,

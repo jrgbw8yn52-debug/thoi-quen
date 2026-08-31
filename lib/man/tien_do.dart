@@ -8,43 +8,48 @@ import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
 import '../widget/duong_can.dart';
-import 'bao_cao.dart';
 
-class ManTienDo extends StatelessWidget {
+class ManTienDo extends StatefulWidget {
   const ManTienDo({super.key, required this.kho});
 
   final Kho kho;
 
   @override
+  State<ManTienDo> createState() => _ManTienDoState();
+}
+
+class _ManTienDoState extends State<ManTienDo> {
+  int _phinKcal = 0;
+
+  Kho get kho => widget.kho;
+
+  @override
   Widget build(BuildContext context) {
     final spark = kho.dsCan.reversed.map((c) => c.kg).toList();
+    final bmi = kho.bmiTheoCan;
+    final tieu = kho.diemKcalPhin(_phinKcal, kho.kcalTapCuaNgay);
+    final nap = kho.diemKcalPhin(_phinKcal, kho.kcalNapCuaNgay);
+    final goi = kho.kcalGoiYDoc;
+    final goiPhin = goi == null
+        ? null
+        : switch (_phinKcal) {
+            2 => goi * 7,
+            3 => goi * 30,
+            _ => goi,
+          };
     return SafeArea(
       bottom: false,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  Chuoi.tienDo,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.4,
-                    color: Mau.muc,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(builder: (_) => ManBaoCao(kho: kho)),
-                  );
-                },
-                child: const Text(Chuoi.xemBaoCao),
-              ),
-            ],
+          const Text(
+            Chuoi.tienDo,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.4,
+              color: Mau.muc,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -63,10 +68,30 @@ class ManTienDo extends StatelessWidget {
           Wrap(
             spacing: 8,
             children: [
-              _Phin(chu: Chuoi.phinNgay, bat: kho.phin == 0, onTap: () => kho.chonPhin(0)),
-              _Phin(chu: Chuoi.tuanNhan, bat: kho.phin == 1, onTap: () => kho.chonPhin(1)),
-              _Phin(chu: Chuoi.thangNhan, bat: kho.phin == 2, onTap: () => kho.chonPhin(2)),
-              _Phin(chu: Chuoi.namNhan, bat: kho.phin == 3, onTap: () => kho.chonPhin(3)),
+              _Phin(
+                key: const Key('phin-habit-0'),
+                chu: Chuoi.phinNgay,
+                bat: kho.phin == 0,
+                onTap: () => kho.chonPhin(0),
+              ),
+              _Phin(
+                key: const Key('phin-habit-1'),
+                chu: Chuoi.tuanNhan,
+                bat: kho.phin == 1,
+                onTap: () => kho.chonPhin(1),
+              ),
+              _Phin(
+                key: const Key('phin-habit-2'),
+                chu: Chuoi.thangNhan,
+                bat: kho.phin == 2,
+                onTap: () => kho.chonPhin(2),
+              ),
+              _Phin(
+                key: const Key('phin-habit-3'),
+                chu: Chuoi.namNhan,
+                bat: kho.phin == 3,
+                onTap: () => kho.chonPhin(3),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -119,9 +144,9 @@ class ManTienDo extends StatelessWidget {
                       child: _CotTuan(
                         cot: c,
                         onTap: () {
-                                HapticFeedback.selectionClick();
-                                kho.chonNgay(c.ngay);
-                              },
+                          HapticFeedback.selectionClick();
+                          kho.chonNgay(c.ngay);
+                        },
                       ),
                     ),
                 ],
@@ -142,9 +167,9 @@ class ManTienDo extends StatelessWidget {
                       child: _CotThangNho(
                         cot: c,
                         onTap: () {
-                                HapticFeedback.selectionClick();
-                                kho.chonNgay(c.ngay);
-                              },
+                          HapticFeedback.selectionClick();
+                          kho.chonNgay(c.ngay);
+                        },
                       ),
                     ),
                 ],
@@ -165,10 +190,10 @@ class ManTienDo extends StatelessWidget {
                       child: _CotThangNho(
                         cot: c,
                         onTap: () {
-                                HapticFeedback.selectionClick();
-                                final last = DateTime(c.ngay.year, c.ngay.month, Ngay.soNgayThang(c.ngay.year, c.ngay.month));
-                                kho.chonNgay(last);
-                              },
+                          HapticFeedback.selectionClick();
+                          final last = DateTime(c.ngay.year, c.ngay.month, Ngay.soNgayThang(c.ngay.year, c.ngay.month));
+                          kho.chonNgay(last.isAfter(kho.homNay) ? kho.homNay : last);
+                        },
                       ),
                     ),
                 ],
@@ -200,8 +225,94 @@ class ManTienDo extends StatelessWidget {
                 ],
               ),
             ),
+          const SizedBox(height: 28),
+          const Text(
+            Chuoi.bmiTheoThoiGian,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+          ),
           const SizedBox(height: 8),
-          Text(kho.chuKcalTap, style: const TextStyle(fontSize: 15, color: Mau.muc)),
+          if (bmi.isEmpty)
+            const Text(Chuoi.thieuDuLieu, style: TextStyle(color: Mau.mo))
+          else ...[
+            DuongCan(
+              key: const Key('duong-bmi'),
+              diem: [for (final b in bmi) b.$2],
+              truc: true,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${bmi.first.$1.day}/${bmi.first.$1.month}',
+                  style: const TextStyle(fontSize: 11, color: Mau.mo),
+                ),
+                Text(
+                  '${bmi.last.$1.day}/${bmi.last.$1.month}',
+                  style: const TextStyle(fontSize: 11, color: Mau.mo),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 28),
+          const Text(
+            Chuoi.nangLuong,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              _Phin(
+                key: const Key('phin-kcal-0'),
+                chu: Chuoi.tuanNhan,
+                bat: _phinKcal == 0,
+                onTap: () => setState(() => _phinKcal = 0),
+              ),
+              _Phin(
+                key: const Key('phin-kcal-1'),
+                chu: Chuoi.thangNhan,
+                bat: _phinKcal == 1,
+                onTap: () => setState(() => _phinKcal = 1),
+              ),
+              _Phin(
+                key: const Key('phin-kcal-2'),
+                chu: Chuoi.sauThang,
+                bat: _phinKcal == 2,
+                onTap: () => setState(() => _phinKcal = 2),
+              ),
+              _Phin(
+                key: const Key('phin-kcal-3'),
+                chu: Chuoi.muoiHaiThang,
+                bat: _phinKcal == 3,
+                onTap: () => setState(() => _phinKcal = 3),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            Chuoi.kcalNap,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+          ),
+          const SizedBox(height: 8),
+          DuongCan(
+            key: const Key('duong-nap'),
+            diem: [for (final d in nap) d.$2.toDouble()],
+            sang: goiPhin == null ? const [] : [goiPhin.toDouble()],
+            truc: true,
+          ),
+          if (!kho.coNap)
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Text(Chuoi.chuaGhiNap, style: TextStyle(fontSize: 14, color: Mau.mo)),
+            ),
+          const SizedBox(height: 16),
+          const Text(
+            Chuoi.kcalTieuThu,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+          ),
+          const SizedBox(height: 8),
+          _CotKcalHang(diem: tieu),
         ],
       ),
     );
@@ -275,7 +386,7 @@ class _CotTuan extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: cot.dangXem ? FontWeight.w700 : FontWeight.w500,
-                color: cot.tuongLai ? Mau.vien : (cot.laHomNay ? Mau.muc : Mau.mo),
+                color: cot.tuongLai ? Mau.vien : (cot.laHomNay ? Mau.today : Mau.mo),
               ),
             ),
           ],
@@ -315,8 +426,52 @@ class _CotThangNho extends StatelessWidget {
   }
 }
 
+class _CotKcalHang extends StatelessWidget {
+  const _CotKcalHang({required this.diem});
+
+  final List<(DateTime, int)> diem;
+
+  @override
+  Widget build(BuildContext context) {
+    final max = diem.fold<int>(1, (a, b) => b.$2 > a ? b.$2 : a);
+    return SizedBox(
+      key: const Key('duong-tieu-thu'),
+      height: 72,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final d in diem)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: FractionallySizedBox(
+                    heightFactor: math.max(0.06, d.$2 / max),
+                    widthFactor: 1,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Mau.reu.withValues(alpha: d.$2 == 0 ? 0.25 : 0.9),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _Phin extends StatelessWidget {
-  const _Phin({required this.chu, required this.bat, required this.onTap});
+  const _Phin({
+    super.key,
+    required this.chu,
+    required this.bat,
+    required this.onTap,
+  });
 
   final String chu;
   final bool bat;

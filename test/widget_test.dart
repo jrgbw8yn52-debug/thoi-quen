@@ -136,7 +136,10 @@ void main() {
     expect(find.text(Chuoi.banDau), findsOneWidget);
     expect(find.text(Chuoi.hienTai), findsOneWidget);
     expect(find.text('Ghi thêm cân để thấy đường'), findsNothing);
-    expect(find.text(Chuoi.kcalTieuThuHomNay(0)), findsOneWidget);
+    expect(find.text(Chuoi.kcalTieuThu), findsOneWidget);
+    expect(find.text(Chuoi.kcalNap), findsOneWidget);
+    expect(find.text(Chuoi.kcalTieuThuHomNay(0)), findsNothing);
+    expect(find.text(Chuoi.xemBaoCao), findsNothing);
   });
 
   testWidgets('cham tuan doi selectedDate', (tester) async {
@@ -303,7 +306,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.tienDo));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(Chuoi.tuanNhan));
+    await tester.tap(find.byKey(const Key('phin-habit-1')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('T2').first);
     await tester.pumpAndSettle();
@@ -566,7 +569,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.tieuVongNgay), findsOneWidget);
     expect(find.textContaining('đã tick'), findsOneWidget);
-    await tester.tap(find.text(Chuoi.tuanNhan));
+    await tester.tap(find.byKey(const Key('phin-habit-1')));
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.tieuVongTuan), findsOneWidget);
     expect(find.text(Chuoi.hoanThanhTheoThu), findsOneWidget);
@@ -762,13 +765,15 @@ void main() {
     expect(kho.bmiTheoCan.last.$2, isNot(bmi1));
     await tester.tap(find.text(Chuoi.tienDo));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(Chuoi.xemBaoCao));
-    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.xemBaoCao), findsNothing);
     expect(find.byKey(const Key('duong-bmi')), findsOneWidget);
     expect(find.byKey(const Key('duong-nap')), findsOneWidget);
+    expect(find.byKey(const Key('duong-tieu-thu')), findsOneWidget);
     expect(find.text(Chuoi.chuaGhiNap), findsNothing);
     expect(find.text(Chuoi.kcalTieuThu), findsOneWidget);
     expect(find.text(Chuoi.kcalNap), findsOneWidget);
+    expect(find.text(Chuoi.kcalTieuThuHomNay(0)), findsNothing);
+    expect(find.text(Chuoi.nangLuong), findsOneWidget);
   });
 
   test('25/8 nguc 110, 31/8 nguc 108: so voi lan truoc -2 cm · 6 ngay', () async {
@@ -1153,6 +1158,39 @@ void main() {
     expect(find.byKey(Key('lua-ngay-${Ngay.iso(DateTime(2026, 8, 31))}')), findsNothing);
     expect(find.text(Chuoi.kcalTapNhan), findsOneWidget);
     expect(find.text(Chuoi.tuanNhan), findsOneWidget);
+  });
+
+  test('mau so ky khong dem habit ngay tuong lai', () async {
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    kho.chonPhin(2);
+    expect(kho.nTrenMKy.$2, 1);
+    expect(kho.nTrenMKy.$1, 1);
+    kho.chonPhin(1);
+    expect(kho.nTrenMKy.$2, 1);
+    kho.chonNgay(DateTime(2026, 8, 31));
+    expect(kho.tongCuaNgay(DateTime(2026, 8, 31)), 1);
+    kho.chonPhin(2);
+    expect(kho.nTrenMKy.$2, 1);
+  });
+
+  testWidgets('lich the ngay dang xem + to ngay', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    await kho.themPreset(ten: Chuoi.day6Gio);
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.lich));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('the-ngay-dang-xem')), findsOneWidget);
+    expect(find.text(Chuoi.ngayDangXem), findsOneWidget);
+    expect(find.textContaining('Lửa'), findsOneWidget);
+    expect(find.text(Chuoi.xemBaoCao), findsNothing);
+    await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(DateTime(2026, 8, 30))}')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('the-ngay-to')), findsOneWidget);
+    expect(find.byKey(const Key('nap-tieu')), findsOneWidget);
+    expect(find.text(Chuoi.ngayDangXem), findsWidgets);
   });
 }
 

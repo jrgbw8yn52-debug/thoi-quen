@@ -2,7 +2,7 @@ import 'so.dart';
 
 /// Mọi chữ hiện trên UI. Cấm thêm chuỗi Anh (Today/Done/Backup/Restore/Habits/Settings/Goal/Streak).
 abstract final class Chuoi {
-  static const tenApp = 'Thói quen';
+  static const tenApp = 'Habits';
   static const homNay = 'Hôm nay';
   static const tienDo = 'Tiến độ';
   static const caiDat = 'Cài đặt';
@@ -145,6 +145,8 @@ abstract final class Chuoi {
   static const hoatDongO = 'Hoạt động';
   static const chiSo = 'Chỉ số';
   static const xemBaoCao = 'Xem báo cáo';
+  static const nangLuong = 'Năng lượng';
+  static const ngayDangXem = 'Ngày đang xem';
   static const banDau = 'Ban đầu';
   static const moiNhat = 'Mới nhất';
   static const soVoiLanTruoc = 'so với lần trước';
@@ -330,6 +332,18 @@ abstract final class Chuoi {
   static String tongKcalTieuThu(int n) => 'Tổng kcal tiêu thụ: $n';
 
   static String napTieu(int n, int m) => 'Nạp $n · Tiêu thụ $m';
+
+  static String theNgayDangXem({
+    required int n,
+    required int m,
+    required int nap,
+    required int? goi,
+    required int tieu,
+    required int lua,
+  }) {
+    final napChu = goi == null ? '$nap' : '$nap/$goi';
+    return '$n/$m · Nạp $napChu · Tiêu thụ $tieu · Lửa $lua';
+  }
 
   static String dongMon(String ten, int kcal, {double? g}) {
     if (g == null) return '$ten · $kcal';
