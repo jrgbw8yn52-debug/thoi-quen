@@ -7,7 +7,6 @@ import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
-import '../so.dart';
 import '../widget/duong_can.dart';
 import 'bao_cao.dart';
 
@@ -70,7 +69,13 @@ class ManTienDo extends StatelessWidget {
               _Phin(chu: Chuoi.namNhan, bat: kho.phin == 3, onTap: () => kho.chonPhin(3)),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          Text(
+            Chuoi.tieuVong(kho.phin),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
+          ),
+          const SizedBox(height: 12),
           Center(
             child: SizedBox(
               width: 148,
@@ -91,8 +96,8 @@ class ManTienDo extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        Chuoi.nTrenM(kho.nTrenMKy.$1, kho.nTrenMKy.$2),
-                        style: const TextStyle(fontSize: 15, color: Mau.mo),
+                        Chuoi.daTick(kho.nTrenMKy.$1, kho.nTrenMKy.$2),
+                        style: const TextStyle(fontSize: 13, color: Mau.mo),
                       ),
                     ],
                   ),
@@ -102,7 +107,7 @@ class ManTienDo extends StatelessWidget {
           ),
           if (kho.phin == 1) ...[
             const SizedBox(height: 28),
-            const Text(Chuoi.tuanNhan, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),
+            const Text(Chuoi.hoanThanhTheoThu, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),
             const SizedBox(height: 8),
             SizedBox(
               height: 72,
@@ -125,10 +130,7 @@ class ManTienDo extends StatelessWidget {
           ],
           if (kho.phin == 2) ...[
             const SizedBox(height: 28),
-            Text(
-              '${Chuoi.thang(kho.selected.month)} ${kho.selected.year}',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
-            ),
+            const Text(Chuoi.hoanThanhTheoNgay, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),
             const SizedBox(height: 8),
             SizedBox(
               height: 56,
@@ -151,10 +153,7 @@ class ManTienDo extends StatelessWidget {
           ],
           if (kho.phin == 3) ...[
             const SizedBox(height: 28),
-            Text(
-              '${Chuoi.namNhan} ${kho.selected.year}',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
-            ),
+            const Text(Chuoi.hoanThanhTheoThang, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),
             const SizedBox(height: 8),
             SizedBox(
               height: 72,
@@ -178,7 +177,7 @@ class ManTienDo extends StatelessWidget {
           ],
           const SizedBox(height: 28),
           const Text(
-            Chuoi.canKg,
+            Chuoi.canNang,
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
           ),
           const SizedBox(height: 8),
@@ -190,19 +189,23 @@ class ManTienDo extends StatelessWidget {
               mo: kho.netMo,
               truc: true,
             ),
-          if (kho.banDauKg != null)
+          if (kho.banDauKg != null || kho.hienTaiKg != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
                 children: [
-                  _SoCan(nhan: Chuoi.banDau, gia: kho.banDauKg!),
-                  _SoCan(nhan: Chuoi.hienTai, gia: kho.hienTaiKg!),
-                  if (kho.dsCan.length >= 2)
-                    _SoCan(nhan: Chuoi.doi, gia: So.kg(kho.dsCan.first.kg - kho.dsCan.last.kg)),
+                  _SoCan(nhan: Chuoi.banDau, gia: kho.banDauKg ?? '—'),
+                  _SoCan(nhan: Chuoi.hienTai, gia: kho.hienTaiKg ?? '—'),
+                  _SoCan(nhan: Chuoi.doi, gia: kho.doiKg ?? '—'),
                 ],
               ),
             ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
+          const Text(
+            Chuoi.kcalTapNhan,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+          ),
+          const SizedBox(height: 4),
           Text(kho.chuKcalTap, style: const TextStyle(fontSize: 15, color: Mau.muc)),
         ],
       ),

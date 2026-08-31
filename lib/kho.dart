@@ -318,35 +318,35 @@ class Kho extends ChangeNotifier {
     return o;
   }
 
-  List<(DateTime ngay, int phut)> cotTapTuan(DateTime d) {
-    return [for (final x in Ngay.tuan(d)) (x, phutTapCuaNgay(x))];
+  List<(DateTime ngay, int kcal)> cotKcalTuan(DateTime d) {
+    return [for (final x in Ngay.tuan(d)) (x, kcalTapCuaNgay(x))];
   }
 
-  List<(DateTime ngay, int phut)> cotTapThang(DateTime d) {
+  List<(DateTime ngay, int kcal)> cotKcalThang(DateTime d) {
     final out = <(DateTime, int)>[];
     DateTime? dau;
-    var phut = 0;
+    var kcal = 0;
     for (final x in Ngay.cacNgayThang(d)) {
       final t2 = Ngay.thuHai(x);
       if (dau == null || !Ngay.cungNgay(dau, t2)) {
-        if (dau != null) out.add((dau, phut));
+        if (dau != null) out.add((dau, kcal));
         dau = t2;
-        phut = 0;
+        kcal = 0;
       }
-      phut += phutTapCuaNgay(x);
+      kcal += kcalTapCuaNgay(x);
     }
-    if (dau != null) out.add((dau, phut));
+    if (dau != null) out.add((dau, kcal));
     return out;
   }
 
-  List<(DateTime ngay, int phut)> cotTapNam(int nam) {
+  List<(DateTime ngay, int kcal)> cotKcalNam(int nam) {
     return [
       for (var m = 1; m <= 12; m++)
         (
           DateTime(nam, m, 1),
           [
             for (final x in Ngay.cacNgayThang(DateTime(nam, m, 1)))
-              phutTapCuaNgay(x),
+              kcalTapCuaNgay(x),
           ].fold<int>(0, (a, b) => a + b),
         ),
     ];
@@ -374,9 +374,14 @@ class Kho extends ChangeNotifier {
         target: targetKg,
       );
 
-  String? get banDauKg => dsCan.isEmpty ? null : So.kg(dsCan.last.kg);
+  String? get banDauKg => startKg == null ? null : So.kg(startKg!);
 
-  String? get hienTaiKg => dsCan.isEmpty ? null : So.kg(dsCan.first.kg);
+  String? get hienTaiKg => canMoi == null ? null : So.kg(canMoi!.kg);
+
+  String? get doiKg {
+    if (startKg == null || canMoi == null) return null;
+    return So.kg(canMoi!.kg - startKg!);
+  }
 
   int get phanTramKy {
     final r = nTrenMCua(phin);
@@ -873,11 +878,20 @@ class Kho extends ChangeNotifier {
   }
 
   Future<bool> ghiTap(String loai, int phut, {DateTime? ngay}) async {
+    return ghiNhieuTap([(loai, phut)], ngay: ngay);
+  }
+
+  Future<bool> ghiNhieuTap(Iterable<(String loai, int phut)> ds, {DateTime? ngay}) async {
     final d = Ngay.cat(ngay ?? selected);
     if (!Ngay.ghiDuoc(d, homNay)) return false;
-    if (CongThuc.metCua(loai) == null) return false;
-    if (phut < 1 || phut > 300) return false;
-    await db.ghiTap(d, loai, phut);
+    var ok = false;
+    for (final x in ds) {
+      if (CongThuc.metCua(x.$1) == null) continue;
+      if (x.$2 < 1 || x.$2 > 300) continue;
+      await db.ghiTap(d, x.$1, x.$2);
+      ok = true;
+    }
+    if (!ok) return false;
     await tai();
     return true;
   }

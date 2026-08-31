@@ -126,6 +126,13 @@ abstract final class Chuoi {
   static const phinNgay = 'Ngày';
   static const namNhan = 'Năm';
   static const baoCao = 'Báo cáo';
+  static const hoanThanhTheoThu = 'Hoàn thành theo thứ';
+  static const hoanThanhTheoNgay = 'Hoàn thành theo ngày';
+  static const hoanThanhTheoThang = 'Hoàn thành theo tháng';
+  static const tieuVongNgay = 'Thói quen · Ngày này';
+  static const tieuVongTuan = 'Thói quen · Tuần này';
+  static const tieuVongThang = 'Thói quen · Tháng này';
+  static const tieuVongNam = 'Thói quen · Năm này';
   static const trenNhipBacSi = 'Trên 0,5 kg/tuần nên có bác sĩ.';
   static const duKienHoanThanh = 'Dự kiến hoàn thành';
   static const itVanDong = '1,2 Ít vận động — ngồi nhiều';
@@ -225,6 +232,55 @@ abstract final class Chuoi {
   static String phanTram(int p) => '$p%';
 
   static String nTrenM(int n, int m) => '$n/$m';
+
+  static String daTick(int n, int m) => '$n/$m đã tick';
+
+  static String tieuVong(int phin) {
+    switch (phin) {
+      case 1:
+        return tieuVongTuan;
+      case 2:
+        return tieuVongThang;
+      case 3:
+        return tieuVongNam;
+      default:
+        return tieuVongNgay;
+    }
+  }
+
+  static String tenMon(String loai) {
+    switch (loai) {
+      case 'di_bo':
+        return diBo;
+      case 'chay':
+        return chay;
+      case 'dap_xe':
+        return dapXe;
+      case 'khang_luc':
+        return khangLuc;
+      case 'yoga':
+        return yoga;
+      case 'boi':
+        return boi;
+      case 'da_bong':
+        return daBong;
+      case 'cau_long':
+        return cauLong;
+      case 'nhay_day':
+        return nhayDay;
+      case 'gian_co':
+        return gianCo;
+      default:
+        return loai;
+    }
+  }
+
+  static String tongHomNay(int n) => 'Tổng hôm nay $n kcal';
+
+  static String dongPhien(String mon, int soPhut, int? kcal) {
+    if (kcal == null) return '$mon · $soPhut $phut · $thieuDuLieu';
+    return '$mon · $soPhut $phut · $kcal kcal';
+  }
 
   static String hoanThanhThoiQuen(int n, int m) =>
       'Hoàn thành $n/$m thói quen';

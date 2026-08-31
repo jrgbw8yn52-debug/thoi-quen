@@ -516,4 +516,82 @@ void main() {
     expect(k.netMo.length, 2);
     expect(k.netMo, containsAll([72.0, 70.0]));
   });
+
+  test('ban dau 150 can 120: tai khoan hien tai, tien do 150/120/-30', () async {
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    await k.luuHoSo(
+      ten: 'A',
+      cao: '170',
+      sex: 'nam',
+      dob: DateTime(1996, 8, 31),
+      activity: 1.2,
+      banDau: '150',
+    );
+    await k.ghiCanKg(120);
+    expect(k.startKg, 150);
+    expect(k.canMoi!.kg, 120);
+    expect(k.banDauKg, '150');
+    expect(k.hienTaiKg, '120');
+    expect(k.doiKg, '-30');
+    expect(k.dongTaiKhoan, contains('120 kg'));
+    expect(k.dongTaiKhoan, isNot(contains('150 kg')));
+  });
+
+  testWidgets('vong tien do co tieu de Thoi quen', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.tienDo));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.tieuVongNgay), findsOneWidget);
+    expect(find.textContaining('đã tick'), findsOneWidget);
+    await tester.tap(find.text(Chuoi.tuanNhan));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.tieuVongTuan), findsOneWidget);
+    expect(find.text(Chuoi.hoanThanhTheoThu), findsOneWidget);
+    expect(find.text(Chuoi.canNang), findsWidgets);
+  });
+
+  testWidgets('luu Di bo + Yoga cung ngay: 2 dong, lua do, bam ngay ra list', (tester) async {
+    tester.view.physicalSize = const Size(390, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    await kho.ghiCanKg(70);
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.hoatDongO));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.yoga));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.luu));
+    await tester.pumpAndSettle();
+    expect(kho.tapNgay(kho.selected).length, 2);
+    expect(find.text(Chuoi.tongHomNay(kho.kcalTapCuaNgay(kho.selected))), findsWidgets);
+    expect(
+      find.text(Chuoi.dongPhien(
+        Chuoi.diBo,
+        30,
+        CongThuc.kcalTap(met: 3.5, kg: 70, phut: 30)!.round(),
+      )),
+      findsWidgets,
+    );
+    expect(
+      find.text(Chuoi.dongPhien(
+        Chuoi.yoga,
+        30,
+        CongThuc.kcalTap(met: 3.0, kg: 70, phut: 30)!.round(),
+      )),
+      findsWidgets,
+    );
+    await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(kho.selected)}')));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.dongNgay(kho.selected)), findsWidgets);
+    expect(find.textContaining(Chuoi.diBo), findsWidgets);
+    expect(find.textContaining(Chuoi.yoga), findsWidgets);
+  });
 }

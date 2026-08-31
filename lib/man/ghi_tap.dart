@@ -18,27 +18,95 @@ class ManGhiTap extends StatefulWidget {
 }
 
 class _ManGhiTapState extends State<ManGhiTap> {
-  String _loai = CongThuc.loaiDiBo;
-  int _phut = 30;
+  final Set<String> _chon = {CongThuc.loaiDiBo};
+  final Map<String, int> _phut = {CongThuc.loaiDiBo: 30};
   int _phin = 0;
 
-  static const _ten = {
-    CongThuc.loaiDiBo: Chuoi.diBo,
-    CongThuc.loaiChay: Chuoi.chay,
-    CongThuc.loaiDapXe: Chuoi.dapXe,
-    CongThuc.loaiKhangLuc: Chuoi.khangLuc,
-    CongThuc.loaiYoga: Chuoi.yoga,
-    CongThuc.loaiBoi: Chuoi.boi,
-    CongThuc.loaiDaBong: Chuoi.daBong,
-    CongThuc.loaiCauLong: Chuoi.cauLong,
-    CongThuc.loaiNhayDay: Chuoi.nhayDay,
-    CongThuc.loaiGianCo: Chuoi.gianCo,
-  };
-
   Future<void> _luu() async {
-    if (widget.kho.khoaGhi) return;
-    await widget.kho.ghiTap(_loai, _phut);
+    if (widget.kho.khoaGhi || _chon.isEmpty) return;
+    await widget.kho.ghiNhieuTap([
+      for (final m in CongThuc.mon)
+        if (_chon.contains(m.loai)) (m.loai, _phut[m.loai] ?? 30),
+    ]);
     if (mounted) setState(() {});
+  }
+
+  void _doi(String loai) {
+    setState(() {
+      if (_chon.contains(loai)) {
+        _chon.remove(loai);
+      } else {
+        _chon.add(loai);
+        _phut.putIfAbsent(loai, () => 30);
+      }
+    });
+  }
+
+  int _kcalMon(Kho kho, String loai) {
+    final k = CongThuc.kcalTap(
+      met: CongThuc.metCua(loai),
+      kg: kho.canMoi?.kg,
+      phut: _phut[loai] ?? 30,
+    );
+    return k?.round() ?? 0;
+  }
+
+  void _moPhien(BuildContext context, Kho kho, DateTime ngay) {
+    final ds = kho.tapNgay(ngay);
+    final tong = kho.kcalTapCuaNgay(ngay);
+    final xem = !Ngay.ghiDuoc(ngay, kho.homNay);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Mau.beMat,
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  Chuoi.dongNgay(ngay),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Mau.muc),
+                ),
+                if (xem)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 4),
+                    child: Text(Chuoi.chiXem, style: TextStyle(fontSize: 13, color: Mau.mo)),
+                  ),
+                const SizedBox(height: 12),
+                if (ds.isEmpty)
+                  const Text('—', style: TextStyle(color: Mau.mo))
+                else
+                  for (final t in ds)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        Chuoi.dongPhien(
+                          Chuoi.tenMon(t.loai),
+                          t.phut,
+                          kho.thieuCan
+                              ? null
+                              : CongThuc.kcalTap(
+                                  met: CongThuc.metCua(t.loai),
+                                  kg: kho.canMoi?.kg,
+                                  phut: t.phut,
+                                )?.round(),
+                        ),
+                        style: const TextStyle(fontSize: 15, color: Mau.muc),
+                      ),
+                    ),
+                Text(
+                  Chuoi.tongHomNay(tong),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -47,12 +115,9 @@ class _ManGhiTapState extends State<ManGhiTap> {
     return ListenableBuilder(
       listenable: kho,
       builder: (context, _) {
-        final kcal = CongThuc.kcalTap(
-          met: CongThuc.metCua(_loai),
-          kg: kho.canMoi?.kg,
-          phut: _phut,
-        );
         final lua = kho.luaTapHom;
+        final daLuu = kho.tapNgay(kho.selected);
+        final tongNgay = kho.kcalTapCuaNgay(kho.selected);
         return Scaffold(
           backgroundColor: Mau.giay,
           body: SafeArea(
@@ -91,54 +156,90 @@ class _ManGhiTapState extends State<ManGhiTap> {
                   children: [
                     for (final m in CongThuc.mon)
                       _Chip(
-                        chu: _ten[m.loai]!,
-                        bat: _loai == m.loai,
-                        onTap: kho.khoaGhi ? null : () => setState(() => _loai = m.loai),
+                        chu: Chuoi.tenMon(m.loai),
+                        bat: _chon.contains(m.loai),
+                        onTap: kho.khoaGhi ? null : () => _doi(m.loai),
                       ),
                   ],
                 ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _Buoc(
-                      chu: '−',
-                      onTap: kho.khoaGhi || _phut <= 5
-                          ? null
-                          : () => setState(() => _phut -= 5),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        '$_phut ${Chuoi.phut}',
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Mau.muc),
+                const SizedBox(height: 16),
+                for (final m in CongThuc.mon)
+                  if (_chon.contains(m.loai)) ...[
+                  Text(
+                    Chuoi.tenMon(m.loai),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _Buoc(
+                        chu: '−',
+                        onTap: kho.khoaGhi || (_phut[m.loai] ?? 30) <= 5
+                            ? null
+                            : () => setState(() => _phut[m.loai] = (_phut[m.loai] ?? 30) - 5),
                       ),
-                    ),
-                    _Buoc(
-                      chu: '+',
-                      onTap: kho.khoaGhi || _phut >= 180
-                          ? null
-                          : () => setState(() => _phut += 5),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          '${_phut[m.loai] ?? 30} ${Chuoi.phut}',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Mau.muc),
+                        ),
+                      ),
+                      _Buoc(
+                        chu: '+',
+                        onTap: kho.khoaGhi || (_phut[m.loai] ?? 30) >= 180
+                            ? null
+                            : () => setState(() => _phut[m.loai] = (_phut[m.loai] ?? 30) + 5),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    kho.thieuCan ? Chuoi.thieuDuLieu : Chuoi.kcalTapSo(_kcalMon(kho, m.loai)),
+                    style: const TextStyle(fontSize: 14, color: Mau.mo),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 Text(
-                  kcal == null
-                      ? (kho.thieuCan ? Chuoi.thieuDuLieu : Chuoi.kcalTapSo(0))
-                      : Chuoi.kcalTapSo(kcal.round()),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 15, color: Mau.mo),
+                  key: const Key('tong-hom-nay'),
+                  Chuoi.tongHomNay(tongNgay),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
                 ),
+                if (daLuu.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  for (final t in daLuu)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        Chuoi.dongPhien(
+                          Chuoi.tenMon(t.loai),
+                          t.phut,
+                          kho.thieuCan
+                              ? null
+                              : CongThuc.kcalTap(
+                                  met: CongThuc.metCua(t.loai),
+                                  kg: kho.canMoi?.kg,
+                                  phut: t.phut,
+                                )?.round(),
+                        ),
+                        style: const TextStyle(fontSize: 14, color: Mau.mo),
+                      ),
+                    ),
+                ],
                 const SizedBox(height: 24),
                 SizedBox(
                   height: 44,
                   child: FilledButton(
-                    onPressed: kho.khoaGhi ? null : _luu,
+                    onPressed: kho.khoaGhi || _chon.isEmpty ? null : _luu,
                     child: const Text(Chuoi.luu),
                   ),
                 ),
                 const SizedBox(height: 20),
+                const Text(
+                  Chuoi.kcalTapNhan,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+                ),
+                const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
                   children: [
@@ -149,12 +250,12 @@ class _ManGhiTapState extends State<ManGhiTap> {
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
-                  height: 88,
+                  height: 108,
                   child: _CotTap(
                     cot: switch (_phin) {
-                      1 => kho.cotTapThang(kho.selected),
-                      2 => kho.cotTapNam(kho.selected.year),
-                      _ => kho.cotTapTuan(kho.selected),
+                      1 => kho.cotKcalThang(kho.selected),
+                      2 => kho.cotKcalNam(kho.selected.year),
+                      _ => kho.cotKcalTuan(kho.selected),
                     },
                     nhan: switch (_phin) {
                       1 => (d) => '${d.day}',
@@ -164,7 +265,11 @@ class _ManGhiTapState extends State<ManGhiTap> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _LuoiLuaThang(kho: kho, thang: kho.selected),
+                _LuoiLuaThang(
+                  kho: kho,
+                  thang: kho.selected,
+                  onChon: (d) => _moPhien(context, kho, d),
+                ),
               ],
             ),
           ),
@@ -197,10 +302,11 @@ class _Lua extends StatelessWidget {
 }
 
 class _LuoiLuaThang extends StatelessWidget {
-  const _LuoiLuaThang({required this.kho, required this.thang});
+  const _LuoiLuaThang({required this.kho, required this.thang, required this.onChon});
 
   final Kho kho;
   final DateTime thang;
+  final ValueChanged<DateTime> onChon;
 
   @override
   Widget build(BuildContext context) {
@@ -233,6 +339,7 @@ class _LuoiLuaThang extends StatelessWidget {
                         : _OLua(
                             ngay: o[r * 7 + c]!,
                             co: kho.phutTapCuaNgay(o[r * 7 + c]!) > 0,
+                            onTap: () => onChon(o[r * 7 + c]!),
                           ),
                   ),
                 ),
@@ -244,19 +351,28 @@ class _LuoiLuaThang extends StatelessWidget {
 }
 
 class _OLua extends StatelessWidget {
-  const _OLua({required this.ngay, required this.co});
+  const _OLua({required this.ngay, required this.co, required this.onTap});
 
   final DateTime ngay;
   final bool co;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.local_fire_department, size: 14, color: co ? Mau.reu : Mau.mo.withValues(alpha: 0.35)),
-        Text('${ngay.day}', style: const TextStyle(fontSize: 10, color: Mau.mo)),
-      ],
+    return InkWell(
+      key: Key('lua-ngay-${Ngay.iso(ngay)}'),
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.local_fire_department,
+            size: 14,
+            color: co ? Mau.canhBao : Mau.mo.withValues(alpha: 0.35),
+          ),
+          Text('${ngay.day}', style: const TextStyle(fontSize: 10, color: Mau.mo)),
+        ],
+      ),
     );
   }
 }
@@ -264,7 +380,7 @@ class _OLua extends StatelessWidget {
 class _CotTap extends StatelessWidget {
   const _CotTap({required this.cot, required this.nhan});
 
-  final List<(DateTime ngay, int phut)> cot;
+  final List<(DateTime ngay, int kcal)> cot;
   final String Function(DateTime) nhan;
 
   @override
@@ -279,6 +395,11 @@ class _CotTap extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Column(
                 children: [
+                  Text(
+                    '${c.$2}',
+                    style: const TextStyle(fontSize: 10, color: Mau.mo),
+                  ),
+                  const SizedBox(height: 2),
                   Expanded(
                     child: Align(
                       alignment: Alignment.bottomCenter,
