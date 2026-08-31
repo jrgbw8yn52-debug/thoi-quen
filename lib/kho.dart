@@ -1138,14 +1138,46 @@ class Kho extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> suaLog(int id, {int? kcal, String? ten, DateTime? ngay}) async {
+  Future<bool> suaLog(
+    int id, {
+    int? kcal,
+    String? ten,
+    Value<double?> gram = const Value.absent(),
+    Value<double?> dam = const Value.absent(),
+    Value<double?> bot = const Value.absent(),
+    Value<double?> beo = const Value.absent(),
+    DateTime? ngay,
+  }) async {
     final d = Ngay.cat(ngay ?? selected);
     if (!Ngay.ghiDuoc(d, homNay)) return false;
     final iso = Ngay.iso(d);
     final co = dsLog.any((l) => l.id == id && l.ngay == iso);
     if (!co) return false;
     if (kcal != null && (kcal < 1 || kcal > 20000)) return false;
-    await db.suaLog(id, kcal: kcal, ten: ten);
+    await db.suaLog(id, kcal: kcal, ten: ten, gram: gram, dam: dam, bot: bot, beo: beo);
+    await tai();
+    return true;
+  }
+
+  Future<bool> suaMon({
+    required int id,
+    required String ten,
+    required int kcal,
+    double? gram,
+    double? dam,
+    double? bot,
+    double? beo,
+  }) async {
+    final ok = await db.suaMon(
+      id: id,
+      ten: ten,
+      kcal: kcal,
+      gram: gram,
+      dam: dam,
+      bot: bot,
+      beo: beo,
+    );
+    if (!ok) return false;
     await tai();
     return true;
   }

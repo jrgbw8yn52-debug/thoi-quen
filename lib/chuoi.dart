@@ -127,8 +127,9 @@ abstract final class Chuoi {
   static const thucDonHomNay = 'Thực đơn hôm nay';
   static const danChuGrok = 'Dán chữ Grok';
   static const khoiLuongG = 'Khối lượng (g)';
-  static const tinhVaoThucDon = 'Tính vào thực đơn ngày này';
-  static const chiLuuKho = 'Chỉ lưu kho';
+  static const tinhVaoThucDon = 'Thực đơn ngày này';
+  static const chiLuuKho = 'Chỉ kho';
+  static const themMon = 'Thêm món';
   static const dam = 'Đạm';
   static const bot = 'Bột';
   static const beo = 'Béo';

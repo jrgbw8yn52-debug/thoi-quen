@@ -150,7 +150,10 @@ class _Nut extends StatelessWidget {
     return Material(
       color: mau,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          onTap();
+        },
         child: SizedBox(
           width: 88,
           child: Center(

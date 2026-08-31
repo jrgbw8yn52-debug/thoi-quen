@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 
 import '../chuoi.dart';
@@ -8,9 +9,9 @@ import '../db/database.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
-import '../so.dart';
 import '../widget/hang_habit.dart';
 import '../widget/lua_tap.dart';
+import 'to_mon.dart';
 
 class ManGhiTap extends StatefulWidget {
   const ManGhiTap({super.key, required this.kho});
@@ -275,31 +276,19 @@ class _ToNgayTapState extends State<_ToNgayTap> {
 
   Future<void> _suaLog(FoodLog log) async {
     if (_xem) return;
-    final c = TextEditingController(text: '${log.kcal}');
-    final v = await showDialog<int>(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: Mau.beMat,
-          title: Text(log.ten, style: const TextStyle(color: Mau.muc)),
-          content: TextField(
-            controller: c,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(suffixText: 'kcal'),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text(Chuoi.huy)),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, So.parseKcal(c.text)),
-              child: const Text(Chuoi.luu),
-            ),
-          ],
-        );
-      },
+    final kq = await moDlgSuaLog(context, log);
+    if (!mounted || kq == null) return;
+    await Future<void>.delayed(Duration.zero);
+    if (!mounted) return;
+    await widget.kho.suaLog(
+      log.id,
+      kcal: kq.kcal,
+      gram: Value(kq.gram),
+      dam: Value(kq.dam),
+      bot: Value(kq.bot),
+      beo: Value(kq.beo),
+      ngay: widget.ngay,
     );
-    c.dispose();
-    if (v == null) return;
-    await widget.kho.suaLog(log.id, kcal: v, ngay: widget.ngay);
   }
 
   @override
@@ -431,6 +420,17 @@ class _ToNgayTapState extends State<_ToNgayTap> {
                   Chuoi.thucDon,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
                 ),
+                if (!_xem) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 44,
+                    child: OutlinedButton(
+                      key: const Key('nut-them-mon'),
+                      onPressed: () => moChonThemMon(context, kho, ngay: ngay),
+                      child: const Text(Chuoi.themMon),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 if (logs.isEmpty)
                   const Text('—', style: TextStyle(color: Mau.mo))

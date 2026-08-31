@@ -648,13 +648,52 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await (delete(foodLogs)..where((l) => l.id.equals(id))).go();
   }
 
-  Future<void> suaLog(int id, {int? kcal, String? ten}) async {
+  Future<void> suaLog(
+    int id, {
+    int? kcal,
+    String? ten,
+    Value<double?> gram = const Value.absent(),
+    Value<double?> dam = const Value.absent(),
+    Value<double?> bot = const Value.absent(),
+    Value<double?> beo = const Value.absent(),
+  }) async {
     await (update(foodLogs)..where((l) => l.id.equals(id))).write(
       FoodLogsCompanion(
         kcal: kcal == null ? const Value.absent() : Value(kcal),
         ten: ten == null ? const Value.absent() : Value(ten),
+        gram: gram,
+        dam: dam,
+        bot: bot,
+        beo: beo,
       ),
     );
+  }
+
+  Future<bool> suaMon({
+    required int id,
+    required String ten,
+    required int kcal,
+    double? gram,
+    double? dam,
+    double? bot,
+    double? beo,
+  }) async {
+    final t = ten.trim();
+    if (t.isEmpty) return false;
+    if (kcal < 1 || kcal > 20000) return false;
+    final trung = await (select(foods)..where((f) => f.ten.equals(t))).get();
+    if (trung.any((f) => f.id != id)) return false;
+    final n = await (update(foods)..where((f) => f.id.equals(id))).write(
+      FoodsCompanion(
+        ten: Value(t),
+        kcal: Value(kcal),
+        gram: Value(gram),
+        dam: Value(dam),
+        bot: Value(bot),
+        beo: Value(beo),
+      ),
+    );
+    return n > 0;
   }
 
   Future<List<EoIn>> dsEo() {

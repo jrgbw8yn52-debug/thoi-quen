@@ -939,8 +939,6 @@ void main() {
     await tester.enterText(find.byKey(const Key('dan-chu')), 'Bò lúc lắc 520 kcal');
     await tester.pump();
     expect(find.text(Chuoi.docNKcal(520)), findsOneWidget);
-    await tester.tap(find.byKey(const Key('luu-cong-thuc')));
-    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('chi-luu-kho')));
     await tester.pumpAndSettle();
     expect(k.dsMon.any((f) => f.ten == 'Bò lúc lắc' && f.kcal == 520), isTrue);
@@ -981,6 +979,7 @@ void main() {
     final to = find.byKey(const Key('to-ngay-tap'));
     expect(to, findsOneWidget);
     expect(find.descendant(of: to, matching: find.text(Chuoi.thucDon)), findsOneWidget);
+    expect(find.byKey(const Key('nut-them-mon')), findsOneWidget);
     expect(find.descendant(of: to, matching: find.textContaining('Phở')), findsOneWidget);
     expect(find.descendant(of: to, matching: find.textContaining('Đi bộ ·')), findsOneWidget);
     expect(find.byKey(const Key('tong-kcal-nap')), findsOneWidget);
@@ -993,6 +992,7 @@ void main() {
     await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(DateTime(2026, 8, 24))}')));
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.chiXem)), findsOneWidget);
+    expect(find.byKey(const Key('nut-them-mon')), findsNothing);
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.sua)), findsNothing);
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.xoa)), findsNothing);
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.textContaining(Chuoi.yoga)), findsOneWidget);
@@ -1021,20 +1021,94 @@ void main() {
     );
     await tester.pump();
     expect(find.text(Chuoi.docNKcal(520)), findsOneWidget);
-    expect(tester.widget<TextField>(find.byKey(const Key('ten-mon'))).controller!.text, 'Bò lúc lắc');
+    expect(find.byKey(const Key('ten-mon')), findsNothing);
     expect(tester.widget<TextField>(find.byKey(const Key('doc-kcal'))).controller!.text, '520');
     expect(tester.widget<TextField>(find.byKey(const Key('gram-mon'))).controller!.text, '250');
     expect(tester.widget<TextField>(find.byKey(const Key('dam-mon'))).controller!.text, '40');
     expect(tester.widget<TextField>(find.byKey(const Key('bot-mon'))).controller!.text, '12');
     expect(tester.widget<TextField>(find.byKey(const Key('beo-mon'))).controller!.text, '28');
-    await tester.tap(find.byKey(const Key('luu-cong-thuc')));
-    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('tinh-vao-ngay')));
     await tester.pumpAndSettle();
     expect(k.logNgay(k.selected).single.dam, 40);
     expect(k.macroNgay(k.selected).dam, 40);
     expect(find.text(Chuoi.damBotBeo(40, 12, 28)), findsOneWidget);
     expect(find.text(Chuoi.dongMon('Bò lúc lắc', 520)), findsOneWidget);
+  });
+
+  testWidgets('chi dan MON Bo luc lac ten tu co Luu', (tester) async {
+    tester.view.physicalSize = const Size(390, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    await tester.pumpWidget(_app(k));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.nhatKy));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('nut-tao-cong-thuc')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('dan-chu')),
+      'MON: Bò lúc lắc\nKCAL: 520',
+    );
+    await tester.pump();
+    expect(find.byKey(const Key('ten-mon')), findsNothing);
+    expect(find.text(Chuoi.docNKcal(520)), findsOneWidget);
+    await tester.tap(find.byKey(const Key('tinh-vao-ngay')));
+    await tester.pumpAndSettle();
+    expect(k.dsMon.any((f) => f.ten == 'Bò lúc lắc' && f.kcal == 520), isTrue);
+    expect(k.logNgay(k.selected).single.ten, 'Bò lúc lắc');
+    expect(k.logNgay(k.selected).single.kcal, 520);
+  });
+
+  test('sua kho khong doi log cu, chon sau dung so moi', () async {
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    await k.luuMon(ten: 'Cơm', kcal: 620, dam: 10, vaoNgay: true);
+    final id = k.dsMon.single.id;
+    expect(k.logNgay(k.selected).single.kcal, 620);
+    expect(await k.suaMon(id: id, ten: 'Cơm', kcal: 500, dam: 8), isTrue);
+    expect(k.logNgay(k.selected).single.kcal, 620);
+    expect(k.logNgay(k.selected).single.dam, 10);
+    expect(k.dsMon.single.kcal, 500);
+    expect(await k.chonMon(id), isTrue);
+    final logs = k.logNgay(k.selected);
+    expect(logs.length, 2);
+    expect(logs.map((e) => e.kcal), containsAll([620, 500]));
+    expect(logs.firstWhere((e) => e.kcal == 500).dam, 8);
+  });
+
+  testWidgets('sua 620 thanh 600 tren to lich, tong nap doi, khong do', (tester) async {
+    tester.view.physicalSize = const Size(390, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    await k.ghiCanKg(70);
+    await k.luuMon(ten: 'Cơm', kcal: 620, vaoNgay: true, ngay: DateTime(2026, 8, 25));
+    await tester.pumpWidget(_app(k));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.hoatDongO));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(DateTime(2026, 8, 25))}')));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.tongKcalNap(620)), findsOneWidget);
+    final id = k.logNgay(DateTime(2026, 8, 25)).single.id;
+    await tester.tap(find.byKey(Key('sua-log-$id')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('sua-kcal')), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('sua-kcal')), '600');
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('sua-log-luu')));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(k.logNgay(DateTime(2026, 8, 25)).single.kcal, 600);
+    expect(find.text(Chuoi.tongKcalNap(600)), findsOneWidget);
+    expect(find.text(Chuoi.tongKcalNap(620)), findsNothing);
   });
 }
 
