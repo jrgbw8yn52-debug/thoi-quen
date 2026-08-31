@@ -907,6 +907,19 @@ class Kho extends ChangeNotifier {
     return true;
   }
 
+  Future<bool> suaTap(int id, String loai, int phut, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    if (CongThuc.metCua(loai) == null) return false;
+    if (phut < 1 || phut > 300) return false;
+    final iso = Ngay.iso(d);
+    final co = dsTap.any((t) => t.id == id && t.ngay == iso);
+    if (!co) return false;
+    await db.suaTap(id, loai, phut);
+    await tai();
+    return true;
+  }
+
   Future<bool> luuHoSo({
     required String ten,
     required String cao,

@@ -621,4 +621,68 @@ void main() {
     expect(await k.xoaTap(id), isTrue);
     expect(k.tapNgay(DateTime(2026, 8, 26)), isEmpty);
   });
+
+  test('suaTap 29/8 duoc, 24/8 khoa', () async {
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    k.chonNgay(DateTime(2026, 8, 29));
+    expect(await k.ghiTap(CongThuc.loaiDiBo, 30), isTrue);
+    final id = k.tapNgay(DateTime(2026, 8, 29)).first.id;
+    expect(await k.suaTap(id, CongThuc.loaiChay, 20), isTrue);
+    expect(k.tapNgay(DateTime(2026, 8, 29)).first.loai, CongThuc.loaiChay);
+    expect(k.tapNgay(DateTime(2026, 8, 29)).first.phut, 20);
+    expect(await k.suaTap(id, CongThuc.loaiYoga, 15, ngay: DateTime(2026, 8, 24)), isFalse);
+    expect(k.tapNgay(DateTime(2026, 8, 29)).first.loai, CongThuc.loaiChay);
+  });
+
+  testWidgets('to ngay 29/8 sua xoa luu, 24/8 chi xem', (tester) async {
+    tester.view.physicalSize = const Size(390, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    await k.ghiCanKg(70);
+    await k.ghiTap(CongThuc.loaiDiBo, 30, ngay: DateTime(2026, 8, 29));
+    await db.ghiTap(DateTime(2026, 8, 24), CongThuc.loaiYoga, 15);
+    await k.tai();
+    await tester.pumpWidget(_app(k));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.hoatDongO));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(DateTime(2026, 8, 29))}')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('to-ngay-tap')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.chiXem)), findsNothing);
+    expect(find.byKey(const Key('luu-to-ngay')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.sua)), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.xoa)), findsOneWidget);
+    await tester.tap(find.byKey(const Key('luu-to-ngay')));
+    await tester.pumpAndSettle();
+    expect(k.tapNgay(DateTime(2026, 8, 29)).length, 2);
+    final id = k.tapNgay(DateTime(2026, 8, 29)).first.id;
+    await tester.tap(find.byKey(Key('sua-phien-$id')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(
+      of: find.byKey(const Key('to-ngay-tap')),
+      matching: find.text(Chuoi.chay),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('luu-to-ngay')));
+    await tester.pumpAndSettle();
+    expect(k.tapNgay(DateTime(2026, 8, 29)).any((t) => t.id == id && t.loai == CongThuc.loaiChay), isTrue);
+    await tester.tap(find.byKey(Key('xoa-phien-$id')));
+    await tester.pumpAndSettle();
+    expect(k.tapNgay(DateTime(2026, 8, 29)).any((t) => t.id == id), isFalse);
+    Navigator.of(tester.element(find.byKey(const Key('to-ngay-tap')))).pop();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(DateTime(2026, 8, 24))}')));
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.chiXem)), findsOneWidget);
+    expect(find.byKey(const Key('luu-to-ngay')), findsNothing);
+    expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.sua)), findsNothing);
+    expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.xoa)), findsNothing);
+    expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.textContaining(Chuoi.yoga)), findsOneWidget);
+  });
 }

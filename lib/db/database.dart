@@ -463,6 +463,12 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await (delete(tapIns)..where((t) => t.id.equals(id))).go();
   }
 
+  Future<void> suaTap(int id, String loai, int phut) async {
+    await (update(tapIns)..where((t) => t.id.equals(id))).write(
+      TapInsCompanion(loai: Value(loai), phut: Value(phut)),
+    );
+  }
+
   Future<void> ghiChiSo(
     DateTime ngay, {
     double? eo,

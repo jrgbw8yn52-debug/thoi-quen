@@ -49,48 +49,15 @@ class _ManGhiTapState extends State<ManGhiTap> {
   }
 
   void _moPhien(BuildContext context, Kho kho, DateTime ngay) {
-    final ds = kho.tapNgay(ngay);
-    final tong = kho.kcalTapCuaNgay(ngay);
-    final xem = !Ngay.ghiDuoc(ngay, kho.homNay);
+    kho.chonNgay(ngay);
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Mau.beMat,
       builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  Chuoi.dongNgay(ngay),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Mau.muc),
-                ),
-                if (xem)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4),
-                    child: Text(Chuoi.chiXem, style: TextStyle(fontSize: 13, color: Mau.mo)),
-                  ),
-                const SizedBox(height: 12),
-                if (ds.isEmpty)
-                  const Text('—', style: TextStyle(color: Mau.mo))
-                else
-                  for (final t in ds)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        Chuoi.dongPhien(Chuoi.tenMon(t.loai), t.phut, _kcalPhien(kho, loai: t.loai, phut: t.phut)),
-                        style: const TextStyle(fontSize: 15, color: Mau.muc),
-                      ),
-                    ),
-                Text(
-                  Chuoi.tongHomNay(tong),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
-                ),
-              ],
-            ),
-          ),
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
+          child: _ToNgayTap(kho: kho, ngay: ngay),
         );
       },
     );
@@ -259,6 +226,177 @@ class _ManGhiTapState extends State<ManGhiTap> {
                   kho: kho,
                   thang: kho.selected,
                   onChon: (d) => _moPhien(context, kho, d),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ToNgayTap extends StatefulWidget {
+  const _ToNgayTap({required this.kho, required this.ngay});
+
+  final Kho kho;
+  final DateTime ngay;
+
+  @override
+  State<_ToNgayTap> createState() => _ToNgayTapState();
+}
+
+class _ToNgayTapState extends State<_ToNgayTap> {
+  String _loai = CongThuc.loaiDiBo;
+  int _phut = 30;
+  int? _suaId;
+
+  bool get _xem => !Ngay.ghiDuoc(widget.ngay, widget.kho.homNay);
+
+  int? _kcal(String loai, int phut) {
+    if (widget.kho.thieuCan) return null;
+    return CongThuc.kcalTap(
+      met: CongThuc.metCua(loai),
+      kg: widget.kho.canMoi?.kg,
+      phut: phut,
+    )?.round();
+  }
+
+  Future<void> _luu() async {
+    if (_xem) return;
+    final ok = _suaId == null
+        ? await widget.kho.ghiTap(_loai, _phut, ngay: widget.ngay)
+        : await widget.kho.suaTap(_suaId!, _loai, _phut, ngay: widget.ngay);
+    if (!mounted || !ok) return;
+    setState(() => _suaId = null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final kho = widget.kho;
+    final ngay = widget.ngay;
+    return ListenableBuilder(
+      listenable: kho,
+      builder: (context, _) {
+        final ds = kho.tapNgay(ngay);
+        final tong = kho.kcalTapCuaNgay(ngay);
+        return SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * 0.82,
+            ),
+            child: ListView(
+              key: const Key('to-ngay-tap'),
+              shrinkWrap: true,
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              children: [
+                Text(
+                  Chuoi.dongNgay(ngay),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Mau.muc),
+                ),
+                if (_xem)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 4),
+                    child: Text(Chuoi.chiXem, style: TextStyle(fontSize: 13, color: Mau.mo)),
+                  ),
+                if (!_xem) ...[
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final m in CongThuc.mon)
+                        _Chip(
+                          chu: Chuoi.tenMon(m.loai),
+                          bat: _loai == m.loai,
+                          onTap: () => setState(() => _loai = m.loai),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _Buoc(
+                        chu: '−',
+                        onTap: _phut <= 5 ? null : () => setState(() => _phut -= 5),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          '$_phut ${Chuoi.phut}',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Mau.muc),
+                        ),
+                      ),
+                      _Buoc(
+                        chu: '+',
+                        onTap: _phut >= 180 ? null : () => setState(() => _phut += 5),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SizedBox(
+                          height: 44,
+                          child: FilledButton(
+                            key: const Key('luu-to-ngay'),
+                            onPressed: _luu,
+                            child: const Text(Chuoi.luu),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 16),
+                if (ds.isEmpty)
+                  const Text('—', style: TextStyle(color: Mau.mo))
+                else
+                  for (final t in ds)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Material(
+                        color: Mau.giay,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  Chuoi.dongPhien(Chuoi.tenMon(t.loai), t.phut, _kcal(t.loai, t.phut)),
+                                  style: const TextStyle(fontSize: 15, color: Mau.muc),
+                                ),
+                              ),
+                              if (!_xem) ...[
+                                SizedBox(
+                                  height: 44,
+                                  child: TextButton(
+                                    key: Key('sua-phien-${t.id}'),
+                                    onPressed: () {
+                                      setState(() {
+                                        _suaId = t.id;
+                                        _loai = t.loai;
+                                        _phut = t.phut;
+                                      });
+                                    },
+                                    child: const Text(Chuoi.sua),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 44,
+                                  child: TextButton(
+                                    key: Key('xoa-phien-${t.id}'),
+                                    onPressed: () => kho.xoaTap(t.id, ngay: ngay),
+                                    child: const Text(Chuoi.xoa, style: TextStyle(color: Mau.canhBao)),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                const SizedBox(height: 8),
+                Text(
+                  Chuoi.tongHomNay(tong),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
                 ),
               ],
             ),
