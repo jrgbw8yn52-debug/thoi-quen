@@ -40,10 +40,16 @@ class _ManLichState extends State<ManLich> {
     _thang = DateTime(kho.selected.year, kho.selected.month, 1);
     _selGan = kho.selected;
     _trang = PageController(initialPage: _chiSo(_thang).clamp(0, _soTrang - 1));
+    kho.lichBan.addListener(_ve);
+  }
+
+  void _ve() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    kho.lichBan.removeListener(_ve);
     _trang.dispose();
     super.dispose();
   }
@@ -231,7 +237,8 @@ class _LuoiThang extends StatelessWidget {
     final hang = (o / 7).ceil();
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-      child: Column(
+      child: RepaintBoundary(
+        child: Column(
         children: [
           Row(
             children: [
@@ -306,6 +313,7 @@ class _LuoiThang extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

@@ -24,6 +24,22 @@ class _ManTienDoState extends State<ManTienDo> {
   Kho get kho => widget.kho;
 
   @override
+  void initState() {
+    super.initState();
+    kho.tienDoBan.addListener(_ve);
+  }
+
+  void _ve() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    kho.tienDoBan.removeListener(_ve);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final spark = kho.dsCan.reversed.map((c) => c.kg).toList();
     final bmi = kho.bmiTheoCan;
@@ -105,26 +121,28 @@ class _ManTienDoState extends State<ManTienDo> {
             child: SizedBox(
               width: 148,
               height: 148,
-              child: CustomPaint(
-                painter: _Vong(phan: kho.nTrenMKy.$2 == 0 ? 0 : kho.nTrenMKy.$1 / kho.nTrenMKy.$2),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        Chuoi.phanTram(kho.phanTramKy),
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w600,
-                          color: Mau.muc,
-                          letterSpacing: -0.6,
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _Vong(phan: kho.nTrenMKy.$2 == 0 ? 0 : kho.nTrenMKy.$1 / kho.nTrenMKy.$2),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          Chuoi.phanTram(kho.phanTramKy),
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w600,
+                            color: Mau.muc,
+                            letterSpacing: -0.6,
+                          ),
                         ),
-                      ),
-                      Text(
-                        Chuoi.daTick(kho.nTrenMKy.$1, kho.nTrenMKy.$2),
-                        style: const TextStyle(fontSize: 13, color: Mau.mo),
-                      ),
-                    ],
+                        Text(
+                          Chuoi.daTick(kho.nTrenMKy.$1, kho.nTrenMKy.$2),
+                          style: const TextStyle(fontSize: 13, color: Mau.mo),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

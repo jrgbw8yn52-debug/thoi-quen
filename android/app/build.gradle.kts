@@ -26,7 +26,9 @@ android {
 
     buildTypes {
         release {
-            // Sideload tự xài — không Play. Ký debug để build apk --release ra file.
+            // Sideload tự xài — không Play. minify off. Không service nền.
+            isMinifyEnabled = false
+            isShrinkResources = false
             signingConfig = signingConfigs.getByName("debug")
         }
     }

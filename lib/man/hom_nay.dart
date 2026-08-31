@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../chuoi.dart';
+import '../db/database.dart';
 import '../kho.dart';
 import '../mau.dart';
+import '../ngay.dart';
 import '../widget/dai_tuan.dart';
 import '../widget/hang_habit.dart';
 import '../widget/lan_ngay.dart';
@@ -11,10 +13,44 @@ import 'them_habit.dart';
 import 'xoa_habit.dart';
 import 'ghi_tap.dart';
 
-class ManHomNay extends StatelessWidget {
+class ManHomNay extends StatefulWidget {
   const ManHomNay({super.key, required this.kho});
 
   final Kho kho;
+
+  @override
+  State<ManHomNay> createState() => _ManHomNayState();
+}
+
+class _ManHomNayState extends State<ManHomNay> {
+  Kho get kho => widget.kho;
+  String? _iso;
+  Stream<(List<Habit>, List<Tick>)>? _stream;
+
+  Stream<(List<Habit>, List<Tick>)> _homeStream() {
+    final iso = Ngay.iso(kho.selected);
+    if (_iso != iso || _stream == null) {
+      _iso = iso;
+      _stream = kho.db.watchHomeNgay(iso);
+    }
+    return _stream!;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    kho.homeBan.addListener(_ve);
+  }
+
+  void _ve() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    kho.homeBan.removeListener(_ve);
+    super.dispose();
+  }
 
   void _moThem(BuildContext context) {
     if (!kho.themDuoc) return;
@@ -24,6 +60,26 @@ class ManHomNay extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<(List<Habit>, List<Tick>)>(
+      stream: _homeStream(),
+      builder: (context, snap) {
+        return _ThanHome(
+          kho: kho,
+          onThem: () => _moThem(context),
+        );
+      },
+    );
+  }
+}
+
+class _ThanHome extends StatelessWidget {
+  const _ThanHome({required this.kho, required this.onThem});
+
+  final Kho kho;
+  final VoidCallback onThem;
 
   @override
   Widget build(BuildContext context) {
@@ -129,44 +185,51 @@ class ManHomNay extends StatelessWidget {
                 kho.luiTuan();
               }
             },
-            child: DaiTuan(
-              tuan: kho.tuan,
-              onChon: kho.chonNgay,
-              tuanChuaHomNay: kho.tuanChuaHomNay,
+            child: RepaintBoundary(
+              child: DaiTuan(
+                tuan: kho.tuan,
+                onChon: kho.chonNgay,
+                tuanChuaHomNay: kho.tuanChuaHomNay,
+              ),
             ),
           ),
           Expanded(
             child: kho.rong
                 ? _FirstRun(
                     kho: kho,
-                    onTuDatTen: () => _moThem(context),
+                    onTuDatTen: onThem,
                   )
-                : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-                    itemCount: kho.hang.length + (kho.themDuoc ? 1 : 0),
-                    separatorBuilder: (_, _) => const SizedBox(height: 6),
-                    itemBuilder: (context, i) {
-                      if (i == kho.hang.length) {
-                        return _NutThem(onTap: () => _moThem(context));
-                      }
-                      final h = kho.hang[i];
-                      return HangHabit(
-                        hang: h,
-                        khoaGhi: kho.khoaGhi,
-                        onTap: () => kho.toggle(h),
-                        onSua: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => ManThemHabit(
-                                kho: kho,
-                                habit: h.habit,
-                              ),
-                            ),
-                          );
-                        },
-                        onXoa: () => moXoaHabit(context, kho, h.habit),
-                      );
-                    },
+                : RepaintBoundary(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
+                      itemCount: kho.hang.length + (kho.themDuoc ? 1 : 0),
+                      separatorBuilder: (_, _) => const SizedBox(height: 6),
+                      itemBuilder: (context, i) {
+                        if (i == kho.hang.length) {
+                          return _NutThem(onTap: onThem);
+                        }
+                        final h = kho.hang[i];
+                        return RepaintBoundary(
+                          child: HangHabit(
+                            key: ValueKey(h.habit.id),
+                            hang: h,
+                            khoaGhi: kho.khoaGhi,
+                            onTap: () => kho.toggle(h),
+                            onSua: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => ManThemHabit(
+                                    kho: kho,
+                                    habit: h.habit,
+                                  ),
+                                ),
+                              );
+                            },
+                            onXoa: () => moXoaHabit(context, kho, h.habit),
+                          ),
+                        );
+                      },
+                    ),
                   ),
           ),
         ],

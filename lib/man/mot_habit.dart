@@ -17,7 +17,7 @@ class ManMotHabit extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: kho,
+      listenable: Listenable.merge([kho, kho.homeBan]),
       builder: (context, _) {
         final hang = kho.hang.where((h) => h.habit.id == habitId);
         if (hang.isEmpty) {

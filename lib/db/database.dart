@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -437,6 +438,61 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
   }
 
   Future<List<Tick>> dsTick() => select(ticks).get();
+
+  /// Home: chỉ habits còn hiện + ticks đúng ngày. Không watch cả DB.
+  Stream<List<Habit>> watchHabit() {
+    return (select(habits)
+          ..where((h) => h.an.equals(false))
+          ..orderBy([
+            (h) => OrderingTerm.asc(h.thuTu),
+            (h) => OrderingTerm.asc(h.id),
+          ]))
+        .watch();
+  }
+
+  Stream<List<Tick>> watchTickNgay(String iso) {
+    return (select(ticks)..where((t) => t.ngay.equals(iso))).watch();
+  }
+
+  Stream<(List<Habit>, List<Tick>)> watchHomeNgay(String iso) {
+    final hq = (select(habits)
+          ..where((h) => h.an.equals(false))
+          ..orderBy([
+            (h) => OrderingTerm.asc(h.thuTu),
+            (h) => OrderingTerm.asc(h.id),
+          ]));
+    final tq = select(ticks)..where((t) => t.ngay.equals(iso));
+    late StreamController<(List<Habit>, List<Tick>)> c;
+    List<Habit> hs = const [];
+    List<Tick> ts = const [];
+    var hOk = false;
+    var tOk = false;
+    StreamSubscription<List<Habit>>? subH;
+    StreamSubscription<List<Tick>>? subT;
+    void emit() {
+      if (hOk && tOk && !c.isClosed) c.add((hs, ts));
+    }
+
+    c = StreamController<(List<Habit>, List<Tick>)>(
+      onListen: () {
+        subH = hq.watch().listen((v) {
+          hs = v;
+          hOk = true;
+          emit();
+        });
+        subT = tq.watch().listen((v) {
+          ts = v;
+          tOk = true;
+          emit();
+        });
+      },
+      onCancel: () async {
+        await subH?.cancel();
+        await subT?.cancel();
+      },
+    );
+    return c.stream;
+  }
 
   Future<void> ghiTick(Habit habit, DateTime ngay) async {
     await into(ticks).insert(

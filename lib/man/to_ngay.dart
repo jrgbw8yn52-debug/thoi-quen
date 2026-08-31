@@ -29,6 +29,7 @@ Future<void> moToNgay(BuildContext context, Kho kho, DateTime ngay) async {
       );
     },
   );
+  kho.lichBan.ban();
 }
 
 class ToNgay extends StatefulWidget {
@@ -88,7 +89,7 @@ class _ToNgayState extends State<ToNgay> {
     final kho = widget.kho;
     final ngay = widget.ngay;
     return ListenableBuilder(
-      listenable: kho,
+      listenable: Listenable.merge([kho, kho.homeBan]),
       builder: (context, _) {
         final ds = kho.tapNgay(ngay);
         final tong = kho.kcalTapCuaNgay(ngay);

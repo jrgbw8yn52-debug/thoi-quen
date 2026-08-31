@@ -28,9 +28,11 @@ class DuongCan extends StatelessWidget {
       height: truc ? 72 : 56,
       child: LayoutBuilder(
         builder: (context, c) {
-          return CustomPaint(
-            size: Size(c.maxWidth, truc ? 72 : 56),
-            painter: _VeDuong(diem, dich, truc, sang, mo),
+          return RepaintBoundary(
+            child: CustomPaint(
+              size: Size(c.maxWidth, truc ? 72 : 56),
+              painter: _VeDuong(diem, dich, truc, sang, mo),
+            ),
           );
         },
       ),

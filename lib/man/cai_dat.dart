@@ -32,7 +32,18 @@ class _ManTaiKhoanState extends State<ManTaiKhoan> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    kho.addListener(_ve);
+  }
+
+  void _ve() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   void dispose() {
+    kho.removeListener(_ve);
     _dich.dispose();
     super.dispose();
   }

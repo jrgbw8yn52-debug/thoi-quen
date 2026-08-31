@@ -18,7 +18,7 @@ class VoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: kho,
+      listenable: kho.shellBan,
       builder: (context, _) {
         if (kho.dangTai) {
           return const Scaffold(
@@ -31,29 +31,67 @@ class VoApp extends StatelessWidget {
             ),
           );
         }
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle.light.copyWith(
-            statusBarColor: Colors.transparent,
-            systemNavigationBarColor: Mau.beMat,
-          ),
-          child: Scaffold(
-            body: IndexedStack(
-              index: kho.tab,
-              children: [
-                ManHomNay(kho: kho),
-                ManLich(kho: kho),
-                ManTienDo(kho: kho),
-                ManTaiKhoan(kho: kho),
-              ],
-            ),
-            bottomNavigationBar: ThanhDay(
-              tab: kho.tab,
-              onTab: kho.chonTab,
-              onCong: () => moLuoiGhi(context, kho),
-            ),
-          ),
-        );
+        return _ThanMay(kho: kho);
       },
+    );
+  }
+}
+
+/// Giữ instance 4 tab. Tick Home không rebuild Lịch / Tiến độ.
+class _ThanMay extends StatefulWidget {
+  const _ThanMay({required this.kho});
+
+  final Kho kho;
+
+  @override
+  State<_ThanMay> createState() => _ThanMayState();
+}
+
+class _ThanMayState extends State<_ThanMay> {
+  late final List<Widget> _man;
+
+  Kho get kho => widget.kho;
+
+  @override
+  void initState() {
+    super.initState();
+    _man = [
+      ManHomNay(kho: kho),
+      ManLich(kho: kho),
+      ManTienDo(kho: kho),
+      ManTaiKhoan(kho: kho),
+    ];
+    kho.tabBan.addListener(_veTab);
+  }
+
+  void _veTab() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    kho.tabBan.removeListener(_veTab);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Mau.beMat,
+      ),
+      child: Scaffold(
+        body: IndexedStack(
+          index: kho.tab,
+          children: _man,
+        ),
+        bottomNavigationBar: ThanhDay(
+          tab: kho.tab,
+          onTab: kho.chonTab,
+          onCong: () => moLuoiGhi(context, kho),
+        ),
+      ),
     );
   }
 }

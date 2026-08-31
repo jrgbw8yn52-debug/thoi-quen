@@ -29,6 +29,17 @@ class HangHabitView {
       ticked: ticked ?? this.ticked,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      other is HangHabitView &&
+      other.habit.id == habit.id &&
+      other.ticked == ticked &&
+      other.habit.ten == habit.ten &&
+      other.habit.gioNhac == habit.gioNhac;
+
+  @override
+  int get hashCode => Object.hash(habit.id, ticked, habit.ten, habit.gioNhac);
 }
 
 class ChamTuan {
@@ -87,6 +98,11 @@ class ChuaTick {
   final int so;
 }
 
+/// Ban nhỏ: tab/home/lịch/tiến độ không dùng chung một notify.
+class BanNho extends ChangeNotifier {
+  void ban() => notifyListeners();
+}
+
 class Kho extends ChangeNotifier {
   Kho(this.db, {DateTime? bayGio}) : homNay = Ngay.cat(bayGio ?? DateTime.now()) {
     selected = homNay;
@@ -97,6 +113,12 @@ class Kho extends ChangeNotifier {
   late DateTime selected;
   int tab = 0;
   int phin = 0;
+
+  final BanNho shellBan = BanNho();
+  final BanNho tabBan = BanNho();
+  final BanNho homeBan = BanNho();
+  final BanNho lichBan = BanNho();
+  final BanNho tienDoBan = BanNho();
 
   List<HangHabitView> hang = const [];
   List<Habit> dsHien = const [];
@@ -794,15 +816,21 @@ class Kho extends ChangeNotifier {
     dsChiSo = await db.dsChiSo();
     dsMocBanDau = await db.dsMoc(AppDatabase.loaiBanDau);
     dsMocDich = await db.dsMoc(AppDatabase.loaiDich);
+    final lanDau = dangTai;
     dangTai = false;
+    homeBan.ban();
+    lichBan.ban();
+    tienDoBan.ban();
     notifyListeners();
+    if (lanDau) shellBan.ban();
     await Nhac.dongBo(dsHien);
   }
 
   void chonNgay(DateTime d) {
     selected = Ngay.cat(d);
     _dongBoHangVaTuan();
-    notifyListeners();
+    homeBan.ban();
+    if (tab == 1) lichBan.ban();
   }
 
   void veHomNay() => chonNgay(homNay);
@@ -819,7 +847,8 @@ class Kho extends ChangeNotifier {
     selected = Ngay.cat(ngay);
     if (!Ngay.ghiDuoc(ngay, homNay)) {
       _dongBoHangVaTuan();
-      notifyListeners();
+      homeBan.ban();
+      if (tab == 1) lichBan.ban();
       return Future.value();
     }
     return toggleNgay(habit, ngay);
@@ -836,7 +865,7 @@ class Kho extends ChangeNotifier {
       set.remove(iso);
     }
     _dongBoHangVaTuan();
-    notifyListeners();
+    homeBan.ban();
 
     final khoa = '${habit.id}-$iso';
     final viec = (_ghiTick[khoa] ?? Future.value()).then((_) {
@@ -898,7 +927,7 @@ class Kho extends ChangeNotifier {
     if (khoa.isEmpty) return false;
     if (_dangThem.contains(khoa) || daCoTen(ten) || !themDuoc) return false;
     _dangThem.add(khoa);
-    notifyListeners();
+    homeBan.ban();
     try {
       final goc = Ngay.cat(selected);
       final id = await db.themHabit(
@@ -921,7 +950,7 @@ class Kho extends ChangeNotifier {
       return id != null;
     } finally {
       _dangThem.remove(khoa);
-      notifyListeners();
+      homeBan.ban();
     }
   }
 
@@ -961,7 +990,7 @@ class Kho extends ChangeNotifier {
     if (!Ngay.ghiDuoc(selected, homNay)) return;
     loaiTru.putIfAbsent(h.id, () => <String>{}).add(Ngay.iso(ngay));
     _dongBoHangVaTuan();
-    notifyListeners();
+    homeBan.ban();
     await db.ghiLoaiTru(h.id, ngay);
   }
 
@@ -974,7 +1003,7 @@ class Kho extends ChangeNotifier {
       await db.ghiLoaiTru(h.id, d);
     }
     _dongBoHangVaTuan();
-    notifyListeners();
+    homeBan.ban();
   }
 
   Future<void> xoaKhoiThangSau(Habit h) async {
@@ -986,20 +1015,14 @@ class Kho extends ChangeNotifier {
       await db.ghiLoaiTru(h.id, d);
     }
     _dongBoHangVaTuan();
-    notifyListeners();
+    homeBan.ban();
   }
 
   Future<void> xoaHabit(int id) => anKhoiDs(id);
 
-  void moTienDo() {
-    tab = 2;
-    notifyListeners();
-  }
+  void moTienDo() => chonTab(2);
 
-  void moCaiDat() {
-    tab = 3;
-    notifyListeners();
-  }
+  void moCaiDat() => chonTab(3);
 
   void moLich() => chonTab(1);
 
@@ -1008,13 +1031,19 @@ class Kho extends ChangeNotifier {
     if (i == 1) {
       selected = homNay;
       _dongBoHangVaTuan();
+      homeBan.ban();
+      lichBan.ban();
+    } else if (i == 2) {
+      tienDoBan.ban();
+    } else if (i == 3) {
+      notifyListeners();
     }
-    notifyListeners();
+    tabBan.ban();
   }
 
   void chonPhin(int i) {
     phin = i;
-    notifyListeners();
+    tienDoBan.ban();
   }
 
   Future<bool> ghiCanKg(double kg, {DateTime? ngay}) async {

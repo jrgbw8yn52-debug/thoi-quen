@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:thoi_quen/db/database.dart';
 import 'package:thoi_quen/kho.dart';
+import 'package:thoi_quen/ngay.dart';
 
 void main() {
   late AppDatabase db;
@@ -137,6 +138,36 @@ void main() {
     final ds = await db.dsCan();
     expect(ds.length, 1);
     expect(ds.single.kg, closeTo(71.9, 0.001));
+  });
+
+  test('watchHomeNgay chi ticks dung ngay, khong ca DB', () async {
+    final id = await db.themHabit(ten: 'Dậy 6 giờ', createdOn: goc);
+    final h = (await db.dsHabit()).single;
+    await db.ghiTick(h, goc);
+    await db.ghiTick(h, DateTime(2026, 8, 29));
+    await db.ghiCan(goc, 70);
+    final ev = await db.watchHomeNgay(Ngay.iso(goc)).first;
+    expect(ev.$1.single.id, id);
+    expect(ev.$2.map((t) => t.ngay).toSet(), {Ngay.iso(goc)});
+  });
+
+  test('tick chi ban home, khong lich tien do shell', () async {
+    final kho = Kho(db, bayGio: DateTime(2026, 8, 30, 13));
+    addTearDown(kho.dispose);
+    await kho.tai();
+    await kho.themPreset(ten: 'Dậy 6 giờ');
+    var home = 0, lich = 0, tien = 0, shell = 0;
+    kho.homeBan.addListener(() => home++);
+    kho.lichBan.addListener(() => lich++);
+    kho.tienDoBan.addListener(() => tien++);
+    kho.shellBan.addListener(() => shell++);
+    home = lich = tien = shell = 0;
+    await kho.toggle(kho.hang.single);
+    expect(home, greaterThan(0));
+    expect(lich, 0);
+    expect(tien, 0);
+    expect(shell, 0);
+    expect(kho.hang.single.ticked, isFalse);
   });
 
   test('apk trong khoi phuc file iOS: tick va mon con', () async {

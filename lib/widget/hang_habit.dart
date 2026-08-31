@@ -5,7 +5,7 @@ import '../chuoi.dart';
 import '../kho.dart';
 import '../mau.dart';
 
-class HangHabit extends StatelessWidget {
+class HangHabit extends StatefulWidget {
   const HangHabit({
     super.key,
     required this.hang,
@@ -24,19 +24,41 @@ class HangHabit extends StatelessWidget {
   final bool choVuot;
 
   @override
+  State<HangHabit> createState() => _HangHabitState();
+}
+
+class _HangHabitState extends State<HangHabit> {
+  late bool _bat;
+
+  @override
+  void initState() {
+    super.initState();
+    _bat = widget.hang.ticked;
+  }
+
+  @override
+  void didUpdateWidget(covariant HangHabit old) {
+    super.didUpdateWidget(old);
+    if (old.hang.ticked != widget.hang.ticked) {
+      _bat = widget.hang.ticked;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return HangVuot(
-      choVuot: choVuot && !khoaGhi,
-      onSua: onSua,
-      onXoa: onXoa,
+      choVuot: widget.choVuot && !widget.khoaGhi,
+      onSua: widget.onSua,
+      onXoa: widget.onXoa,
       child: Material(
         color: Mau.beMat,
         child: InkWell(
-          onTap: khoaGhi
+          onTap: widget.khoaGhi
               ? null
               : () {
                   HapticFeedback.selectionClick();
-                  onTap();
+                  setState(() => _bat = !_bat);
+                  widget.onTap();
                 },
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
@@ -44,13 +66,13 @@ class HangHabit extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  _NutTick(bat: hang.ticked, mo: khoaGhi),
+                  _NutTick(bat: _bat, mo: widget.khoaGhi),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Text(
-                      hang.habit.gioNhac == null
-                          ? hang.habit.ten
-                          : '${hang.habit.ten} · ${Chuoi.gioNhacChu(hang.habit.gioNhac!)}',
+                      widget.hang.habit.gioNhac == null
+                          ? widget.hang.habit.ten
+                          : '${widget.hang.habit.ten} · ${Chuoi.gioNhacChu(widget.hang.habit.gioNhac!)}',
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
