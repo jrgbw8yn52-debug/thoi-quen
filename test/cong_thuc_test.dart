@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:thoi_quen/cong_thuc.dart';
+import 'package:thoi_quen/ngay.dart';
 import 'package:thoi_quen/so.dart';
 
 void main() {
@@ -44,12 +45,17 @@ void main() {
     expect(CongThuc.moDeurenberg(bmi: null, tuoi: 30, sex: 'nam'), isNull);
   });
 
-  test('MET 5 mon', () {
+  test('MET 10 mon', () {
     expect(CongThuc.metCua(CongThuc.loaiDiBo), 3.5);
     expect(CongThuc.metCua(CongThuc.loaiChay), 8);
     expect(CongThuc.metCua(CongThuc.loaiDapXe), 6.8);
     expect(CongThuc.metCua(CongThuc.loaiKhangLuc), 5);
     expect(CongThuc.metCua(CongThuc.loaiYoga), 3);
+    expect(CongThuc.metCua(CongThuc.loaiBoi), 6);
+    expect(CongThuc.metCua(CongThuc.loaiDaBong), 7);
+    expect(CongThuc.metCua(CongThuc.loaiCauLong), 5.5);
+    expect(CongThuc.metCua(CongThuc.loaiNhayDay), 8.8);
+    expect(CongThuc.metCua(CongThuc.loaiGianCo), 2.3);
   });
 
   test('nhip hop le 0-1 buoc 0,1', () {
@@ -75,5 +81,40 @@ void main() {
     expect(So.heSo(1.2), '1,2');
     expect(So.heSo(1.375), '1,375');
     expect(So.heSo(1.9), '1,9');
+  });
+
+  test('lua tap: gap 0 sang, bo 1-2 giu so, gap 3 luu noi', () {
+    final hom = DateTime(2026, 8, 31);
+    final truoc = [
+      for (var i = 0; i < 13; i++) Ngay.iso(DateTime(2026, 8, 31).subtract(Duration(days: 13 - i))),
+    ];
+    // 18/8..30/8 = 13 ngày, chưa 31
+    expect(truoc.length, 13);
+    expect(truoc.first, '2026-08-18');
+    expect(truoc.last, '2026-08-30');
+    var lua = CongThuc.luaTap(truoc, hom);
+    expect(lua.so, 13);
+    expect(lua.sang, isFalse);
+
+    final co31 = [...truoc, '2026-08-31'];
+    lua = CongThuc.luaTap(co31, hom);
+    expect(lua.so, 14);
+    expect(lua.sang, isTrue);
+
+    lua = CongThuc.luaTap(co31, DateTime(2026, 9, 1));
+    expect(lua.so, 14);
+    expect(lua.sang, isFalse);
+
+    lua = CongThuc.luaTap(co31, DateTime(2026, 9, 2));
+    expect(lua.so, 14);
+    expect(lua.sang, isFalse);
+
+    lua = CongThuc.luaTap([...co31, '2026-09-03'], DateTime(2026, 9, 3));
+    expect(lua.so, 15);
+    expect(lua.sang, isTrue);
+
+    lua = CongThuc.luaTap([...co31, '2026-09-04'], DateTime(2026, 9, 4));
+    expect(lua.so, 1);
+    expect(lua.sang, isTrue);
   });
 }

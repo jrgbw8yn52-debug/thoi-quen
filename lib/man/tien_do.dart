@@ -182,7 +182,14 @@ class ManTienDo extends StatelessWidget {
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
           ),
           const SizedBox(height: 8),
-          if (spark.isNotEmpty) DuongCan(diem: spark, dich: kho.targetKg, truc: true),
+          if (spark.isNotEmpty || kho.netSang.isNotEmpty)
+            DuongCan(
+              key: const Key('duong-can'),
+              diem: spark,
+              sang: kho.netSang,
+              mo: kho.netMo,
+              truc: true,
+            ),
           if (kho.banDauKg != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),

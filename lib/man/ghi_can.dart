@@ -16,24 +16,43 @@ class ManGhiCan extends StatefulWidget {
 
 class _ManGhiCanState extends State<ManGhiCan> {
   late double _kg;
+  late final TextEditingController _so;
+  bool _banPhim = false;
 
   @override
   void initState() {
     super.initState();
     final c = widget.kho.canCua(widget.kho.selected) ?? widget.kho.canMoi;
     _kg = c?.kg ?? 0;
+    _so = TextEditingController(text: _kg > 0 ? So.kg(_kg) : '');
+  }
+
+  @override
+  void dispose() {
+    _so.dispose();
+    super.dispose();
+  }
+
+  void _tuSo() {
+    final v = So.parseKg(_so.text);
+    if (v != null) _kg = v;
   }
 
   void _buoc(double d) {
+    _tuSo();
     setState(() {
       _kg = ((_kg + d) * 10).round() / 10;
       if (_kg < 0) _kg = 0;
       if (_kg > 400) _kg = 400;
+      _banPhim = false;
+      _so.text = _kg > 0 ? So.kg(_kg) : '';
     });
   }
 
   Future<void> _luu() async {
-    if (widget.kho.khoaGhi || _kg <= 0) return;
+    if (widget.kho.khoaGhi) return;
+    _tuSo();
+    if (_kg <= 0) return;
     await widget.kho.ghiCanKg(_kg);
     if (mounted) Navigator.pop(context);
   }
@@ -79,15 +98,48 @@ class _ManGhiCanState extends State<ManGhiCan> {
                 children: [
                   _Buoc(chu: '−', onTap: kho.khoaGhi ? null : () => _buoc(-0.1)),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      '${So.kg(_kg)} ${Chuoi.kg}',
-                      style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w600,
-                        color: Mau.muc,
-                      ),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: _banPhim
+                        ? SizedBox(
+                            width: 140,
+                            child: TextField(
+                              key: const Key('so-kg'),
+                              controller: _so,
+                              autofocus: true,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w600,
+                                color: Mau.muc,
+                              ),
+                              decoration: const InputDecoration(
+                                suffixText: Chuoi.kg,
+                                border: InputBorder.none,
+                              ),
+                              onSubmitted: (_) => _luu(),
+                            ),
+                          )
+                        : InkWell(
+                            key: const Key('so-kg-nhan'),
+                            onTap: kho.khoaGhi
+                                ? null
+                                : () => setState(() {
+                                      _banPhim = true;
+                                      _so.text = _kg > 0 ? So.kg(_kg) : '';
+                                    }),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              child: Text(
+                                '${So.kg(_kg)} ${Chuoi.kg}',
+                                style: const TextStyle(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w600,
+                                  color: Mau.muc,
+                                ),
+                              ),
+                            ),
+                          ),
                   ),
                   _Buoc(chu: '+', onTap: kho.khoaGhi ? null : () => _buoc(0.1)),
                 ],
@@ -96,7 +148,7 @@ class _ManGhiCanState extends State<ManGhiCan> {
               SizedBox(
                 height: 44,
                 child: FilledButton(
-                  onPressed: kho.khoaGhi || _kg <= 0 ? null : _luu,
+                  onPressed: kho.khoaGhi ? null : _luu,
                   child: const Text(Chuoi.luu),
                 ),
               ),

@@ -12,11 +12,21 @@ abstract final class CongThuc {
   static const metDapXe = 6.8;
   static const metKhangLuc = 5.0;
   static const metYoga = 3.0;
+  static const metBoi = 6.0;
+  static const metDaBong = 7.0;
+  static const metCauLong = 5.5;
+  static const metNhayDay = 8.8;
+  static const metGianCo = 2.3;
   static const loaiDiBo = 'di_bo';
   static const loaiChay = 'chay';
   static const loaiDapXe = 'dap_xe';
   static const loaiKhangLuc = 'khang_luc';
   static const loaiYoga = 'yoga';
+  static const loaiBoi = 'boi';
+  static const loaiDaBong = 'da_bong';
+  static const loaiCauLong = 'cau_long';
+  static const loaiNhayDay = 'nhay_day';
+  static const loaiGianCo = 'gian_co';
 
   static const mon = [
     (loai: loaiDiBo, met: metDiBo),
@@ -24,6 +34,11 @@ abstract final class CongThuc {
     (loai: loaiDapXe, met: metDapXe),
     (loai: loaiKhangLuc, met: metKhangLuc),
     (loai: loaiYoga, met: metYoga),
+    (loai: loaiBoi, met: metBoi),
+    (loai: loaiDaBong, met: metDaBong),
+    (loai: loaiCauLong, met: metCauLong),
+    (loai: loaiNhayDay, met: metNhayDay),
+    (loai: loaiGianCo, met: metGianCo),
   ];
 
   static double? metCua(String? loai) {
@@ -131,6 +146,29 @@ abstract final class CongThuc {
     return 0.0175 * met * kg * phut;
   }
 
+  /// Chuỗi tập: chỉ ngày có phiên. Bỏ 1–2 ngày vẫn nối (gap ≤ 3).
+  static LuaTap luaTap(Iterable<String> isoNgay, DateTime today) {
+    final days = isoNgay.map(Ngay.parse).map(Ngay.cat).toSet().toList()
+      ..sort((a, b) => b.compareTo(a));
+    if (days.isEmpty) return const LuaTap(so: 0, sang: false);
+    final last = days.first;
+    final hom = Ngay.cat(today);
+    final gap = hom.difference(last).inDays;
+    var streak = 1;
+    var cursor = last;
+    for (var i = 1; i < days.length; i++) {
+      final g = cursor.difference(days[i]).inDays;
+      if (g <= 0) continue;
+      if (g <= 3) {
+        streak++;
+        cursor = days[i];
+      } else {
+        break;
+      }
+    }
+    return LuaTap(so: streak, sang: gap == 0);
+  }
+
   /// Tuần còn lại với nhịp đã chọn.
   static String? nhipDong(double? kg, double? target, double nhip) {
     if (kg == null || target == null) return null;
@@ -149,4 +187,11 @@ abstract final class CongThuc {
     final s = nhip.toStringAsFixed(1).replaceAll('.', ',');
     return s.endsWith(',0') ? s.substring(0, s.length - 2) : s;
   }
+}
+
+class LuaTap {
+  const LuaTap({required this.so, required this.sang});
+
+  final int so;
+  final bool sang;
 }

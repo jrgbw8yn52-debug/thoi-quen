@@ -983,6 +983,17 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0.5),
   );
+  static const VerificationMeta _startKgMeta = const VerificationMeta(
+    'startKg',
+  );
+  @override
+  late final GeneratedColumn<double> startKg = GeneratedColumn<double>(
+    'start_kg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -993,6 +1004,7 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     targetKg,
     tenGoi,
     nhipKg,
+    startKg,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1051,6 +1063,12 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         nhipKg.isAcceptableOrUnknown(data['nhip_kg']!, _nhipKgMeta),
       );
     }
+    if (data.containsKey('start_kg')) {
+      context.handle(
+        _startKgMeta,
+        startKg.isAcceptableOrUnknown(data['start_kg']!, _startKgMeta),
+      );
+    }
     return context;
   }
 
@@ -1092,6 +1110,10 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         DriftSqlType.double,
         data['${effectivePrefix}nhip_kg'],
       )!,
+      startKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}start_kg'],
+      ),
     );
   }
 
@@ -1110,6 +1132,7 @@ class Profile extends DataClass implements Insertable<Profile> {
   final double? targetKg;
   final String? tenGoi;
   final double nhipKg;
+  final double? startKg;
   const Profile({
     required this.id,
     this.sex,
@@ -1119,6 +1142,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     this.targetKg,
     this.tenGoi,
     required this.nhipKg,
+    this.startKg,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1141,6 +1165,9 @@ class Profile extends DataClass implements Insertable<Profile> {
       map['ten_goi'] = Variable<String>(tenGoi);
     }
     map['nhip_kg'] = Variable<double>(nhipKg);
+    if (!nullToAbsent || startKg != null) {
+      map['start_kg'] = Variable<double>(startKg);
+    }
     return map;
   }
 
@@ -1160,6 +1187,9 @@ class Profile extends DataClass implements Insertable<Profile> {
           ? const Value.absent()
           : Value(tenGoi),
       nhipKg: Value(nhipKg),
+      startKg: startKg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startKg),
     );
   }
 
@@ -1177,6 +1207,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       targetKg: serializer.fromJson<double?>(json['targetKg']),
       tenGoi: serializer.fromJson<String?>(json['tenGoi']),
       nhipKg: serializer.fromJson<double>(json['nhipKg']),
+      startKg: serializer.fromJson<double?>(json['startKg']),
     );
   }
   @override
@@ -1191,6 +1222,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       'targetKg': serializer.toJson<double?>(targetKg),
       'tenGoi': serializer.toJson<String?>(tenGoi),
       'nhipKg': serializer.toJson<double>(nhipKg),
+      'startKg': serializer.toJson<double?>(startKg),
     };
   }
 
@@ -1203,6 +1235,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     Value<double?> targetKg = const Value.absent(),
     Value<String?> tenGoi = const Value.absent(),
     double? nhipKg,
+    Value<double?> startKg = const Value.absent(),
   }) => Profile(
     id: id ?? this.id,
     sex: sex.present ? sex.value : this.sex,
@@ -1212,6 +1245,7 @@ class Profile extends DataClass implements Insertable<Profile> {
     targetKg: targetKg.present ? targetKg.value : this.targetKg,
     tenGoi: tenGoi.present ? tenGoi.value : this.tenGoi,
     nhipKg: nhipKg ?? this.nhipKg,
+    startKg: startKg.present ? startKg.value : this.startKg,
   );
   Profile copyWithCompanion(ProfilesCompanion data) {
     return Profile(
@@ -1223,6 +1257,7 @@ class Profile extends DataClass implements Insertable<Profile> {
       targetKg: data.targetKg.present ? data.targetKg.value : this.targetKg,
       tenGoi: data.tenGoi.present ? data.tenGoi.value : this.tenGoi,
       nhipKg: data.nhipKg.present ? data.nhipKg.value : this.nhipKg,
+      startKg: data.startKg.present ? data.startKg.value : this.startKg,
     );
   }
 
@@ -1236,14 +1271,24 @@ class Profile extends DataClass implements Insertable<Profile> {
           ..write('activity: $activity, ')
           ..write('targetKg: $targetKg, ')
           ..write('tenGoi: $tenGoi, ')
-          ..write('nhipKg: $nhipKg')
+          ..write('nhipKg: $nhipKg, ')
+          ..write('startKg: $startKg')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, sex, heightCm, dob, activity, targetKg, tenGoi, nhipKg);
+  int get hashCode => Object.hash(
+    id,
+    sex,
+    heightCm,
+    dob,
+    activity,
+    targetKg,
+    tenGoi,
+    nhipKg,
+    startKg,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1255,7 +1300,8 @@ class Profile extends DataClass implements Insertable<Profile> {
           other.activity == this.activity &&
           other.targetKg == this.targetKg &&
           other.tenGoi == this.tenGoi &&
-          other.nhipKg == this.nhipKg);
+          other.nhipKg == this.nhipKg &&
+          other.startKg == this.startKg);
 }
 
 class ProfilesCompanion extends UpdateCompanion<Profile> {
@@ -1267,6 +1313,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   final Value<double?> targetKg;
   final Value<String?> tenGoi;
   final Value<double> nhipKg;
+  final Value<double?> startKg;
   const ProfilesCompanion({
     this.id = const Value.absent(),
     this.sex = const Value.absent(),
@@ -1276,6 +1323,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     this.targetKg = const Value.absent(),
     this.tenGoi = const Value.absent(),
     this.nhipKg = const Value.absent(),
+    this.startKg = const Value.absent(),
   });
   ProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -1286,6 +1334,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     this.targetKg = const Value.absent(),
     this.tenGoi = const Value.absent(),
     this.nhipKg = const Value.absent(),
+    this.startKg = const Value.absent(),
   });
   static Insertable<Profile> custom({
     Expression<int>? id,
@@ -1296,6 +1345,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Expression<double>? targetKg,
     Expression<String>? tenGoi,
     Expression<double>? nhipKg,
+    Expression<double>? startKg,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1306,6 +1356,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       if (targetKg != null) 'target_kg': targetKg,
       if (tenGoi != null) 'ten_goi': tenGoi,
       if (nhipKg != null) 'nhip_kg': nhipKg,
+      if (startKg != null) 'start_kg': startKg,
     });
   }
 
@@ -1318,6 +1369,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Value<double?>? targetKg,
     Value<String?>? tenGoi,
     Value<double>? nhipKg,
+    Value<double?>? startKg,
   }) {
     return ProfilesCompanion(
       id: id ?? this.id,
@@ -1328,6 +1380,7 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       targetKg: targetKg ?? this.targetKg,
       tenGoi: tenGoi ?? this.tenGoi,
       nhipKg: nhipKg ?? this.nhipKg,
+      startKg: startKg ?? this.startKg,
     );
   }
 
@@ -1358,6 +1411,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     if (nhipKg.present) {
       map['nhip_kg'] = Variable<double>(nhipKg.value);
     }
+    if (startKg.present) {
+      map['start_kg'] = Variable<double>(startKg.value);
+    }
     return map;
   }
 
@@ -1371,7 +1427,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
           ..write('activity: $activity, ')
           ..write('targetKg: $targetKg, ')
           ..write('tenGoi: $tenGoi, ')
-          ..write('nhipKg: $nhipKg')
+          ..write('nhipKg: $nhipKg, ')
+          ..write('startKg: $startKg')
           ..write(')'))
         .toString();
   }
@@ -2832,6 +2889,291 @@ class LoaiTruInsCompanion extends UpdateCompanion<LoaiTruIn> {
   }
 }
 
+class $MocCansTable extends MocCans with TableInfo<$MocCansTable, MocCan> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MocCansTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _loaiMeta = const VerificationMeta('loai');
+  @override
+  late final GeneratedColumn<String> loai = GeneratedColumn<String>(
+    'loai',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kgMeta = const VerificationMeta('kg');
+  @override
+  late final GeneratedColumn<double> kg = GeneratedColumn<double>(
+    'kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, loai, ngay, kg];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'moc_can';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MocCan> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('loai')) {
+      context.handle(
+        _loaiMeta,
+        loai.isAcceptableOrUnknown(data['loai']!, _loaiMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_loaiMeta);
+    }
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    if (data.containsKey('kg')) {
+      context.handle(_kgMeta, kg.isAcceptableOrUnknown(data['kg']!, _kgMeta));
+    } else if (isInserting) {
+      context.missing(_kgMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MocCan map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MocCan(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      loai: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}loai'],
+      )!,
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+      kg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}kg'],
+      )!,
+    );
+  }
+
+  @override
+  $MocCansTable createAlias(String alias) {
+    return $MocCansTable(attachedDatabase, alias);
+  }
+}
+
+class MocCan extends DataClass implements Insertable<MocCan> {
+  final int id;
+  final String loai;
+  final String ngay;
+  final double kg;
+  const MocCan({
+    required this.id,
+    required this.loai,
+    required this.ngay,
+    required this.kg,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['loai'] = Variable<String>(loai);
+    map['ngay'] = Variable<String>(ngay);
+    map['kg'] = Variable<double>(kg);
+    return map;
+  }
+
+  MocCansCompanion toCompanion(bool nullToAbsent) {
+    return MocCansCompanion(
+      id: Value(id),
+      loai: Value(loai),
+      ngay: Value(ngay),
+      kg: Value(kg),
+    );
+  }
+
+  factory MocCan.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MocCan(
+      id: serializer.fromJson<int>(json['id']),
+      loai: serializer.fromJson<String>(json['loai']),
+      ngay: serializer.fromJson<String>(json['ngay']),
+      kg: serializer.fromJson<double>(json['kg']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'loai': serializer.toJson<String>(loai),
+      'ngay': serializer.toJson<String>(ngay),
+      'kg': serializer.toJson<double>(kg),
+    };
+  }
+
+  MocCan copyWith({int? id, String? loai, String? ngay, double? kg}) => MocCan(
+    id: id ?? this.id,
+    loai: loai ?? this.loai,
+    ngay: ngay ?? this.ngay,
+    kg: kg ?? this.kg,
+  );
+  MocCan copyWithCompanion(MocCansCompanion data) {
+    return MocCan(
+      id: data.id.present ? data.id.value : this.id,
+      loai: data.loai.present ? data.loai.value : this.loai,
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+      kg: data.kg.present ? data.kg.value : this.kg,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MocCan(')
+          ..write('id: $id, ')
+          ..write('loai: $loai, ')
+          ..write('ngay: $ngay, ')
+          ..write('kg: $kg')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, loai, ngay, kg);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MocCan &&
+          other.id == this.id &&
+          other.loai == this.loai &&
+          other.ngay == this.ngay &&
+          other.kg == this.kg);
+}
+
+class MocCansCompanion extends UpdateCompanion<MocCan> {
+  final Value<int> id;
+  final Value<String> loai;
+  final Value<String> ngay;
+  final Value<double> kg;
+  const MocCansCompanion({
+    this.id = const Value.absent(),
+    this.loai = const Value.absent(),
+    this.ngay = const Value.absent(),
+    this.kg = const Value.absent(),
+  });
+  MocCansCompanion.insert({
+    this.id = const Value.absent(),
+    required String loai,
+    required String ngay,
+    required double kg,
+  }) : loai = Value(loai),
+       ngay = Value(ngay),
+       kg = Value(kg);
+  static Insertable<MocCan> custom({
+    Expression<int>? id,
+    Expression<String>? loai,
+    Expression<String>? ngay,
+    Expression<double>? kg,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (loai != null) 'loai': loai,
+      if (ngay != null) 'ngay': ngay,
+      if (kg != null) 'kg': kg,
+    });
+  }
+
+  MocCansCompanion copyWith({
+    Value<int>? id,
+    Value<String>? loai,
+    Value<String>? ngay,
+    Value<double>? kg,
+  }) {
+    return MocCansCompanion(
+      id: id ?? this.id,
+      loai: loai ?? this.loai,
+      ngay: ngay ?? this.ngay,
+      kg: kg ?? this.kg,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (loai.present) {
+      map['loai'] = Variable<String>(loai.value);
+    }
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (kg.present) {
+      map['kg'] = Variable<double>(kg.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MocCansCompanion(')
+          ..write('id: $id, ')
+          ..write('loai: $loai, ')
+          ..write('ngay: $ngay, ')
+          ..write('kg: $kg')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2844,6 +3186,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TapInsTable tapIns = $TapInsTable(this);
   late final $ChiSoInsTable chiSoIns = $ChiSoInsTable(this);
   late final $LoaiTruInsTable loaiTruIns = $LoaiTruInsTable(this);
+  late final $MocCansTable mocCans = $MocCansTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2858,6 +3201,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     tapIns,
     chiSoIns,
     loaiTruIns,
+    mocCans,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3645,6 +3989,7 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<double?> targetKg,
   Value<String?> tenGoi,
   Value<double> nhipKg,
+  Value<double?> startKg,
 });
 typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<int> id,
@@ -3655,6 +4000,7 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<double?> targetKg,
   Value<String?> tenGoi,
   Value<double> nhipKg,
+  Value<double?> startKg,
 });
 
 class $$ProfilesTableFilterComposer
@@ -3703,6 +4049,11 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<double> get nhipKg => $composableBuilder(
     column: $table.nhipKg,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get startKg => $composableBuilder(
+    column: $table.startKg,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3755,6 +4106,11 @@ class $$ProfilesTableOrderingComposer
     column: $table.nhipKg,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get startKg => $composableBuilder(
+    column: $table.startKg,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProfilesTableAnnotationComposer
@@ -3789,6 +4145,9 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<double> get nhipKg =>
       $composableBuilder(column: $table.nhipKg, builder: (column) => column);
+
+  GeneratedColumn<double> get startKg =>
+      $composableBuilder(column: $table.startKg, builder: (column) => column);
 }
 
 class $$ProfilesTableTableManager
@@ -3827,6 +4186,7 @@ class $$ProfilesTableTableManager
                 Value<double?> targetKg = const Value.absent(),
                 Value<String?> tenGoi = const Value.absent(),
                 Value<double> nhipKg = const Value.absent(),
+                Value<double?> startKg = const Value.absent(),
               }) => ProfilesCompanion(
                 id: id,
                 sex: sex,
@@ -3836,6 +4196,7 @@ class $$ProfilesTableTableManager
                 targetKg: targetKg,
                 tenGoi: tenGoi,
                 nhipKg: nhipKg,
+                startKg: startKg,
               ),
           createCompanionCallback:
               ({
@@ -3847,6 +4208,7 @@ class $$ProfilesTableTableManager
                 Value<double?> targetKg = const Value.absent(),
                 Value<String?> tenGoi = const Value.absent(),
                 Value<double> nhipKg = const Value.absent(),
+                Value<double?> startKg = const Value.absent(),
               }) => ProfilesCompanion.insert(
                 id: id,
                 sex: sex,
@@ -3856,6 +4218,7 @@ class $$ProfilesTableTableManager
                 targetKg: targetKg,
                 tenGoi: tenGoi,
                 nhipKg: nhipKg,
+                startKg: startKg,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -4856,6 +5219,161 @@ typedef $$LoaiTruInsTableProcessedTableManager =
       LoaiTruIn,
       PrefetchHooks Function({bool habitId})
     >;
+typedef $$MocCansTableCreateCompanionBuilder = MocCansCompanion Function({
+  Value<int> id,
+  required String loai,
+  required String ngay,
+  required double kg,
+});
+typedef $$MocCansTableUpdateCompanionBuilder = MocCansCompanion Function({
+  Value<int> id,
+  Value<String> loai,
+  Value<String> ngay,
+  Value<double> kg,
+});
+
+class $$MocCansTableFilterComposer
+    extends Composer<_$AppDatabase, $MocCansTable> {
+  $$MocCansTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get loai => $composableBuilder(
+    column: $table.loai,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get kg => $composableBuilder(
+    column: $table.kg,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MocCansTableOrderingComposer
+    extends Composer<_$AppDatabase, $MocCansTable> {
+  $$MocCansTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get loai => $composableBuilder(
+    column: $table.loai,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get kg => $composableBuilder(
+    column: $table.kg,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MocCansTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MocCansTable> {
+  $$MocCansTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get loai =>
+      $composableBuilder(column: $table.loai, builder: (column) => column);
+
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  GeneratedColumn<double> get kg =>
+      $composableBuilder(column: $table.kg, builder: (column) => column);
+}
+
+class $$MocCansTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MocCansTable,
+          MocCan,
+          $$MocCansTableFilterComposer,
+          $$MocCansTableOrderingComposer,
+          $$MocCansTableAnnotationComposer,
+          $$MocCansTableCreateCompanionBuilder,
+          $$MocCansTableUpdateCompanionBuilder,
+          (MocCan, BaseReferences<_$AppDatabase, $MocCansTable, MocCan>),
+          MocCan,
+          PrefetchHooks Function()
+        > {
+  $$MocCansTableTableManager(_$AppDatabase db, $MocCansTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MocCansTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MocCansTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MocCansTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> loai = const Value.absent(),
+            Value<String> ngay = const Value.absent(),
+            Value<double> kg = const Value.absent(),
+          }) => MocCansCompanion(id: id, loai: loai, ngay: ngay, kg: kg),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String loai,
+            required String ngay,
+            required double kg,
+          }) => MocCansCompanion.insert(id: id, loai: loai, ngay: ngay, kg: kg),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MocCansTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MocCansTable,
+      MocCan,
+      $$MocCansTableFilterComposer,
+      $$MocCansTableOrderingComposer,
+      $$MocCansTableAnnotationComposer,
+      $$MocCansTableCreateCompanionBuilder,
+      $$MocCansTableUpdateCompanionBuilder,
+      (MocCan, BaseReferences<_$AppDatabase, $MocCansTable, MocCan>),
+      MocCan,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4878,4 +5396,6 @@ class $AppDatabaseManager {
       $$ChiSoInsTableTableManager(_db, _db.chiSoIns);
   $$LoaiTruInsTableTableManager get loaiTruIns =>
       $$LoaiTruInsTableTableManager(_db, _db.loaiTruIns);
+  $$MocCansTableTableManager get mocCans =>
+      $$MocCansTableTableManager(_db, _db.mocCans);
 }

@@ -63,6 +63,7 @@ class Profiles extends Table {
   RealColumn get targetKg => real().nullable()();
   TextColumn get tenGoi => text().nullable()();
   RealColumn get nhipKg => real().withDefault(const Constant(0.5))();
+  RealColumn get startKg => real().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -125,6 +126,16 @@ class ChiSoIns extends Table {
   Set<Column> get primaryKey => {ngay};
 }
 
+class MocCans extends Table {
+  @override
+  String get tableName => 'moc_can';
+
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get loai => text()();
+  TextColumn get ngay => text()();
+  RealColumn get kg => real()();
+}
+
 @DriftDatabase(tables: [
   Habits,
   Ticks,
@@ -135,6 +146,7 @@ class ChiSoIns extends Table {
   TapIns,
   ChiSoIns,
   LoaiTruIns,
+  MocCans,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
@@ -144,7 +156,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -207,6 +219,10 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
           if (from < 7) {
             await m.addColumn(habits, habits.anTu);
             await m.createTable(loaiTruIns);
+          }
+          if (from < 8) {
+            await m.addColumn(profiles, profiles.startKg);
+            await m.createTable(mocCans);
           }
         },
         beforeOpen: (details) async {
@@ -485,6 +501,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     Value<double?> targetKg = const Value.absent(),
     Value<String?> tenGoi = const Value.absent(),
     Value<double> nhipKg = const Value.absent(),
+    Value<double?> startKg = const Value.absent(),
   }) async {
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       ProfilesCompanion(
@@ -495,8 +512,25 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         targetKg: targetKg,
         tenGoi: tenGoi,
         nhipKg: nhipKg,
+        startKg: startKg,
       ),
     );
+  }
+
+  static const loaiBanDau = 'ban_dau';
+  static const loaiDich = 'dich';
+
+  Future<void> ghiMoc({required String loai, required DateTime ngay, required double kg}) async {
+    await into(mocCans).insert(
+      MocCansCompanion.insert(loai: loai, ngay: Ngay.iso(ngay), kg: kg),
+    );
+  }
+
+  Future<List<MocCan>> dsMoc(String loai) {
+    return (select(mocCans)
+          ..where((m) => m.loai.equals(loai))
+          ..orderBy([(m) => OrderingTerm.desc(m.id)]))
+        .get();
   }
 
   Future<void> suaPhutMacDinh(int id, int phut) async {
@@ -538,6 +572,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
       await customStatement('DELETE FROM loai_tru');
       await customStatement('DELETE FROM habits');
       await customStatement('DELETE FROM weigh_ins');
+      await customStatement('DELETE FROM moc_can');
       await customStatement('DELETE FROM eo_ins');
       await customStatement('DELETE FROM mo_ins');
       await customStatement('DELETE FROM profile');
@@ -551,6 +586,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         await customStatement('INSERT INTO tap_ins SELECT * FROM src.tap_ins');
         await customStatement('INSERT INTO chi_so SELECT * FROM src.chi_so');
         await customStatement('INSERT INTO loai_tru SELECT * FROM src.loai_tru');
+        await customStatement('INSERT INTO moc_can SELECT * FROM src.moc_can');
       } catch (_) {}
     } finally {
       await customStatement('DETACH DATABASE src');
@@ -574,6 +610,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await delete(moIns).go();
     await delete(tapIns).go();
     await delete(chiSoIns).go();
+    await delete(mocCans).go();
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       const ProfilesCompanion(
         sex: Value(null),
@@ -583,6 +620,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         targetKg: Value(null),
         tenGoi: Value(null),
         nhipKg: Value(0.5),
+        startKg: Value(null),
       ),
     );
   }

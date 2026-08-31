@@ -98,6 +98,12 @@ abstract final class Chuoi {
   static const dapXe = 'Đạp xe';
   static const khangLuc = 'Kháng lực';
   static const yoga = 'Yoga';
+  static const boi = 'Bơi';
+  static const daBong = 'Đá bóng';
+  static const cauLong = 'Cầu lông';
+  static const nhayDay = 'Nhảy dây';
+  static const gianCo = 'Giãn cơ';
+  static const canBanDau = 'Cân ban đầu';
   static const anUong = 'Ăn uống';
   static const nhatKy = 'Nhật ký';
   static const seLam = 'Sẽ làm';

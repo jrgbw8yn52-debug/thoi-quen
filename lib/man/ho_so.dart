@@ -20,6 +20,7 @@ class ManHoSo extends StatefulWidget {
 class _ManHoSoState extends State<ManHoSo> {
   final _cao = TextEditingController();
   final _goi = TextEditingController();
+  final _banDau = TextEditingController();
   String? _sex;
   DateTime? _dob;
   double _activity = 1.2;
@@ -35,6 +36,9 @@ class _ManHoSoState extends State<ManHoSo> {
     _sex = kho.sex;
     _dob = kho.dob == null ? null : Ngay.parse(kho.dob!);
     _activity = kho.activity;
+    final bd = kho.startKg ??
+        (kho.dsCan.isEmpty ? kho.canMoi?.kg : kho.dsCan.last.kg);
+    if (bd != null) _banDau.text = So.kg(bd);
   }
 
   Future<void> _moSinh() async {
@@ -54,6 +58,7 @@ class _ManHoSoState extends State<ManHoSo> {
       sex: _sex,
       dob: _dob,
       activity: _activity,
+      banDau: _banDau.text,
     );
   }
 
@@ -61,6 +66,7 @@ class _ManHoSoState extends State<ManHoSo> {
   void dispose() {
     _cao.dispose();
     _goi.dispose();
+    _banDau.dispose();
     super.dispose();
   }
 
@@ -219,6 +225,22 @@ class _ManHoSoState extends State<ManHoSo> {
               controller: _cao,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(suffixText: Chuoi.cm),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              Chuoi.canBanDau,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Mau.mo,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              key: const Key('can-ban-dau'),
+              controller: _banDau,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(suffixText: Chuoi.kg),
             ),
             const SizedBox(height: 16),
             const Text(

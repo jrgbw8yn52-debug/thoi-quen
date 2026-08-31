@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:thoi_quen/chuoi.dart';
+import 'package:thoi_quen/cong_thuc.dart';
 import 'package:thoi_quen/db/database.dart';
 import 'package:thoi_quen/kho.dart';
 import 'package:thoi_quen/man/mot_habit.dart';
@@ -452,5 +453,67 @@ void main() {
     expect(Ngay.congThang(DateTime(2024, 1, 31), 1), DateTime(2024, 2, 29));
     expect(Ngay.cuoiKhoang(DateTime(2026, 8, 12), 0), DateTime(2026, 8, 18));
     expect(Ngay.cuoiKhoang(DateTime(2026, 8, 12), 1), DateTime(2026, 9, 12));
+  });
+
+  testWidgets('bam 127 go 126,5 Luu — Tien do them diem', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    await kho.ghiCanKg(127);
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.canNang));
+    await tester.pumpAndSettle();
+    expect(find.text('127 ${Chuoi.kg}'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('so-kg-nhan')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('so-kg')), '126,5');
+    await tester.tap(find.text(Chuoi.luu));
+    await tester.pumpAndSettle();
+    expect(kho.canMoi!.kg, closeTo(126.5, 0.01));
+    expect(kho.dsCan.length, 1);
+    await tester.tap(find.text(Chuoi.tienDo));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('duong-can')), findsOneWidget);
+  });
+
+  test('lua 31/8 14, bo 1-2 xam 14, 3/9 luu 15', () async {
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    for (var i = 0; i < 13; i++) {
+      await db.ghiTap(DateTime(2026, 8, 18).add(Duration(days: i)), CongThuc.loaiDiBo, 20);
+    }
+    await k.tai();
+    expect(k.luaTapHom.so, 13);
+    expect(k.luaTapHom.sang, isFalse);
+    await k.ghiTap(CongThuc.loaiDiBo, 20, ngay: DateTime(2026, 8, 31));
+    expect(k.luaTapHom.so, 14);
+    expect(k.luaTapHom.sang, isTrue);
+
+    final k2 = Kho(db, bayGio: DateTime(2026, 9, 2, 8));
+    await k2.tai();
+    expect(k2.luaTapHom.so, 14);
+    expect(k2.luaTapHom.sang, isFalse);
+
+    final k3 = Kho(db, bayGio: DateTime(2026, 9, 3, 8));
+    await k3.tai();
+    await k3.ghiTap(CongThuc.loaiDiBo, 20, ngay: DateTime(2026, 9, 3));
+    expect(k3.luaTapHom.so, 15);
+    expect(k3.luaTapHom.sang, isTrue);
+  });
+
+  test('doi can ban dau 2 lan: 1 net sang + 2 net mo', () async {
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    await k.luuHoSo(ten: '', cao: '', sex: null, dob: null, activity: 1.2, banDau: '70');
+    await k.luuHoSo(ten: '', cao: '', sex: null, dob: null, activity: 1.2, banDau: '72');
+    await k.luuHoSo(ten: '', cao: '', sex: null, dob: null, activity: 1.2, banDau: '68');
+    expect(k.startKg, 68);
+    expect(k.dsMocBanDau.length, 3);
+    expect(k.netSang, [68.0]);
+    expect(k.netMo.length, 2);
+    expect(k.netMo, containsAll([72.0, 70.0]));
   });
 }

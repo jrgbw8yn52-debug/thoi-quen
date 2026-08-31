@@ -100,6 +100,7 @@ class Kho extends ChangeNotifier {
   List<WeighIn> dsCan = const [];
   WeighIn? canMoi;
   double? targetKg;
+  double? startKg;
   String? sex;
   double? heightCm;
   String? dob;
@@ -112,6 +113,8 @@ class Kho extends ChangeNotifier {
   List<MoIn> dsMo = const [];
   List<TapIn> dsTap = const [];
   List<ChiSoIn> dsChiSo = const [];
+  List<MocCan> dsMocBanDau = const [];
+  List<MocCan> dsMocDich = const [];
   bool dangTai = true;
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
@@ -273,6 +276,80 @@ class Kho extends ChangeNotifier {
       if (k != null) s += k;
     }
     return s.round();
+  }
+
+  int phutTapCuaNgay(DateTime d) {
+    var s = 0;
+    for (final t in tapNgay(d)) {
+      s += t.phut;
+    }
+    return s;
+  }
+
+  LuaTap get luaTapHom {
+    return CongThuc.luaTap([for (final t in dsTap) t.ngay], homNay);
+  }
+
+  List<double> get netSang {
+    final o = <double>[];
+    if (startKg != null) o.add(startKg!);
+    if (targetKg != null) o.add(targetKg!);
+    return o;
+  }
+
+  List<double> get netMo {
+    final o = <double>[];
+    var n = 0;
+    for (final m in dsMocBanDau) {
+      if (startKg != null && (m.kg - startKg!).abs() < 0.05) continue;
+      if (o.any((v) => (v - m.kg).abs() < 0.05)) continue;
+      o.add(m.kg);
+      n++;
+      if (n == 2) break;
+    }
+    n = 0;
+    for (final m in dsMocDich) {
+      if (targetKg != null && (m.kg - targetKg!).abs() < 0.05) continue;
+      if (o.any((v) => (v - m.kg).abs() < 0.05)) continue;
+      o.add(m.kg);
+      n++;
+      if (n == 2) break;
+    }
+    return o;
+  }
+
+  List<(DateTime ngay, int phut)> cotTapTuan(DateTime d) {
+    return [for (final x in Ngay.tuan(d)) (x, phutTapCuaNgay(x))];
+  }
+
+  List<(DateTime ngay, int phut)> cotTapThang(DateTime d) {
+    final out = <(DateTime, int)>[];
+    DateTime? dau;
+    var phut = 0;
+    for (final x in Ngay.cacNgayThang(d)) {
+      final t2 = Ngay.thuHai(x);
+      if (dau == null || !Ngay.cungNgay(dau, t2)) {
+        if (dau != null) out.add((dau, phut));
+        dau = t2;
+        phut = 0;
+      }
+      phut += phutTapCuaNgay(x);
+    }
+    if (dau != null) out.add((dau, phut));
+    return out;
+  }
+
+  List<(DateTime ngay, int phut)> cotTapNam(int nam) {
+    return [
+      for (var m = 1; m <= 12; m++)
+        (
+          DateTime(nam, m, 1),
+          [
+            for (final x in Ngay.cacNgayThang(DateTime(nam, m, 1)))
+              phutTapCuaNgay(x),
+          ].fold<int>(0, (a, b) => a + b),
+        ),
+    ];
   }
 
   ChiSoIn? chiSoCua(DateTime d) {
@@ -532,6 +609,7 @@ class Kho extends ChangeNotifier {
     activity = p.activity;
     tenGoi = p.tenGoi;
     nhipKg = p.nhipKg;
+    startKg = p.startKg;
     dsCan = await db.dsCan();
     canMoi = dsCan.isEmpty ? null : dsCan.first;
     dsEo = await db.dsEo();
@@ -540,6 +618,8 @@ class Kho extends ChangeNotifier {
     moMoi = dsMo.isEmpty ? null : dsMo.first;
     dsTap = await db.dsTap();
     dsChiSo = await db.dsChiSo();
+    dsMocBanDau = await db.dsMoc(AppDatabase.loaiBanDau);
+    dsMocDich = await db.dsMoc(AppDatabase.loaiDich);
     dangTai = false;
     notifyListeners();
     await Nhac.dongBo(dsHien);
@@ -808,25 +888,35 @@ class Kho extends ChangeNotifier {
     required String? sex,
     required DateTime? dob,
     required double activity,
+    String? banDau,
   }) async {
     if (!CongThuc.heSo.contains(activity)) return false;
+    final kg = So.parseKg(banDau ?? '');
     await db.suaProfile(
       tenGoi: Value(ten.trim().isEmpty ? null : ten.trim()),
       heightCm: Value(So.parseCm(cao) ?? heightCm),
       sex: Value(sex),
       dob: Value(dob == null ? null : Ngay.iso(dob)),
       activity: Value(activity),
+      startKg: kg != null ? Value(kg) : const Value.absent(),
     );
+    if (kg != null && (startKg == null || (startKg! - kg).abs() >= 0.05)) {
+      await db.ghiMoc(loai: AppDatabase.loaiBanDau, ngay: homNay, kg: kg);
+    }
     await tai();
     return true;
   }
 
   Future<bool> luuMucTieu({required String dich, required double nhip}) async {
     if (!CongThuc.nhipHopLe(nhip)) return false;
+    final kg = So.parseKg(dich) ?? targetKg ?? canMoi?.kg;
     await db.suaProfile(
-      targetKg: Value(So.parseKg(dich) ?? targetKg ?? canMoi?.kg),
+      targetKg: Value(kg),
       nhipKg: Value(nhip),
     );
+    if (kg != null && (targetKg == null || (targetKg! - kg).abs() >= 0.05)) {
+      await db.ghiMoc(loai: AppDatabase.loaiDich, ngay: homNay, kg: kg);
+    }
     await tai();
     return true;
   }
@@ -894,6 +984,9 @@ class Kho extends ChangeNotifier {
     final kg = So.parseKg(raw);
     if (kg == null) return false;
     await db.suaProfile(targetKg: Value(kg));
+    if (targetKg == null || (targetKg! - kg).abs() >= 0.05) {
+      await db.ghiMoc(loai: AppDatabase.loaiDich, ngay: homNay, kg: kg);
+    }
     await tai();
     return true;
   }
