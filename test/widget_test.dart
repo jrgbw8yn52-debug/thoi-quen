@@ -555,43 +555,70 @@ void main() {
     expect(find.text(Chuoi.canNang), findsWidgets);
   });
 
-  testWidgets('luu Di bo + Yoga cung ngay: 2 dong, lua do, bam ngay ra list', (tester) async {
+  testWidgets('luu Di bo 30 roi Chay 20: 2 dong; Home lua mo Hoat dong', (tester) async {
     tester.view.physicalSize = const Size(390, 1800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     await kho.ghiCanKg(70);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
+    expect(find.byKey(const Key('lua-home')), findsOneWidget);
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.hoatDongO));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(Chuoi.yoga));
-    await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.luu));
     await tester.pumpAndSettle();
-    expect(kho.tapNgay(kho.selected).length, 2);
-    expect(find.text(Chuoi.tongHomNay(kho.kcalTapCuaNgay(kho.selected))), findsWidgets);
+    expect(kho.tapNgay(kho.selected).length, 1);
     expect(
       find.text(Chuoi.dongPhien(
         Chuoi.diBo,
         30,
         CongThuc.kcalTap(met: 3.5, kg: 70, phut: 30)!.round(),
       )),
-      findsWidgets,
+      findsOneWidget,
     );
+    await tester.tap(find.text(Chuoi.chay));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('−'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('−'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.luu));
+    await tester.pumpAndSettle();
+    expect(kho.tapNgay(kho.selected).length, 2);
     expect(
       find.text(Chuoi.dongPhien(
-        Chuoi.yoga,
-        30,
-        CongThuc.kcalTap(met: 3.0, kg: 70, phut: 30)!.round(),
+        Chuoi.chay,
+        20,
+        CongThuc.kcalTap(met: 8.0, kg: 70, phut: 20)!.round(),
       )),
-      findsWidgets,
+      findsOneWidget,
     );
-    await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(kho.selected)}')));
+    expect(find.text(Chuoi.tongHomNay(kho.kcalTapCuaNgay(kho.selected))), findsWidgets);
+    await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.dongNgay(kho.selected)), findsWidgets);
-    expect(find.textContaining(Chuoi.diBo), findsWidgets);
-    expect(find.textContaining(Chuoi.yoga), findsWidgets);
+    await tester.tap(find.byKey(const Key('lua-home')));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.hoatDongO), findsWidgets);
+    expect(kho.selected, kho.homNay);
+  });
+
+  test('26/8 sua tap duoc, 24/8 khong', () async {
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    k.chonNgay(DateTime(2026, 8, 26));
+    expect(k.khoaGhi, isFalse);
+    expect(await k.ghiTap(CongThuc.loaiDiBo, 30), isTrue);
+    expect(k.tapNgay(DateTime(2026, 8, 26)).length, 1);
+    final id = k.tapNgay(DateTime(2026, 8, 26)).first.id;
+    k.chonNgay(DateTime(2026, 8, 24));
+    expect(k.khoaGhi, isTrue);
+    expect(await k.ghiTap(CongThuc.loaiChay, 20), isFalse);
+    expect(k.tapNgay(DateTime(2026, 8, 24)), isEmpty);
+    expect(await k.xoaTap(id, ngay: DateTime(2026, 8, 24)), isFalse);
+    k.chonNgay(DateTime(2026, 8, 26));
+    expect(await k.xoaTap(id), isTrue);
+    expect(k.tapNgay(DateTime(2026, 8, 26)), isEmpty);
   });
 }

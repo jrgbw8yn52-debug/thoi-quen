@@ -896,6 +896,17 @@ class Kho extends ChangeNotifier {
     return true;
   }
 
+  Future<bool> xoaTap(int id, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    final iso = Ngay.iso(d);
+    final co = dsTap.any((t) => t.id == id && t.ngay == iso);
+    if (!co) return false;
+    await db.xoaTap(id);
+    await tai();
+    return true;
+  }
+
   Future<bool> luuHoSo({
     required String ten,
     required String cao,

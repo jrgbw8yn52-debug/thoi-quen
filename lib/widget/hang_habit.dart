@@ -73,13 +73,13 @@ class HangVuot extends StatefulWidget {
   const HangVuot({
     super.key,
     required this.child,
-    required this.onSua,
+    this.onSua,
     required this.onXoa,
     this.choVuot = true,
   });
 
   final Widget child;
-  final VoidCallback onSua;
+  final VoidCallback? onSua;
   final VoidCallback onXoa;
   final bool choVuot;
 
@@ -89,7 +89,8 @@ class HangVuot extends StatefulWidget {
 
 class _HangVuotState extends State<HangVuot> {
   double _x = 0;
-  static const _rong = 176.0;
+
+  double get _rong => widget.onSua == null ? 88.0 : 176.0;
 
   @override
   Widget build(BuildContext context) {
@@ -101,11 +102,12 @@ class _HangVuotState extends State<HangVuot> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                _Nut(
-                  chu: Chuoi.sua,
-                  mau: Mau.mo,
-                  onTap: widget.onSua,
-                ),
+                if (widget.onSua != null)
+                  _Nut(
+                    chu: Chuoi.sua,
+                    mau: Mau.mo,
+                    onTap: widget.onSua!,
+                  ),
                 _Nut(
                   chu: Chuoi.xoa,
                   mau: Mau.canhBao,

@@ -7,6 +7,8 @@ import '../cong_thuc.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
+import '../widget/hang_habit.dart';
+import '../widget/lua_tap.dart';
 
 class ManGhiTap extends StatefulWidget {
   const ManGhiTap({super.key, required this.kho});
@@ -18,37 +20,32 @@ class ManGhiTap extends StatefulWidget {
 }
 
 class _ManGhiTapState extends State<ManGhiTap> {
-  final Set<String> _chon = {CongThuc.loaiDiBo};
-  final Map<String, int> _phut = {CongThuc.loaiDiBo: 30};
+  String _loai = CongThuc.loaiDiBo;
+  int _phut = 30;
   int _phin = 0;
 
   Future<void> _luu() async {
-    if (widget.kho.khoaGhi || _chon.isEmpty) return;
-    await widget.kho.ghiNhieuTap([
-      for (final m in CongThuc.mon)
-        if (_chon.contains(m.loai)) (m.loai, _phut[m.loai] ?? 30),
-    ]);
+    if (widget.kho.khoaGhi) return;
+    await widget.kho.ghiTap(_loai, _phut);
     if (mounted) setState(() {});
   }
 
-  void _doi(String loai) {
-    setState(() {
-      if (_chon.contains(loai)) {
-        _chon.remove(loai);
-      } else {
-        _chon.add(loai);
-        _phut.putIfAbsent(loai, () => 30);
-      }
-    });
-  }
-
-  int _kcalMon(Kho kho, String loai) {
+  int _kcalNhap(Kho kho) {
     final k = CongThuc.kcalTap(
-      met: CongThuc.metCua(loai),
+      met: CongThuc.metCua(_loai),
       kg: kho.canMoi?.kg,
-      phut: _phut[loai] ?? 30,
+      phut: _phut,
     );
     return k?.round() ?? 0;
+  }
+
+  int? _kcalPhien(Kho kho, {required String loai, required int phut}) {
+    if (kho.thieuCan) return null;
+    return CongThuc.kcalTap(
+      met: CongThuc.metCua(loai),
+      kg: kho.canMoi?.kg,
+      phut: phut,
+    )?.round();
   }
 
   void _moPhien(BuildContext context, Kho kho, DateTime ngay) {
@@ -83,17 +80,7 @@ class _ManGhiTapState extends State<ManGhiTap> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        Chuoi.dongPhien(
-                          Chuoi.tenMon(t.loai),
-                          t.phut,
-                          kho.thieuCan
-                              ? null
-                              : CongThuc.kcalTap(
-                                  met: CongThuc.metCua(t.loai),
-                                  kg: kho.canMoi?.kg,
-                                  phut: t.phut,
-                                )?.round(),
-                        ),
+                        Chuoi.dongPhien(Chuoi.tenMon(t.loai), t.phut, _kcalPhien(kho, loai: t.loai, phut: t.phut)),
                         style: const TextStyle(fontSize: 15, color: Mau.muc),
                       ),
                     ),
@@ -143,7 +130,7 @@ class _ManGhiTapState extends State<ManGhiTap> {
                       ),
                     ),
                     const Spacer(),
-                    _Lua(lua: lua),
+                    LuaTapHien(key: const Key('lua-tap'), lua: lua),
                   ],
                 ),
                 Text(kho.dongNgay, style: const TextStyle(color: Mau.mo)),
@@ -157,83 +144,86 @@ class _ManGhiTapState extends State<ManGhiTap> {
                     for (final m in CongThuc.mon)
                       _Chip(
                         chu: Chuoi.tenMon(m.loai),
-                        bat: _chon.contains(m.loai),
-                        onTap: kho.khoaGhi ? null : () => _doi(m.loai),
+                        bat: _loai == m.loai,
+                        onTap: kho.khoaGhi ? null : () => setState(() => _loai = m.loai),
                       ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                for (final m in CongThuc.mon)
-                  if (_chon.contains(m.loai)) ...[
-                  Text(
-                    Chuoi.tenMon(m.loai),
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _Buoc(
-                        chu: '−',
-                        onTap: kho.khoaGhi || (_phut[m.loai] ?? 30) <= 5
-                            ? null
-                            : () => setState(() => _phut[m.loai] = (_phut[m.loai] ?? 30) - 5),
+                Row(
+                  children: [
+                    _Buoc(
+                      chu: '−',
+                      onTap: kho.khoaGhi || _phut <= 5
+                          ? null
+                          : () => setState(() => _phut -= 5),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        '$_phut ${Chuoi.phut}',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Mau.muc),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          '${_phut[m.loai] ?? 30} ${Chuoi.phut}',
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Mau.muc),
+                    ),
+                    _Buoc(
+                      chu: '+',
+                      onTap: kho.khoaGhi || _phut >= 180
+                          ? null
+                          : () => setState(() => _phut += 5),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: FilledButton(
+                          onPressed: kho.khoaGhi ? null : _luu,
+                          child: const Text(Chuoi.luu),
                         ),
                       ),
-                      _Buoc(
-                        chu: '+',
-                        onTap: kho.khoaGhi || (_phut[m.loai] ?? 30) >= 180
-                            ? null
-                            : () => setState(() => _phut[m.loai] = (_phut[m.loai] ?? 30) + 5),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    kho.thieuCan ? Chuoi.thieuDuLieu : Chuoi.kcalTapSo(_kcalMon(kho, m.loai)),
-                    style: const TextStyle(fontSize: 14, color: Mau.mo),
-                  ),
-                  const SizedBox(height: 12),
-                ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  kho.thieuCan ? Chuoi.thieuDuLieu : Chuoi.kcalTapSo(_kcalNhap(kho)),
+                  style: const TextStyle(fontSize: 14, color: Mau.mo),
+                ),
+                const SizedBox(height: 16),
                 Text(
                   key: const Key('tong-hom-nay'),
                   Chuoi.tongHomNay(tongNgay),
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
                 ),
-                if (daLuu.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  for (final t in daLuu)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        Chuoi.dongPhien(
-                          Chuoi.tenMon(t.loai),
-                          t.phut,
-                          kho.thieuCan
-                              ? null
-                              : CongThuc.kcalTap(
-                                  met: CongThuc.metCua(t.loai),
-                                  kg: kho.canMoi?.kg,
-                                  phut: t.phut,
-                                )?.round(),
+                const SizedBox(height: 8),
+                for (final t in daLuu)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: HangVuot(
+                      key: Key('phien-tap-${t.id}'),
+                      choVuot: !kho.khoaGhi,
+                      onXoa: () => kho.xoaTap(t.id),
+                      child: Material(
+                        color: Mau.beMat,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 44),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                Chuoi.dongPhien(
+                                  Chuoi.tenMon(t.loai),
+                                  t.phut,
+                                  _kcalPhien(kho, loai: t.loai, phut: t.phut),
+                                ),
+                                style: const TextStyle(fontSize: 15, color: Mau.muc),
+                              ),
+                            ),
+                          ),
                         ),
-                        style: const TextStyle(fontSize: 14, color: Mau.mo),
                       ),
                     ),
-                ],
-                const SizedBox(height: 24),
-                SizedBox(
-                  height: 44,
-                  child: FilledButton(
-                    onPressed: kho.khoaGhi || _chon.isEmpty ? null : _luu,
-                    child: const Text(Chuoi.luu),
                   ),
-                ),
                 const SizedBox(height: 20),
                 const Text(
                   Chuoi.kcalTapNhan,
@@ -275,28 +265,6 @@ class _ManGhiTapState extends State<ManGhiTap> {
           ),
         );
       },
-    );
-  }
-}
-
-class _Lua extends StatelessWidget {
-  const _Lua({required this.lua});
-
-  final LuaTap lua;
-
-  @override
-  Widget build(BuildContext context) {
-    final mau = lua.sang ? Mau.reu : Mau.mo;
-    return Row(
-      key: const Key('lua-tap'),
-      children: [
-        Icon(Icons.local_fire_department, color: mau, size: 22),
-        const SizedBox(width: 4),
-        Text(
-          '${lua.so}',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: mau),
-        ),
-      ],
     );
   }
 }
