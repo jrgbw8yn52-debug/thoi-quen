@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart' show Value;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'chuoi.dart';
 import 'cong_thuc.dart';
@@ -1359,15 +1363,50 @@ class Kho extends ChangeNotifier {
   }
 
   Future<bool> xuatBanSao() async {
-    await db.xuatBanSao();
+    final dir = await getTemporaryDirectory();
+    final tmp = File('${dir.path}/${AppDatabase.tenBanSao}');
+    await db.xuatVao(tmp.path);
+    final bytes = await tmp.readAsBytes();
+    final saved = await FilePicker.platform.saveFile(
+      dialogTitle: Chuoi.xuatBanSao,
+      fileName: AppDatabase.tenBanSao,
+      bytes: bytes,
+    );
+    try {
+      await tmp.delete();
+    } catch (_) {}
+    return saved != null;
+  }
+
+  Future<bool> khoiPhucTuFile(String path) async {
+    if (!await db.laSqlite(path)) return false;
+    await db.khoiPhucTu(path);
+    await tai();
     return true;
   }
 
   Future<bool> khoiPhucBanSao() async {
-    if (!await db.coBanSao()) return false;
-    await db.khoiPhucBanSao();
-    await tai();
-    return true;
+    final r = await FilePicker.platform.pickFiles(
+      dialogTitle: Chuoi.khoiPhuc,
+      type: FileType.any,
+      withData: true,
+    );
+    if (r == null || r.files.isEmpty) return false;
+    final f = r.files.single;
+    final dir = await getTemporaryDirectory();
+    final tmp = File('${dir.path}/khoi-phuc.sqlite');
+    if (f.bytes != null && f.bytes!.isNotEmpty) {
+      await tmp.writeAsBytes(f.bytes!, flush: true);
+    } else if (f.path != null) {
+      await File(f.path!).copy(tmp.path);
+    } else {
+      return false;
+    }
+    final ok = await khoiPhucTuFile(tmp.path);
+    try {
+      await tmp.delete();
+    } catch (_) {}
+    return ok;
   }
 
   Future<void> xoaDuLieu() async {

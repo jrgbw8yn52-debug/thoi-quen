@@ -767,6 +767,38 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
 
   static const tenBanSao = 'thoi-quen-ban-sao.sqlite';
 
+  static const _bangBanSao = <String>[
+    'habits',
+    'ticks',
+    'loai_tru',
+    'profile',
+    'weigh_ins',
+    'eo_ins',
+    'mo_ins',
+    'tap_ins',
+    'chi_so',
+    'moc_can',
+    'nap_ins',
+    'foods',
+    'food_log',
+  ];
+
+  static const _bangXoa = <String>[
+    'food_log',
+    'foods',
+    'ticks',
+    'loai_tru',
+    'habits',
+    'weigh_ins',
+    'moc_can',
+    'nap_ins',
+    'eo_ins',
+    'mo_ins',
+    'tap_ins',
+    'chi_so',
+    'profile',
+  ];
+
   Future<String> duongBanSao() async {
     final d = await getApplicationDocumentsDirectory();
     return '${d.path}/$tenBanSao';
@@ -789,34 +821,72 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     return File(await duongBanSao()).exists();
   }
 
+  Future<bool> laSqlite(String path) async {
+    final f = File(path);
+    if (!await f.exists()) return false;
+    if (await f.length() < 16) return false;
+    final raf = await f.open();
+    final head = await raf.read(16);
+    await raf.close();
+    return String.fromCharCodes(head).startsWith('SQLite format 3');
+  }
+
+  Future<List<String>> _cot(String schema, String bang) async {
+    final rows = await customSelect("PRAGMA $schema.table_info('$bang')").get();
+    return [for (final r in rows) r.read<String>('name')];
+  }
+
   Future<void> khoiPhucTu(String path) async {
+    if (!await laSqlite(path)) {
+      throw StateError('not-sqlite');
+    }
     final esc = path.replaceAll("'", "''");
+    await customStatement('PRAGMA foreign_keys = OFF');
     await customStatement("ATTACH DATABASE '$esc' AS src");
     try {
-      await customStatement('DELETE FROM ticks');
-      await customStatement('DELETE FROM loai_tru');
-      await customStatement('DELETE FROM habits');
-      await customStatement('DELETE FROM weigh_ins');
-      await customStatement('DELETE FROM moc_can');
-      await customStatement('DELETE FROM nap_ins');
-      await customStatement('DELETE FROM eo_ins');
-      await customStatement('DELETE FROM mo_ins');
-      await customStatement('DELETE FROM profile');
-      await customStatement('INSERT INTO habits SELECT * FROM src.habits');
-      await customStatement('INSERT INTO ticks SELECT * FROM src.ticks');
-      await customStatement('INSERT INTO weigh_ins SELECT * FROM src.weigh_ins');
-      await customStatement('INSERT INTO profile SELECT * FROM src.profile');
-      try {
-        await customStatement('INSERT INTO eo_ins SELECT * FROM src.eo_ins');
-        await customStatement('INSERT INTO mo_ins SELECT * FROM src.mo_ins');
-        await customStatement('INSERT INTO tap_ins SELECT * FROM src.tap_ins');
-        await customStatement('INSERT INTO chi_so SELECT * FROM src.chi_so');
-        await customStatement('INSERT INTO loai_tru SELECT * FROM src.loai_tru');
-        await customStatement('INSERT INTO moc_can SELECT * FROM src.moc_can');
-        await customStatement('INSERT INTO nap_ins SELECT * FROM src.nap_ins');
-      } catch (_) {}
+      for (final t in _bangXoa) {
+        await customStatement('DELETE FROM $t');
+      }
+      for (final t in _bangBanSao) {
+        final dest = await _cot('main', t);
+        final src = await _cot('src', t);
+        if (src.isEmpty || dest.isEmpty) continue;
+        final destSet = dest.toSet();
+        final cols = [for (final c in src) if (destSet.contains(c)) c];
+        if (cols.isEmpty) continue;
+        final list = cols.join(', ');
+        await customStatement(
+          'INSERT INTO $t ($list) SELECT $list FROM src.$t',
+        );
+      }
+      for (final t in const [
+        'habits',
+        'tap_ins',
+        'moc_can',
+        'foods',
+        'food_log',
+      ]) {
+        try {
+          await customStatement(
+            "INSERT OR REPLACE INTO sqlite_sequence(name, seq) "
+            "SELECT '$t', IFNULL(MAX(id), 0) FROM $t",
+          );
+        } catch (_) {}
+      }
+      final p = await customSelect('SELECT id FROM profile WHERE id = 1').get();
+      if (p.isEmpty) {
+        await into(profiles).insert(
+          ProfilesCompanion.insert(
+            id: const Value(1),
+            activity: const Value(1.2),
+            nhipKg: const Value(0.5),
+          ),
+        );
+      }
+      await gopTenTrung();
     } finally {
       await customStatement('DETACH DATABASE src');
+      await customStatement('PRAGMA foreign_keys = ON');
     }
   }
 

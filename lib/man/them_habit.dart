@@ -5,6 +5,7 @@ import '../chuoi.dart';
 import '../db/database.dart';
 import '../kho.dart';
 import '../mau.dart';
+import '../nhac.dart';
 import '../ten.dart';
 import '../thu.dart';
 
@@ -195,7 +196,11 @@ class _ManThemHabitState extends State<ManThemHabit> {
                     bat: _nhac,
                     onTap: khoaNhac
                         ? null
-                        : () => setState(() => _nhac = true),
+                        : () async {
+                            await Nhac.xinQuyen();
+                            if (!mounted) return;
+                            setState(() => _nhac = true);
+                          },
                   ),
                   if (_nhac) ...[
                     const SizedBox(width: 12),

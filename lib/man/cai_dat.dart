@@ -48,8 +48,8 @@ class _ManTaiKhoanState extends State<ManTaiKhoan> {
   }
 
   Future<void> _xuat() async {
-    await kho.xuatBanSao();
-    if (!mounted) return;
+    final duoc = await kho.xuatBanSao();
+    if (!mounted || !duoc) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text(Chuoi.daXuat)),
     );
@@ -61,7 +61,7 @@ class _ManTaiKhoanState extends State<ManTaiKhoan> {
     final duoc = await kho.khoiPhucBanSao();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(duoc ? Chuoi.khoiPhuc : Chuoi.khongCoBanSao)),
+      SnackBar(content: Text(duoc ? Chuoi.daKhoiPhuc : Chuoi.khongCoBanSao)),
     );
   }
 

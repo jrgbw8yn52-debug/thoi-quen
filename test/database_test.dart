@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:thoi_quen/db/database.dart';
+import 'package:thoi_quen/kho.dart';
 
 void main() {
   late AppDatabase db;
@@ -134,5 +137,94 @@ void main() {
     final ds = await db.dsCan();
     expect(ds.length, 1);
     expect(ds.single.kg, closeTo(71.9, 0.001));
+  });
+
+  test('apk trong khoi phuc file iOS: tick va mon con', () async {
+    final tmp = await Directory.systemTemp.createTemp('tq-bs');
+    addTearDown(() => tmp.delete(recursive: true));
+
+    final iosFile = File('${tmp.path}/ios.sqlite');
+    final ios = AppDatabase(NativeDatabase(iosFile));
+    final hid = await ios.themHabit(ten: 'Dậy 6 giờ', createdOn: goc);
+    await ios.into(ios.ticks).insert(
+          TicksCompanion.insert(habitId: hid!, ngay: '2026-08-30'),
+        );
+    await ios.themMon(ten: 'Phở bò', kcal: 450, dam: 20, bot: 55, beo: 12);
+    await ios.ghiLog(goc, ten: 'Phở bò', kcal: 450, dam: 20, bot: 55, beo: 12);
+    final dump = '${tmp.path}/thoi-quen-ban-sao.sqlite';
+    await ios.xuatVao(dump);
+    await ios.close();
+
+    expect(await db.dsHabit(), isEmpty);
+    expect(await db.dsTick(), isEmpty);
+    expect(await db.dsMon(), isEmpty);
+    expect(await db.dsLog(), isEmpty);
+
+    await db.khoiPhucTu(dump);
+
+    expect((await db.dsHabit()).single.ten, 'Dậy 6 giờ');
+    expect((await db.dsTick()).map((t) => t.ngay), ['2026-08-30']);
+    expect((await db.dsMon()).single.ten, 'Phở bò');
+    expect((await db.dsLog()).single.ten, 'Phở bò');
+    expect((await db.dsLog()).single.kcal, 450);
+  });
+
+  test('khoi phuc thay het, khong gop', () async {
+    final tmp = await Directory.systemTemp.createTemp('tq-thay');
+    addTearDown(() => tmp.delete(recursive: true));
+
+    await db.themHabit(ten: 'Cũ Android', createdOn: goc);
+    await db.themMon(ten: 'Cơm', kcal: 200);
+
+    final ios = AppDatabase(NativeDatabase(File('${tmp.path}/ios.sqlite')));
+    final hid = await ios.themHabit(ten: 'Dậy 6 giờ', createdOn: goc);
+    await ios.into(ios.ticks).insert(
+          TicksCompanion.insert(habitId: hid!, ngay: '2026-08-29'),
+        );
+    await ios.themMon(ten: 'Phở', kcal: 450);
+    final dump = '${tmp.path}/dump.sqlite';
+    await ios.xuatVao(dump);
+    await ios.close();
+
+    await db.khoiPhucTu(dump);
+    final tenH = (await db.dsHabit()).map((h) => h.ten).toList();
+    expect(tenH, ['Dậy 6 giờ']);
+    expect((await db.dsMon()).map((m) => m.ten), ['Phở']);
+    expect(await db.dsTick(), isNotEmpty);
+  });
+
+  test('file khong sqlite khong xoa du lieu', () async {
+    await db.themHabit(ten: 'Giữ', createdOn: goc);
+    final tmp = await Directory.systemTemp.createTemp('tq-bad');
+    addTearDown(() => tmp.delete(recursive: true));
+    final bad = File('${tmp.path}/not.sqlite')..writeAsStringSync('hello');
+    expect(await db.laSqlite(bad.path), isFalse);
+    await expectLater(db.khoiPhucTu(bad.path), throwsA(isA<StateError>()));
+    expect((await db.dsHabit()).single.ten, 'Giữ');
+  });
+
+  test('khoi phuc xong khong first-run rong', () async {
+    final tmp = await Directory.systemTemp.createTemp('tq-fr');
+    addTearDown(() => tmp.delete(recursive: true));
+    final ios = AppDatabase(NativeDatabase(File('${tmp.path}/ios.sqlite')));
+    final hid = await ios.themHabit(ten: 'Dậy 6 giờ', createdOn: goc);
+    await ios.into(ios.ticks).insert(
+          TicksCompanion.insert(habitId: hid!, ngay: '2026-08-30'),
+        );
+    await ios.themMon(ten: 'Phở', kcal: 450);
+    final dump = '${tmp.path}/dump.sqlite';
+    await ios.xuatVao(dump);
+    await ios.close();
+
+    final apk = AppDatabase(NativeDatabase.memory());
+    addTearDown(apk.close);
+    final kho = Kho(apk, bayGio: DateTime(2026, 8, 30, 13));
+    await kho.tai();
+    expect(kho.rong, isTrue);
+
+    expect(await kho.khoiPhucTuFile(dump), isTrue);
+    expect(kho.rong, isFalse);
+    expect(kho.hang.single.ticked, isTrue);
+    expect(kho.dsMon.single.ten, 'Phở');
   });
 }

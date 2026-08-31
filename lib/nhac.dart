@@ -1,3 +1,5 @@
+import 'dart:ui' show Color;
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -5,8 +7,12 @@ import 'package:timezone/timezone.dart' as tz;
 import 'db/database.dart';
 import 'thu.dart';
 
-/// Nhắc local, không server.
+/// Nhắc local, không server. Android 13+ xin POST_NOTIFICATIONS + tạo channel.
 abstract final class Nhac {
+  static const kenhId = 'nhac';
+  static const kenhTen = 'Nhắc';
+  static const kenhMoTa = 'Nhắc thói quen trên máy này.';
+
   static final _p = FlutterLocalNotificationsPlugin();
   static bool _ok = false;
 
@@ -14,18 +20,48 @@ abstract final class Nhac {
     try {
       tzdata.initializeTimeZones();
       tz.setLocalLocation(tz.getLocation('Asia/Ho_Chi_Minh'));
-      const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-      const ios = DarwinInitializationSettings();
+      const android = AndroidInitializationSettings('@drawable/ic_nhac');
+      const ios = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestSoundPermission: true,
+        requestBadgePermission: true,
+      );
       await _p.initialize(
         const InitializationSettings(android: android, iOS: ios),
       );
-      await _p
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestNotificationsPermission();
+      final a = _p.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await a?.createNotificationChannel(
+        const AndroidNotificationChannel(
+          kenhId,
+          kenhTen,
+          description: kenhMoTa,
+          importance: Importance.defaultImportance,
+        ),
+      );
+      await xinQuyen();
       _ok = true;
     } catch (_) {
       _ok = false;
+    }
+  }
+
+  static Future<bool> xinQuyen() async {
+    try {
+      final a = _p.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      final androidOk = await a?.requestNotificationsPermission() ?? true;
+      final i = _p.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+      final iosOk = await i?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ??
+          true;
+      return androidOk && iosOk;
+    } catch (_) {
+      return false;
     }
   }
 
@@ -44,9 +80,12 @@ abstract final class Nhac {
             _lanSau(thu, g),
             const NotificationDetails(
               android: AndroidNotificationDetails(
-                'nhac',
-                'Nhắc',
+                kenhId,
+                kenhTen,
+                channelDescription: kenhMoTa,
                 importance: Importance.defaultImportance,
+                icon: '@drawable/ic_nhac',
+                color: Color(0xFFE85D04),
               ),
               iOS: DarwinNotificationDetails(),
             ),

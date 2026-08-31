@@ -84,8 +84,10 @@ abstract final class Chuoi {
   static const phienBan = 'Phiên bản 0.1.0';
   static const haiMayLech = 'Hai máy cùng ghi sẽ lệch. Chỉ một máy ghi.';
   static const thayToanBo = 'Thay toàn bộ dữ liệu trên máy này. Không gộp.';
-  static const daXuat = 'Đã xuất bản sao trên máy này.';
+  static const daXuat = 'Đã xuất bản sao.';
   static const khongCoBanSao = 'Không có bản sao.';
+  static const daKhoiPhuc = 'Đã khôi phục.';
+  static const fileKhongPhaiBanSao = 'File không phải bản sao.';
   static const canKg = 'Cân kg';
   static const tuanNhan = 'Tuần';
   static const thangNhan = 'Tháng';
