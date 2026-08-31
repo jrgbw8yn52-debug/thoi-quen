@@ -200,12 +200,7 @@ class ManTienDo extends StatelessWidget {
                 ],
               ),
             ),
-          const SizedBox(height: 16),
-          const Text(
-            Chuoi.kcalTapNhan,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
-          ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(kho.chuKcalTap, style: const TextStyle(fontSize: 15, color: Mau.muc)),
         ],
       ),

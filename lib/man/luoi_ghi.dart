@@ -5,6 +5,7 @@ import '../kho.dart';
 import '../mau.dart';
 import 'ghi_can.dart';
 import 'ghi_chi_so.dart';
+import 'ghi_nap.dart';
 import 'ghi_tap.dart';
 
 Future<void> moLuoiGhi(BuildContext context, Kho kho) {
@@ -60,7 +61,10 @@ class LuoiGhi extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                const _O(chu: '${Chuoi.nhatKy}\n${Chuoi.seLam}', mo: true),
+                _O(
+                  chu: Chuoi.nhatKy,
+                  onTap: () => _mo(context, ManGhiNap(kho: kho)),
+                ),
                 const SizedBox(width: 10),
                 _O(
                   chu: Chuoi.chiSo,
@@ -76,35 +80,31 @@ class LuoiGhi extends StatelessWidget {
 }
 
 class _O extends StatelessWidget {
-  const _O({required this.chu, this.onTap, this.mo = false});
+  const _O({required this.chu, this.onTap});
 
   final String chu;
   final VoidCallback? onTap;
-  final bool mo;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Opacity(
-        opacity: mo ? 0.4 : 1,
-        child: Material(
-          color: Mau.giay,
+      child: Material(
+        color: Mau.giay,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(14),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(14),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 88),
-              child: Center(
-                child: Text(
-                  chu,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Mau.muc,
-                    height: 1.3,
-                  ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 88),
+            child: Center(
+              child: Text(
+                chu,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Mau.muc,
+                  height: 1.3,
                 ),
               ),
             ),

@@ -39,12 +39,16 @@ abstract final class So {
     return v;
   }
 
+  static int? parseKcal(String raw) {
+    final t = raw.trim().replaceAll(' ', '');
+    if (t.isEmpty) return null;
+    final v = int.tryParse(t);
+    if (v == null || v < 1 || v > 20000) return null;
+    return v;
+  }
+
   static String heSo(double v) {
-    var s = v.toStringAsFixed(3).replaceAll('.', ',');
-    while (s.endsWith('0')) {
-      s = s.substring(0, s.length - 1);
-    }
-    if (s.endsWith(',')) s = s.substring(0, s.length - 1);
-    return s;
+    final s = v.toString();
+    return s.replaceAll('.', ',');
   }
 }

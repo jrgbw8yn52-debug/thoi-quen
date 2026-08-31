@@ -109,6 +109,11 @@ abstract final class Chuoi {
   static const seLam = 'Sẽ làm';
   static const uocMo = 'Ước tính ±5–8';
   static const kcalTapNhan = 'Kcal tập';
+  static const kcalTieuThu = 'Kcal tiêu thụ';
+  static const kcalNap = 'Kcal nạp';
+  static const kcalNapHomNay = 'Kcal nạp hôm nay';
+  static const chuaGhiNap = 'Chưa ghi kcal nạp';
+  static const bmiTheoThoiGian = 'BMI theo thời gian';
   static const eoCm = 'Eo';
   static const hongCm = 'Hông';
   static const ngucCm = 'Ngực';
@@ -207,6 +212,8 @@ abstract final class Chuoi {
   static String kcalBuoiSo(String n) => 'Kcal buổi $n';
 
   static String kcalTapSo(int n) => 'Kcal tập $n';
+
+  static String kcalTieuThuHomNay(int n) => 'Kcal tiêu thụ hôm nay $n';
 
   static String daDoi(String x) => 'Đã đổi $x kg';
 

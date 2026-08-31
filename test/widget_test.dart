@@ -120,7 +120,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.canNang), findsOneWidget);
-    expect(find.text('${Chuoi.nhatKy}\n${Chuoi.seLam}'), findsOneWidget);
+    expect(find.text(Chuoi.nhatKy), findsOneWidget);
 
     await tester.tap(find.text(Chuoi.canNang));
     await tester.pumpAndSettle();
@@ -136,7 +136,7 @@ void main() {
     expect(find.text(Chuoi.banDau), findsOneWidget);
     expect(find.text(Chuoi.hienTai), findsOneWidget);
     expect(find.text('Ghi thêm cân để thấy đường'), findsNothing);
-    expect(find.text(Chuoi.kcalTapSo(0)), findsOneWidget);
+    expect(find.text(Chuoi.kcalTieuThuHomNay(0)), findsOneWidget);
   });
 
   testWidgets('cham tuan doi selectedDate', (tester) async {
@@ -684,5 +684,70 @@ void main() {
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.sua)), findsNothing);
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.xoa)), findsNothing);
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.textContaining(Chuoi.yoga)), findsOneWidget);
+  });
+
+  test('can 110: header hien tai, ban dau 150, doi -40, vach dich 100', () async {
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    await k.luuHoSo(
+      ten: 'A',
+      cao: '170',
+      sex: 'nam',
+      dob: DateTime(1996, 8, 31),
+      activity: 1.2,
+      banDau: '150',
+    );
+    await k.luuMucTieu(dich: '100', nhip: 0.5);
+    await k.ghiCanKg(110);
+    expect(k.startKg, 150);
+    expect(k.targetKg, 100);
+    expect(k.hienTaiKg, '110');
+    expect(k.banDauKg, '150');
+    expect(k.doiKg, '-40');
+    expect(k.dongTaiKhoan, contains('110 kg'));
+    expect(k.dongTaiKhoan, isNot(contains('150 kg')));
+    expect(k.netSang, containsAll([150.0, 100.0]));
+    expect(k.bmiTheoCan, isNotEmpty);
+    expect(k.bmiTheoCan.last.$2, closeTo(110 / (1.7 * 1.7), 0.05));
+    final du = k.duKienDoc;
+    expect(du, isNotNull);
+  });
+
+  testWidgets('bao cao BMI doi khi doi can, nhat ky 1800 co diem nap', (tester) async {
+    tester.view.physicalSize = const Size(390, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    await kho.luuHoSo(
+      ten: 'A',
+      cao: '170',
+      sex: 'nam',
+      dob: DateTime(1996, 1, 1),
+      activity: 1.2,
+      banDau: '150',
+    );
+    await kho.ghiCanKg(110);
+    final bmi1 = kho.bmiTheoCan.last.$2;
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.nhatKy));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('kcal-nap')), '1800');
+    await tester.tap(find.text(Chuoi.luu));
+    await tester.pumpAndSettle();
+    expect(kho.napCua(kho.selected)?.kcal, 1800);
+    await kho.ghiCanKg(100);
+    expect(kho.hienTaiKg, '100');
+    expect(kho.bmiTheoCan.last.$2, isNot(bmi1));
+    await tester.tap(find.text(Chuoi.tienDo));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.xemBaoCao));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('duong-bmi')), findsOneWidget);
+    expect(find.byKey(const Key('duong-nap')), findsOneWidget);
+    expect(find.text(Chuoi.chuaGhiNap), findsNothing);
+    expect(find.text(Chuoi.kcalTieuThu), findsOneWidget);
+    expect(find.text(Chuoi.kcalNap), findsOneWidget);
   });
 }

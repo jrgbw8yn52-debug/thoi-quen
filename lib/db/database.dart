@@ -136,6 +136,17 @@ class MocCans extends Table {
   RealColumn get kg => real()();
 }
 
+class NapIns extends Table {
+  @override
+  String get tableName => 'nap_ins';
+
+  TextColumn get ngay => text()();
+  IntColumn get kcal => integer()();
+
+  @override
+  Set<Column> get primaryKey => {ngay};
+}
+
 @DriftDatabase(tables: [
   Habits,
   Ticks,
@@ -147,6 +158,7 @@ class MocCans extends Table {
   ChiSoIns,
   LoaiTruIns,
   MocCans,
+  NapIns,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
@@ -156,7 +168,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -223,6 +235,9 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
           if (from < 8) {
             await m.addColumn(profiles, profiles.startKg);
             await m.createTable(mocCans);
+          }
+          if (from < 9) {
+            await m.createTable(napIns);
           }
         },
         beforeOpen: (details) async {
@@ -495,6 +510,16 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     return (select(tapIns)..orderBy([(t) => OrderingTerm.desc(t.ngay)])).get();
   }
 
+  Future<void> ghiNap(DateTime ngay, int kcal) async {
+    await into(napIns).insertOnConflictUpdate(
+      NapInsCompanion.insert(ngay: Ngay.iso(ngay), kcal: kcal),
+    );
+  }
+
+  Future<List<NapIn>> dsNap() {
+    return (select(napIns)..orderBy([(n) => OrderingTerm.desc(n.ngay)])).get();
+  }
+
   Future<List<EoIn>> dsEo() {
     return (select(eoIns)..orderBy([(e) => OrderingTerm.desc(e.ngay)])).get();
   }
@@ -583,6 +608,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
       await customStatement('DELETE FROM habits');
       await customStatement('DELETE FROM weigh_ins');
       await customStatement('DELETE FROM moc_can');
+      await customStatement('DELETE FROM nap_ins');
       await customStatement('DELETE FROM eo_ins');
       await customStatement('DELETE FROM mo_ins');
       await customStatement('DELETE FROM profile');
@@ -597,6 +623,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         await customStatement('INSERT INTO chi_so SELECT * FROM src.chi_so');
         await customStatement('INSERT INTO loai_tru SELECT * FROM src.loai_tru');
         await customStatement('INSERT INTO moc_can SELECT * FROM src.moc_can');
+        await customStatement('INSERT INTO nap_ins SELECT * FROM src.nap_ins');
       } catch (_) {}
     } finally {
       await customStatement('DETACH DATABASE src');
@@ -621,6 +648,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await delete(tapIns).go();
     await delete(chiSoIns).go();
     await delete(mocCans).go();
+    await delete(napIns).go();
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       const ProfilesCompanion(
         sex: Value(null),

@@ -3174,6 +3174,211 @@ class MocCansCompanion extends UpdateCompanion<MocCan> {
   }
 }
 
+class $NapInsTable extends NapIns with TableInfo<$NapInsTable, NapIn> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NapInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kcalMeta = const VerificationMeta('kcal');
+  @override
+  late final GeneratedColumn<int> kcal = GeneratedColumn<int>(
+    'kcal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [ngay, kcal];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'nap_ins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NapIn> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    if (data.containsKey('kcal')) {
+      context.handle(
+        _kcalMeta,
+        kcal.isAcceptableOrUnknown(data['kcal']!, _kcalMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kcalMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ngay};
+  @override
+  NapIn map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NapIn(
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+      kcal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}kcal'],
+      )!,
+    );
+  }
+
+  @override
+  $NapInsTable createAlias(String alias) {
+    return $NapInsTable(attachedDatabase, alias);
+  }
+}
+
+class NapIn extends DataClass implements Insertable<NapIn> {
+  final String ngay;
+  final int kcal;
+  const NapIn({required this.ngay, required this.kcal});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ngay'] = Variable<String>(ngay);
+    map['kcal'] = Variable<int>(kcal);
+    return map;
+  }
+
+  NapInsCompanion toCompanion(bool nullToAbsent) {
+    return NapInsCompanion(ngay: Value(ngay), kcal: Value(kcal));
+  }
+
+  factory NapIn.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NapIn(
+      ngay: serializer.fromJson<String>(json['ngay']),
+      kcal: serializer.fromJson<int>(json['kcal']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ngay': serializer.toJson<String>(ngay),
+      'kcal': serializer.toJson<int>(kcal),
+    };
+  }
+
+  NapIn copyWith({String? ngay, int? kcal}) =>
+      NapIn(ngay: ngay ?? this.ngay, kcal: kcal ?? this.kcal);
+  NapIn copyWithCompanion(NapInsCompanion data) {
+    return NapIn(
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+      kcal: data.kcal.present ? data.kcal.value : this.kcal,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NapIn(')
+          ..write('ngay: $ngay, ')
+          ..write('kcal: $kcal')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ngay, kcal);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NapIn && other.ngay == this.ngay && other.kcal == this.kcal);
+}
+
+class NapInsCompanion extends UpdateCompanion<NapIn> {
+  final Value<String> ngay;
+  final Value<int> kcal;
+  final Value<int> rowid;
+  const NapInsCompanion({
+    this.ngay = const Value.absent(),
+    this.kcal = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NapInsCompanion.insert({
+    required String ngay,
+    required int kcal,
+    this.rowid = const Value.absent(),
+  }) : ngay = Value(ngay),
+       kcal = Value(kcal);
+  static Insertable<NapIn> custom({
+    Expression<String>? ngay,
+    Expression<int>? kcal,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ngay != null) 'ngay': ngay,
+      if (kcal != null) 'kcal': kcal,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NapInsCompanion copyWith({
+    Value<String>? ngay,
+    Value<int>? kcal,
+    Value<int>? rowid,
+  }) {
+    return NapInsCompanion(
+      ngay: ngay ?? this.ngay,
+      kcal: kcal ?? this.kcal,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (kcal.present) {
+      map['kcal'] = Variable<int>(kcal.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NapInsCompanion(')
+          ..write('ngay: $ngay, ')
+          ..write('kcal: $kcal, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3187,6 +3392,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ChiSoInsTable chiSoIns = $ChiSoInsTable(this);
   late final $LoaiTruInsTable loaiTruIns = $LoaiTruInsTable(this);
   late final $MocCansTable mocCans = $MocCansTable(this);
+  late final $NapInsTable napIns = $NapInsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3202,6 +3408,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     chiSoIns,
     loaiTruIns,
     mocCans,
+    napIns,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -5374,6 +5581,131 @@ typedef $$MocCansTableProcessedTableManager =
       MocCan,
       PrefetchHooks Function()
     >;
+typedef $$NapInsTableCreateCompanionBuilder = NapInsCompanion Function({
+  required String ngay,
+  required int kcal,
+  Value<int> rowid,
+});
+typedef $$NapInsTableUpdateCompanionBuilder = NapInsCompanion Function({
+  Value<String> ngay,
+  Value<int> kcal,
+  Value<int> rowid,
+});
+
+class $$NapInsTableFilterComposer
+    extends Composer<_$AppDatabase, $NapInsTable> {
+  $$NapInsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get kcal => $composableBuilder(
+    column: $table.kcal,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NapInsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NapInsTable> {
+  $$NapInsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get kcal => $composableBuilder(
+    column: $table.kcal,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NapInsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NapInsTable> {
+  $$NapInsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  GeneratedColumn<int> get kcal =>
+      $composableBuilder(column: $table.kcal, builder: (column) => column);
+}
+
+class $$NapInsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NapInsTable,
+          NapIn,
+          $$NapInsTableFilterComposer,
+          $$NapInsTableOrderingComposer,
+          $$NapInsTableAnnotationComposer,
+          $$NapInsTableCreateCompanionBuilder,
+          $$NapInsTableUpdateCompanionBuilder,
+          (NapIn, BaseReferences<_$AppDatabase, $NapInsTable, NapIn>),
+          NapIn,
+          PrefetchHooks Function()
+        > {
+  $$NapInsTableTableManager(_$AppDatabase db, $NapInsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NapInsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NapInsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NapInsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ngay = const Value.absent(),
+            Value<int> kcal = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) => NapInsCompanion(ngay: ngay, kcal: kcal, rowid: rowid),
+          createCompanionCallback: ({
+            required String ngay,
+            required int kcal,
+            Value<int> rowid = const Value.absent(),
+          }) => NapInsCompanion.insert(ngay: ngay, kcal: kcal, rowid: rowid),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NapInsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NapInsTable,
+      NapIn,
+      $$NapInsTableFilterComposer,
+      $$NapInsTableOrderingComposer,
+      $$NapInsTableAnnotationComposer,
+      $$NapInsTableCreateCompanionBuilder,
+      $$NapInsTableUpdateCompanionBuilder,
+      (NapIn, BaseReferences<_$AppDatabase, $NapInsTable, NapIn>),
+      NapIn,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5398,4 +5730,6 @@ class $AppDatabaseManager {
       $$LoaiTruInsTableTableManager(_db, _db.loaiTruIns);
   $$MocCansTableTableManager get mocCans =>
       $$MocCansTableTableManager(_db, _db.mocCans);
+  $$NapInsTableTableManager get napIns =>
+      $$NapInsTableTableManager(_db, _db.napIns);
 }
