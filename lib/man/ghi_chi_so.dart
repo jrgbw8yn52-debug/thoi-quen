@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../chuoi.dart';
@@ -65,11 +67,6 @@ class _ManGhiChiSoState extends State<ManGhiChiSo> {
         _napO();
         final d = kho.selected;
         final c = kho.chiSoCua(d);
-        final doiEo = kho.doiDo(d, lay: (x) => x.eo, moc0: kho.startEo, hien: c?.eo ?? So.parseEo(_eo.text));
-        final doiHong = kho.doiDo(d, lay: (x) => x.hong, moc0: kho.startHong, hien: c?.hong ?? So.parseEo(_hong.text));
-        final doiNguc = kho.doiDo(d, lay: (x) => x.nguc, moc0: kho.startNguc, hien: c?.nguc ?? So.parseEo(_nguc.text));
-        final doiTay = kho.doiDo(d, lay: (x) => x.bapTay, moc0: kho.startBapTay, hien: c?.bapTay ?? So.parseEo(_tay.text));
-        final duSo = kho.bmiDoc != null && kho.bmrDoc != null && kho.tdeeDoc != null;
         return Scaffold(
           backgroundColor: Mau.giay,
           body: SafeArea(
@@ -92,27 +89,65 @@ class _ManGhiChiSoState extends State<ManGhiChiSo> {
                     ),
                   ],
                 ),
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    key: const Key('tieu-de-chi-so'),
-                    onTap: () => moLanNgay(context, kho),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 44),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(kho.dongNgay, style: const TextStyle(color: Mau.mo, fontSize: 15)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          key: const Key('tieu-de-chi-so'),
+                          onTap: () => moLanNgay(context, kho),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 44),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                kho.dongNgay,
+                                style: const TextStyle(color: Mau.mo, fontSize: 15),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    TextButton(
+                      key: const Key('nut-hom-nay-chi-so'),
+                      onPressed: kho.veHomNay,
+                      child: const Text(Chuoi.homNay),
+                    ),
+                  ],
                 ),
                 if (kho.khoaGhi)
                   const Text(Chuoi.chiXem, style: TextStyle(color: Mau.mo, fontSize: 13)),
                 const SizedBox(height: 16),
-                _O(nhan: Chuoi.eoCm, c: _eo, enabled: !kho.khoaGhi, doi: doiEo),
-                _O(nhan: Chuoi.hongCm, c: _hong, enabled: !kho.khoaGhi, doi: doiHong),
-                _O(nhan: Chuoi.ngucCm, c: _nguc, enabled: !kho.khoaGhi, doi: doiNguc),
-                _O(nhan: Chuoi.bapTayCm, c: _tay, enabled: !kho.khoaGhi, doi: doiTay),
+                _O(
+                  nhan: Chuoi.eoCm,
+                  c: _eo,
+                  enabled: !kho.khoaGhi,
+                  truoc: kho.doiLanTruoc(d, lay: (x) => x.eo, hien: c?.eo ?? So.parseEo(_eo.text)),
+                  dau: kho.doiBanDau(d, moc0: kho.startEo, hien: c?.eo ?? So.parseEo(_eo.text)),
+                ),
+                _O(
+                  nhan: Chuoi.hongCm,
+                  c: _hong,
+                  enabled: !kho.khoaGhi,
+                  truoc: kho.doiLanTruoc(d, lay: (x) => x.hong, hien: c?.hong ?? So.parseEo(_hong.text)),
+                  dau: kho.doiBanDau(d, moc0: kho.startHong, hien: c?.hong ?? So.parseEo(_hong.text)),
+                ),
+                _O(
+                  nhan: Chuoi.ngucCm,
+                  c: _nguc,
+                  enabled: !kho.khoaGhi,
+                  truoc: kho.doiLanTruoc(d, lay: (x) => x.nguc, hien: c?.nguc ?? So.parseEo(_nguc.text)),
+                  dau: kho.doiBanDau(d, moc0: kho.startNguc, hien: c?.nguc ?? So.parseEo(_nguc.text)),
+                ),
+                _O(
+                  nhan: Chuoi.bapTayCm,
+                  c: _tay,
+                  enabled: !kho.khoaGhi,
+                  truoc: kho.doiLanTruoc(d, lay: (x) => x.bapTay, hien: c?.bapTay ?? So.parseEo(_tay.text)),
+                  dau: kho.doiBanDau(d, moc0: kho.startBapTay, hien: c?.bapTay ?? So.parseEo(_tay.text)),
+                ),
                 const SizedBox(height: 8),
                 SizedBox(
                   height: 44,
@@ -122,25 +157,7 @@ class _ManGhiChiSoState extends State<ManGhiChiSo> {
                   ),
                 ),
                 const SizedBox(height: 28),
-                if (duSo) ...[
-                  _HangSo(nhan: Chuoi.bmi, giaTri: So.kg(kho.bmiDoc!), phu: kho.bmiNhan),
-                  if (kho.moDoc != null)
-                    _HangSo(nhan: Chuoi.moPhanTram, giaTri: So.kg(kho.moDoc!), phu: Chuoi.uocMo),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 8),
-                    child: Text(Chuoi.mocA, style: TextStyle(fontSize: 13, color: Mau.mo)),
-                  ),
-                  _HangSo(nhan: Chuoi.bmr, giaTri: '${kho.bmrDoc!.round()}'),
-                  _HangSo(nhan: Chuoi.tdee, giaTri: '${kho.tdeeDoc!.round()}', phu: Chuoi.saiSo),
-                  if (kho.kcalGoiYDoc != null)
-                    _HangSo(nhan: Chuoi.kcalGoiY, giaTri: '${kho.kcalGoiYDoc}'),
-                ] else
-                  Text(
-                    kho.thieuCan ? Chuoi.themCan : Chuoi.thieuDuLieu,
-                    style: const TextStyle(fontSize: 15, color: Mau.mo),
-                  ),
-                const SizedBox(height: 12),
-                const Text(Chuoi.uocTinh, style: TextStyle(fontSize: 13, color: Mau.mo, height: 1.35)),
+                _CotSoDo(nhom: kho.nhomSoDo(d)),
               ],
             ),
           ),
@@ -151,12 +168,19 @@ class _ManGhiChiSoState extends State<ManGhiChiSo> {
 }
 
 class _O extends StatelessWidget {
-  const _O({required this.nhan, required this.c, required this.enabled, this.doi});
+  const _O({
+    required this.nhan,
+    required this.c,
+    required this.enabled,
+    this.truoc,
+    this.dau,
+  });
 
   final String nhan;
   final TextEditingController c;
   final bool enabled;
-  final ({double delta, int ngay})? doi;
+  final ({double delta, int ngay})? truoc;
+  final ({double delta, int ngay})? dau;
 
   @override
   Widget build(BuildContext context) {
@@ -173,11 +197,19 @@ class _O extends StatelessWidget {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: const InputDecoration(suffixText: Chuoi.cm),
           ),
-          if (doi != null)
+          if (truoc != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                Chuoi.doiCm(doi!.delta, doi!.ngay),
+                Chuoi.soVoiLanTruocDong(truoc!.delta, truoc!.ngay),
+                style: const TextStyle(fontSize: 13, color: Mau.mo),
+              ),
+            ),
+          if (dau != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                Chuoi.soVoiBanDauDong(dau!.delta, dau!.ngay),
                 style: const TextStyle(fontSize: 13, color: Mau.mo),
               ),
             ),
@@ -187,31 +219,137 @@ class _O extends StatelessWidget {
   }
 }
 
-class _HangSo extends StatelessWidget {
-  const _HangSo({required this.nhan, required this.giaTri, this.phu});
+class _CotSoDo extends StatelessWidget {
+  const _CotSoDo({required this.nhom});
 
-  final String nhan;
-  final String giaTri;
-  final String? phu;
+  final List<({String ten, double? ban, double? moi})> nhom;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Text(nhan, style: const TextStyle(fontSize: 15, color: Mau.mo)),
-          const SizedBox(width: 12),
-          Text(
-            giaTri,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Mau.muc),
-          ),
-          if (phu != null) ...[
-            const SizedBox(width: 8),
-            Expanded(child: Text(phu!, style: const TextStyle(fontSize: 13, color: Mau.mo))),
+    if (nhom.every((n) => n.ban == null && n.moi == null)) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          Chuoi.soDoSoVoiBanDau,
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+        ),
+        const SizedBox(height: 8),
+        const Row(
+          children: [
+            _ChuThich(mau: Mau.mo, chu: Chuoi.banDau),
+            SizedBox(width: 16),
+            _ChuThich(mau: Mau.muc, chu: Chuoi.moiNhat),
           ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          key: const Key('cot-so-do'),
+          height: 132,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final n in nhom)
+                Expanded(child: _NhomCot(nhom: n)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ChuThich extends StatelessWidget {
+  const _ChuThich({required this.mau, required this.chu});
+
+  final Color mau;
+  final String chu;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 8, height: 8, color: mau),
+        const SizedBox(width: 6),
+        Text(chu, style: const TextStyle(fontSize: 12, color: Mau.mo)),
+      ],
+    );
+  }
+}
+
+class _NhomCot extends StatelessWidget {
+  const _NhomCot({required this.nhom});
+
+  final ({String ten, double? ban, double? moi}) nhom;
+
+  Color get _mauMoi {
+    final b = nhom.ban;
+    final m = nhom.moi;
+    if (b == null || m == null) return Mau.muc;
+    if (m < b - 0.05) return Mau.reu;
+    if (m > b + 0.05) return Mau.canhBao;
+    return Mau.muc;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final maxV = math.max(nhom.ban ?? 0, nhom.moi ?? 0);
+    double f(double? v) {
+      if (v == null || maxV <= 0) return 0.06;
+      return math.max(0.06, v / maxV);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        children: [
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: FractionallySizedBox(
+                      heightFactor: f(nhom.ban),
+                      widthFactor: 0.7,
+                      child: const DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Mau.mo,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: FractionallySizedBox(
+                      heightFactor: f(nhom.moi),
+                      widthFactor: 0.7,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: _mauMoi,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            nhom.ten,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 11, color: Mau.mo),
+          ),
         ],
       ),
     );

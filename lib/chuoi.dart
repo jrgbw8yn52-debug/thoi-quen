@@ -134,6 +134,10 @@ abstract final class Chuoi {
   static const chiSo = 'Chỉ số';
   static const xemBaoCao = 'Xem báo cáo';
   static const banDau = 'Ban đầu';
+  static const moiNhat = 'Mới nhất';
+  static const soVoiLanTruoc = 'so với lần trước';
+  static const soVoiBanDau = 'so với ban đầu';
+  static const soDoSoVoiBanDau = 'Số đo · so với ban đầu';
   static const doi = 'Đổi';
   static const phinNgay = 'Ngày';
   static const namNhan = 'Năm';
@@ -296,6 +300,14 @@ abstract final class Chuoi {
     final s = delta > 0.05 ? '+$n' : n;
     return '$s cm · $soNgay ngày';
   }
+
+  static String soVoiLanTruocDong(double delta, int soNgay) =>
+      '$soVoiLanTruoc: ${doiCm(delta, soNgay)}';
+
+  static String soVoiBanDauDong(double delta, int soNgay) =>
+      '$soVoiBanDau: ${doiCm(delta, soNgay)}';
+
+  static String goiYTdee(int goi, int tdee) => 'Gợi ý $goi kcal · TDEE $tdee';
 
   static String napTrenGoi(int nap, int goi) => '$nap / $goi';
 

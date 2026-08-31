@@ -89,6 +89,14 @@ class _ManGhiNapState extends State<ManGhiNap> {
               if (kho.khoaGhi)
                 const Text(Chuoi.chiXem, style: TextStyle(color: Mau.mo, fontSize: 13)),
               const SizedBox(height: 24),
+              if (goi != null && kho.tdeeDoc != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    Chuoi.goiYTdee(goi, kho.tdeeDoc!.round()),
+                    style: const TextStyle(fontSize: 15, color: Mau.mo),
+                  ),
+                ),
               const Text(
                 Chuoi.kcalNapHomNay,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),

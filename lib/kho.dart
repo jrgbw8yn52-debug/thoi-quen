@@ -426,10 +426,20 @@ class Kho extends ChangeNotifier {
     return null;
   }
 
-  ({double delta, int ngay})? doiDo(
+  double? doMoiNhat(DateTime ngay, double? Function(ChiSoIn) lay) {
+    final d0 = Ngay.cat(ngay);
+    for (final c in dsChiSo) {
+      final d = Ngay.parse(c.ngay);
+      if (d.isAfter(d0)) continue;
+      final x = lay(c);
+      if (x != null) return x;
+    }
+    return null;
+  }
+
+  ({double delta, int ngay})? doiLanTruoc(
     DateTime ngay, {
     required double? Function(ChiSoIn) lay,
-    required double? moc0,
     required double? hien,
   }) {
     if (hien == null) return null;
@@ -445,15 +455,29 @@ class Kho extends ChangeNotifier {
       v = x;
       break;
     }
-    final mocD = startDoNgay == null ? null : Ngay.parse(startDoNgay!);
-    if (moc0 != null && mocD != null && mocD.isBefore(d0)) {
-      if (t == null || mocD.isAfter(t)) {
-        t = mocD;
-        v = moc0;
-      }
-    }
     if (t == null || v == null) return null;
     return (delta: hien - v, ngay: d0.difference(t).inDays);
+  }
+
+  ({double delta, int ngay})? doiBanDau(
+    DateTime ngay, {
+    required double? moc0,
+    required double? hien,
+  }) {
+    if (hien == null || moc0 == null || startDoNgay == null) return null;
+    final d0 = Ngay.cat(ngay);
+    final mocD = Ngay.parse(startDoNgay!);
+    if (mocD.isAfter(d0)) return null;
+    return (delta: hien - moc0, ngay: d0.difference(mocD).inDays);
+  }
+
+  List<({String ten, double? ban, double? moi})> nhomSoDo(DateTime ngay) {
+    return [
+      (ten: Chuoi.eoCm, ban: startEo, moi: doMoiNhat(ngay, (c) => c.eo)),
+      (ten: Chuoi.hongCm, ban: startHong, moi: doMoiNhat(ngay, (c) => c.hong)),
+      (ten: Chuoi.ngucCm, ban: startNguc, moi: doMoiNhat(ngay, (c) => c.nguc)),
+      (ten: Chuoi.bapTayCm, ban: startBapTay, moi: doMoiNhat(ngay, (c) => c.bapTay)),
+    ];
   }
 
   String? get dongTaiKhoan {
@@ -1099,16 +1123,6 @@ class Kho extends ChangeNotifier {
     final n = nguc ?? cu?.nguc;
     final t = bapTay ?? cu?.bapTay;
     await db.ghiChiSo(d, eo: e, hong: h, nguc: n, bapTay: t);
-    if (startDoNgay == null &&
-        (e != null || h != null || n != null || t != null)) {
-      await db.suaProfile(
-        startEo: e != null ? Value(e) : const Value.absent(),
-        startHong: h != null ? Value(h) : const Value.absent(),
-        startNguc: n != null ? Value(n) : const Value.absent(),
-        startBapTay: t != null ? Value(t) : const Value.absent(),
-        startDoNgay: Value(Ngay.iso(d)),
-      );
-    }
     await tai();
     return true;
   }
