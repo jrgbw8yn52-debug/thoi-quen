@@ -766,7 +766,10 @@ void main() {
     final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
     await k.tai();
     expect(await k.ghiChiSoNgay(nguc: 110, ngay: DateTime(2026, 8, 25)), isTrue);
+    expect(k.startNguc, 110);
+    expect(k.startDoNgay, '2026-08-25');
     expect(await k.ghiChiSoNgay(nguc: 108, ngay: DateTime(2026, 8, 31)), isTrue);
+    expect(k.startNguc, 110);
     final doi = k.doiDo(
       DateTime(2026, 8, 31),
       lay: (c) => c.nguc,
@@ -777,6 +780,23 @@ void main() {
     expect(doi!.delta, closeTo(-2, 0.01));
     expect(doi.ngay, 6);
     expect(Chuoi.doiCm(doi.delta, doi.ngay), '-2 cm · 6 ngày');
+  });
+
+  testWidgets('chi so man hien -2 cm · 6 ngay', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    await k.ghiChiSoNgay(nguc: 110, ngay: DateTime(2026, 8, 25));
+    await k.ghiChiSoNgay(nguc: 108, ngay: DateTime(2026, 8, 31));
+    await tester.pumpWidget(_app(k));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.chiSo));
+    await tester.pumpAndSettle();
+    expect(find.text('-2 cm · 6 ngày'), findsOneWidget);
   });
 
   testWidgets('nhat ky 3400 do, 3000 xanh, 2300 trang', (tester) async {

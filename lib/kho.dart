@@ -1094,13 +1094,21 @@ class Kho extends ChangeNotifier {
     final d = Ngay.cat(ngay ?? selected);
     if (!Ngay.ghiDuoc(d, homNay)) return false;
     final cu = chiSoCua(d);
-    await db.ghiChiSo(
-      d,
-      eo: eo ?? cu?.eo,
-      hong: hong ?? cu?.hong,
-      nguc: nguc ?? cu?.nguc,
-      bapTay: bapTay ?? cu?.bapTay,
-    );
+    final e = eo ?? cu?.eo;
+    final h = hong ?? cu?.hong;
+    final n = nguc ?? cu?.nguc;
+    final t = bapTay ?? cu?.bapTay;
+    await db.ghiChiSo(d, eo: e, hong: h, nguc: n, bapTay: t);
+    if (startDoNgay == null &&
+        (e != null || h != null || n != null || t != null)) {
+      await db.suaProfile(
+        startEo: e != null ? Value(e) : const Value.absent(),
+        startHong: h != null ? Value(h) : const Value.absent(),
+        startNguc: n != null ? Value(n) : const Value.absent(),
+        startBapTay: t != null ? Value(t) : const Value.absent(),
+        startDoNgay: Value(Ngay.iso(d)),
+      );
+    }
     await tai();
     return true;
   }
