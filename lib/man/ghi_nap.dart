@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../chuoi.dart';
+import '../cong_thuc.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../so.dart';
@@ -23,6 +24,7 @@ class _ManGhiNapState extends State<ManGhiNap> {
     super.initState();
     final n = widget.kho.napCua(widget.kho.selected);
     _so = TextEditingController(text: n == null ? '' : '${n.kcal}');
+    _so.addListener(() => setState(() {}));
   }
 
   @override
@@ -42,6 +44,23 @@ class _ManGhiNapState extends State<ManGhiNap> {
   @override
   Widget build(BuildContext context) {
     final kho = widget.kho;
+    final goi = kho.kcalGoiYDoc;
+    final nap = So.parseKcal(_so.text) ?? kho.napCua(kho.selected)?.kcal;
+    final nhan = nap == null ? null : CongThuc.nhanNap(nap, goi);
+    final mau = switch (nhan) {
+      NhanNap.vuot => Mau.canhBao,
+      NhanNap.dung => Mau.reu,
+      NhanNap.hoiThap => Mau.mo,
+      NhanNap.quaThap => Mau.muc,
+      null => Mau.muc,
+    };
+    final chuNhan = switch (nhan) {
+      NhanNap.vuot => Chuoi.vuotChiTieu,
+      NhanNap.dung => Chuoi.dungChiTieu,
+      NhanNap.hoiThap => Chuoi.hoiThap,
+      NhanNap.quaThap => Chuoi.quaThap,
+      null => null,
+    };
     return Scaffold(
       backgroundColor: Mau.giay,
       body: SafeArea(
@@ -87,6 +106,22 @@ class _ManGhiNapState extends State<ManGhiNap> {
                   hintStyle: TextStyle(color: Mau.vien),
                 ),
               ),
+              const SizedBox(height: 16),
+              if (nap != null && goi != null) ...[
+                Text(
+                  Chuoi.napTrenGoi(nap, goi),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: mau),
+                ),
+                if (chuNhan != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(chuNhan, style: TextStyle(fontSize: 15, color: mau)),
+                  ),
+              ] else if (nap != null)
+                Text(
+                  '$nap',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Mau.muc),
+                ),
               const SizedBox(height: 24),
               SizedBox(
                 height: 44,

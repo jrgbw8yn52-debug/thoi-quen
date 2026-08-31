@@ -1,3 +1,5 @@
+import 'so.dart';
+
 /// Mọi chữ hiện trên UI. Cấm thêm chuỗi Anh (Today/Done/Backup/Restore/Habits/Settings/Goal/Streak).
 abstract final class Chuoi {
   static const tenApp = 'Thói quen';
@@ -114,6 +116,11 @@ abstract final class Chuoi {
   static const kcalNapHomNay = 'Kcal nạp hôm nay';
   static const chuaGhiNap = 'Chưa ghi kcal nạp';
   static const bmiTheoThoiGian = 'BMI theo thời gian';
+  static const soDoBanDau = 'Số đo ban đầu';
+  static const vuotChiTieu = 'Vượt chỉ tiêu';
+  static const dungChiTieu = 'Đúng chỉ tiêu';
+  static const hoiThap = 'Hơi thấp';
+  static const quaThap = 'Quá thấp so với chỉ tiêu';
   static const eoCm = 'Eo';
   static const hongCm = 'Hông';
   static const ngucCm = 'Ngực';
@@ -283,6 +290,14 @@ abstract final class Chuoi {
   }
 
   static String tongHomNay(int n) => 'Tổng hôm nay $n kcal';
+
+  static String doiCm(double delta, int soNgay) {
+    final n = So.kg(delta);
+    final s = delta > 0.05 ? '+$n' : n;
+    return '$s cm · $soNgay ngày';
+  }
+
+  static String napTrenGoi(int nap, int goi) => '$nap / $goi';
 
   static String dongPhien(String mon, int soPhut, int? kcal) {
     if (kcal == null) return '$mon · $soPhut $phut · $thieuDuLieu';

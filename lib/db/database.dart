@@ -64,6 +64,11 @@ class Profiles extends Table {
   TextColumn get tenGoi => text().nullable()();
   RealColumn get nhipKg => real().withDefault(const Constant(0.5))();
   RealColumn get startKg => real().nullable()();
+  RealColumn get startEo => real().nullable()();
+  RealColumn get startHong => real().nullable()();
+  RealColumn get startNguc => real().nullable()();
+  RealColumn get startBapTay => real().nullable()();
+  TextColumn get startDoNgay => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -168,7 +173,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -238,6 +243,13 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
           }
           if (from < 9) {
             await m.createTable(napIns);
+          }
+          if (from < 10) {
+            await m.addColumn(profiles, profiles.startEo);
+            await m.addColumn(profiles, profiles.startHong);
+            await m.addColumn(profiles, profiles.startNguc);
+            await m.addColumn(profiles, profiles.startBapTay);
+            await m.addColumn(profiles, profiles.startDoNgay);
           }
         },
         beforeOpen: (details) async {
@@ -537,6 +549,11 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     Value<String?> tenGoi = const Value.absent(),
     Value<double> nhipKg = const Value.absent(),
     Value<double?> startKg = const Value.absent(),
+    Value<double?> startEo = const Value.absent(),
+    Value<double?> startHong = const Value.absent(),
+    Value<double?> startNguc = const Value.absent(),
+    Value<double?> startBapTay = const Value.absent(),
+    Value<String?> startDoNgay = const Value.absent(),
   }) async {
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       ProfilesCompanion(
@@ -548,6 +565,11 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         tenGoi: tenGoi,
         nhipKg: nhipKg,
         startKg: startKg,
+        startEo: startEo,
+        startHong: startHong,
+        startNguc: startNguc,
+        startBapTay: startBapTay,
+        startDoNgay: startDoNgay,
       ),
     );
   }
@@ -659,6 +681,11 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         tenGoi: Value(null),
         nhipKg: Value(0.5),
         startKg: Value(null),
+        startEo: Value(null),
+        startHong: Value(null),
+        startNguc: Value(null),
+        startBapTay: Value(null),
+        startDoNgay: Value(null),
       ),
     );
   }

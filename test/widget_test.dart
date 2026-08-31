@@ -256,6 +256,9 @@ void main() {
   });
 
   testWidgets('Co the: disclaimer, thieu du lieu, khong bia 70, Nguon', (tester) async {
+    tester.view.physicalSize = const Size(390, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.taiKhoan));
@@ -267,12 +270,12 @@ void main() {
 
     await tester.tap(find.text(Chuoi.thieuDuLieu).first);
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.uocTinh), findsWidgets);
     expect(find.text(Chuoi.itVanDong), findsOneWidget);
     expect(find.text(Chuoi.luuHoSo), findsOneWidget);
     expect(find.text(Chuoi.ghiTrongNgay), findsNothing);
     expect(find.text('70'), findsNothing);
     expect(find.text(Chuoi.bmi), findsNothing);
+    expect(find.text(Chuoi.soDoBanDau), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
@@ -281,6 +284,14 @@ void main() {
     expect(find.text(Chuoi.mifflin), findsOneWidget);
     expect(find.text(Chuoi.whoA), findsOneWidget);
     expect(find.text(Chuoi.heSoKhongMifflin), findsOneWidget);
+    Navigator.of(tester.element(find.text(Chuoi.mifflin))).pop();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.chiSo));
+    await tester.pumpAndSettle();
+    expect(find.text(Chuoi.uocTinh), findsOneWidget);
+    expect(find.text(Chuoi.bmi), findsNothing);
   });
 
   testWidgets('Tien do: cot tuan doi selectedDate, Home theo', (tester) async {
@@ -749,5 +760,55 @@ void main() {
     expect(find.text(Chuoi.chuaGhiNap), findsNothing);
     expect(find.text(Chuoi.kcalTieuThu), findsOneWidget);
     expect(find.text(Chuoi.kcalNap), findsOneWidget);
+  });
+
+  test('25/8 nguc 110, 31/8 nguc 108: -2 cm · 6 ngay', () async {
+    final k = Kho(db, bayGio: DateTime(2026, 8, 31, 8));
+    await k.tai();
+    expect(await k.ghiChiSoNgay(nguc: 110, ngay: DateTime(2026, 8, 25)), isTrue);
+    expect(await k.ghiChiSoNgay(nguc: 108, ngay: DateTime(2026, 8, 31)), isTrue);
+    final doi = k.doiDo(
+      DateTime(2026, 8, 31),
+      lay: (c) => c.nguc,
+      moc0: k.startNguc,
+      hien: 108,
+    );
+    expect(doi, isNotNull);
+    expect(doi!.delta, closeTo(-2, 0.01));
+    expect(doi.ngay, 6);
+    expect(Chuoi.doiCm(doi.delta, doi.ngay), '-2 cm · 6 ngày');
+  });
+
+  testWidgets('nhat ky 3400 do, 3000 xanh, 2300 trang', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    await kho.luuHoSo(
+      ten: 'A',
+      cao: '170',
+      sex: 'nam',
+      dob: DateTime(1996, 1, 1),
+      activity: 1.2,
+      banDau: '70',
+    );
+    await kho.ghiCanKg(70);
+    await kho.luuMucTieu(dich: '70', nhip: 0.5);
+    final goi = kho.kcalGoiYDoc;
+    expect(goi, isNotNull);
+    await tester.pumpWidget(_app(kho));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Chuoi.nhatKy));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('kcal-nap')), '${goi! + 200}');
+    await tester.pump();
+    expect(find.text(Chuoi.vuotChiTieu), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('kcal-nap')), '$goi');
+    await tester.pump();
+    expect(find.text(Chuoi.dungChiTieu), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('kcal-nap')), '${goi - 701}');
+    await tester.pump();
+    expect(find.text(Chuoi.quaThap), findsOneWidget);
   });
 }

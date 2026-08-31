@@ -169,6 +169,14 @@ abstract final class CongThuc {
     return LuaTap(so: streak, sang: gap == 0);
   }
 
+  static NhanNap? nhanNap(int nap, int? goiY) {
+    if (goiY == null) return null;
+    if (nap > goiY) return NhanNap.vuot;
+    if (nap >= goiY - 500) return NhanNap.dung;
+    if (nap >= goiY - 700) return NhanNap.hoiThap;
+    return NhanNap.quaThap;
+  }
+
   /// Tuần còn lại với nhịp đã chọn.
   static String? nhipDong(double? kg, double? target, double nhip) {
     if (kg == null || target == null) return null;
@@ -195,3 +203,5 @@ class LuaTap {
   final int so;
   final bool sang;
 }
+
+enum NhanNap { vuot, dung, hoiThap, quaThap }

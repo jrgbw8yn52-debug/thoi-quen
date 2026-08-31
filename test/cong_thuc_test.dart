@@ -83,6 +83,16 @@ void main() {
     expect(So.heSo(1.9), '1,9');
   });
 
+  test('nhan nap nguong khoa', () {
+    expect(CongThuc.nhanNap(3400, 3200), NhanNap.vuot);
+    expect(CongThuc.nhanNap(3000, 3200), NhanNap.dung);
+    expect(CongThuc.nhanNap(2700, 3200), NhanNap.dung);
+    expect(CongThuc.nhanNap(2699, 3200), NhanNap.hoiThap);
+    expect(CongThuc.nhanNap(2500, 3200), NhanNap.hoiThap);
+    expect(CongThuc.nhanNap(2300, 3200), NhanNap.quaThap);
+    expect(CongThuc.nhanNap(1800, null), isNull);
+  });
+
   test('lua tap: gap 0 sang, bo 1-2 giu so, gap 3 luu noi', () {
     final hom = DateTime(2026, 8, 31);
     final truoc = [

@@ -994,6 +994,61 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _startEoMeta = const VerificationMeta(
+    'startEo',
+  );
+  @override
+  late final GeneratedColumn<double> startEo = GeneratedColumn<double>(
+    'start_eo',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startHongMeta = const VerificationMeta(
+    'startHong',
+  );
+  @override
+  late final GeneratedColumn<double> startHong = GeneratedColumn<double>(
+    'start_hong',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startNgucMeta = const VerificationMeta(
+    'startNguc',
+  );
+  @override
+  late final GeneratedColumn<double> startNguc = GeneratedColumn<double>(
+    'start_nguc',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startBapTayMeta = const VerificationMeta(
+    'startBapTay',
+  );
+  @override
+  late final GeneratedColumn<double> startBapTay = GeneratedColumn<double>(
+    'start_bap_tay',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startDoNgayMeta = const VerificationMeta(
+    'startDoNgay',
+  );
+  @override
+  late final GeneratedColumn<String> startDoNgay = GeneratedColumn<String>(
+    'start_do_ngay',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1005,6 +1060,11 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     tenGoi,
     nhipKg,
     startKg,
+    startEo,
+    startHong,
+    startNguc,
+    startBapTay,
+    startDoNgay,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1069,6 +1129,42 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         startKg.isAcceptableOrUnknown(data['start_kg']!, _startKgMeta),
       );
     }
+    if (data.containsKey('start_eo')) {
+      context.handle(
+        _startEoMeta,
+        startEo.isAcceptableOrUnknown(data['start_eo']!, _startEoMeta),
+      );
+    }
+    if (data.containsKey('start_hong')) {
+      context.handle(
+        _startHongMeta,
+        startHong.isAcceptableOrUnknown(data['start_hong']!, _startHongMeta),
+      );
+    }
+    if (data.containsKey('start_nguc')) {
+      context.handle(
+        _startNgucMeta,
+        startNguc.isAcceptableOrUnknown(data['start_nguc']!, _startNgucMeta),
+      );
+    }
+    if (data.containsKey('start_bap_tay')) {
+      context.handle(
+        _startBapTayMeta,
+        startBapTay.isAcceptableOrUnknown(
+          data['start_bap_tay']!,
+          _startBapTayMeta,
+        ),
+      );
+    }
+    if (data.containsKey('start_do_ngay')) {
+      context.handle(
+        _startDoNgayMeta,
+        startDoNgay.isAcceptableOrUnknown(
+          data['start_do_ngay']!,
+          _startDoNgayMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1114,6 +1210,26 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         DriftSqlType.double,
         data['${effectivePrefix}start_kg'],
       ),
+      startEo: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}start_eo'],
+      ),
+      startHong: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}start_hong'],
+      ),
+      startNguc: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}start_nguc'],
+      ),
+      startBapTay: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}start_bap_tay'],
+      ),
+      startDoNgay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}start_do_ngay'],
+      ),
     );
   }
 
@@ -1133,6 +1249,11 @@ class Profile extends DataClass implements Insertable<Profile> {
   final String? tenGoi;
   final double nhipKg;
   final double? startKg;
+  final double? startEo;
+  final double? startHong;
+  final double? startNguc;
+  final double? startBapTay;
+  final String? startDoNgay;
   const Profile({
     required this.id,
     this.sex,
@@ -1143,6 +1264,11 @@ class Profile extends DataClass implements Insertable<Profile> {
     this.tenGoi,
     required this.nhipKg,
     this.startKg,
+    this.startEo,
+    this.startHong,
+    this.startNguc,
+    this.startBapTay,
+    this.startDoNgay,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1168,6 +1294,21 @@ class Profile extends DataClass implements Insertable<Profile> {
     if (!nullToAbsent || startKg != null) {
       map['start_kg'] = Variable<double>(startKg);
     }
+    if (!nullToAbsent || startEo != null) {
+      map['start_eo'] = Variable<double>(startEo);
+    }
+    if (!nullToAbsent || startHong != null) {
+      map['start_hong'] = Variable<double>(startHong);
+    }
+    if (!nullToAbsent || startNguc != null) {
+      map['start_nguc'] = Variable<double>(startNguc);
+    }
+    if (!nullToAbsent || startBapTay != null) {
+      map['start_bap_tay'] = Variable<double>(startBapTay);
+    }
+    if (!nullToAbsent || startDoNgay != null) {
+      map['start_do_ngay'] = Variable<String>(startDoNgay);
+    }
     return map;
   }
 
@@ -1190,6 +1331,21 @@ class Profile extends DataClass implements Insertable<Profile> {
       startKg: startKg == null && nullToAbsent
           ? const Value.absent()
           : Value(startKg),
+      startEo: startEo == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startEo),
+      startHong: startHong == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startHong),
+      startNguc: startNguc == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startNguc),
+      startBapTay: startBapTay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startBapTay),
+      startDoNgay: startDoNgay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startDoNgay),
     );
   }
 
@@ -1208,6 +1364,11 @@ class Profile extends DataClass implements Insertable<Profile> {
       tenGoi: serializer.fromJson<String?>(json['tenGoi']),
       nhipKg: serializer.fromJson<double>(json['nhipKg']),
       startKg: serializer.fromJson<double?>(json['startKg']),
+      startEo: serializer.fromJson<double?>(json['startEo']),
+      startHong: serializer.fromJson<double?>(json['startHong']),
+      startNguc: serializer.fromJson<double?>(json['startNguc']),
+      startBapTay: serializer.fromJson<double?>(json['startBapTay']),
+      startDoNgay: serializer.fromJson<String?>(json['startDoNgay']),
     );
   }
   @override
@@ -1223,6 +1384,11 @@ class Profile extends DataClass implements Insertable<Profile> {
       'tenGoi': serializer.toJson<String?>(tenGoi),
       'nhipKg': serializer.toJson<double>(nhipKg),
       'startKg': serializer.toJson<double?>(startKg),
+      'startEo': serializer.toJson<double?>(startEo),
+      'startHong': serializer.toJson<double?>(startHong),
+      'startNguc': serializer.toJson<double?>(startNguc),
+      'startBapTay': serializer.toJson<double?>(startBapTay),
+      'startDoNgay': serializer.toJson<String?>(startDoNgay),
     };
   }
 
@@ -1236,6 +1402,11 @@ class Profile extends DataClass implements Insertable<Profile> {
     Value<String?> tenGoi = const Value.absent(),
     double? nhipKg,
     Value<double?> startKg = const Value.absent(),
+    Value<double?> startEo = const Value.absent(),
+    Value<double?> startHong = const Value.absent(),
+    Value<double?> startNguc = const Value.absent(),
+    Value<double?> startBapTay = const Value.absent(),
+    Value<String?> startDoNgay = const Value.absent(),
   }) => Profile(
     id: id ?? this.id,
     sex: sex.present ? sex.value : this.sex,
@@ -1246,6 +1417,11 @@ class Profile extends DataClass implements Insertable<Profile> {
     tenGoi: tenGoi.present ? tenGoi.value : this.tenGoi,
     nhipKg: nhipKg ?? this.nhipKg,
     startKg: startKg.present ? startKg.value : this.startKg,
+    startEo: startEo.present ? startEo.value : this.startEo,
+    startHong: startHong.present ? startHong.value : this.startHong,
+    startNguc: startNguc.present ? startNguc.value : this.startNguc,
+    startBapTay: startBapTay.present ? startBapTay.value : this.startBapTay,
+    startDoNgay: startDoNgay.present ? startDoNgay.value : this.startDoNgay,
   );
   Profile copyWithCompanion(ProfilesCompanion data) {
     return Profile(
@@ -1258,6 +1434,15 @@ class Profile extends DataClass implements Insertable<Profile> {
       tenGoi: data.tenGoi.present ? data.tenGoi.value : this.tenGoi,
       nhipKg: data.nhipKg.present ? data.nhipKg.value : this.nhipKg,
       startKg: data.startKg.present ? data.startKg.value : this.startKg,
+      startEo: data.startEo.present ? data.startEo.value : this.startEo,
+      startHong: data.startHong.present ? data.startHong.value : this.startHong,
+      startNguc: data.startNguc.present ? data.startNguc.value : this.startNguc,
+      startBapTay: data.startBapTay.present
+          ? data.startBapTay.value
+          : this.startBapTay,
+      startDoNgay: data.startDoNgay.present
+          ? data.startDoNgay.value
+          : this.startDoNgay,
     );
   }
 
@@ -1272,7 +1457,12 @@ class Profile extends DataClass implements Insertable<Profile> {
           ..write('targetKg: $targetKg, ')
           ..write('tenGoi: $tenGoi, ')
           ..write('nhipKg: $nhipKg, ')
-          ..write('startKg: $startKg')
+          ..write('startKg: $startKg, ')
+          ..write('startEo: $startEo, ')
+          ..write('startHong: $startHong, ')
+          ..write('startNguc: $startNguc, ')
+          ..write('startBapTay: $startBapTay, ')
+          ..write('startDoNgay: $startDoNgay')
           ..write(')'))
         .toString();
   }
@@ -1288,6 +1478,11 @@ class Profile extends DataClass implements Insertable<Profile> {
     tenGoi,
     nhipKg,
     startKg,
+    startEo,
+    startHong,
+    startNguc,
+    startBapTay,
+    startDoNgay,
   );
   @override
   bool operator ==(Object other) =>
@@ -1301,7 +1496,12 @@ class Profile extends DataClass implements Insertable<Profile> {
           other.targetKg == this.targetKg &&
           other.tenGoi == this.tenGoi &&
           other.nhipKg == this.nhipKg &&
-          other.startKg == this.startKg);
+          other.startKg == this.startKg &&
+          other.startEo == this.startEo &&
+          other.startHong == this.startHong &&
+          other.startNguc == this.startNguc &&
+          other.startBapTay == this.startBapTay &&
+          other.startDoNgay == this.startDoNgay);
 }
 
 class ProfilesCompanion extends UpdateCompanion<Profile> {
@@ -1314,6 +1514,11 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   final Value<String?> tenGoi;
   final Value<double> nhipKg;
   final Value<double?> startKg;
+  final Value<double?> startEo;
+  final Value<double?> startHong;
+  final Value<double?> startNguc;
+  final Value<double?> startBapTay;
+  final Value<String?> startDoNgay;
   const ProfilesCompanion({
     this.id = const Value.absent(),
     this.sex = const Value.absent(),
@@ -1324,6 +1529,11 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     this.tenGoi = const Value.absent(),
     this.nhipKg = const Value.absent(),
     this.startKg = const Value.absent(),
+    this.startEo = const Value.absent(),
+    this.startHong = const Value.absent(),
+    this.startNguc = const Value.absent(),
+    this.startBapTay = const Value.absent(),
+    this.startDoNgay = const Value.absent(),
   });
   ProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -1335,6 +1545,11 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     this.tenGoi = const Value.absent(),
     this.nhipKg = const Value.absent(),
     this.startKg = const Value.absent(),
+    this.startEo = const Value.absent(),
+    this.startHong = const Value.absent(),
+    this.startNguc = const Value.absent(),
+    this.startBapTay = const Value.absent(),
+    this.startDoNgay = const Value.absent(),
   });
   static Insertable<Profile> custom({
     Expression<int>? id,
@@ -1346,6 +1561,11 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Expression<String>? tenGoi,
     Expression<double>? nhipKg,
     Expression<double>? startKg,
+    Expression<double>? startEo,
+    Expression<double>? startHong,
+    Expression<double>? startNguc,
+    Expression<double>? startBapTay,
+    Expression<String>? startDoNgay,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1357,6 +1577,11 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       if (tenGoi != null) 'ten_goi': tenGoi,
       if (nhipKg != null) 'nhip_kg': nhipKg,
       if (startKg != null) 'start_kg': startKg,
+      if (startEo != null) 'start_eo': startEo,
+      if (startHong != null) 'start_hong': startHong,
+      if (startNguc != null) 'start_nguc': startNguc,
+      if (startBapTay != null) 'start_bap_tay': startBapTay,
+      if (startDoNgay != null) 'start_do_ngay': startDoNgay,
     });
   }
 
@@ -1370,6 +1595,11 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Value<String?>? tenGoi,
     Value<double>? nhipKg,
     Value<double?>? startKg,
+    Value<double?>? startEo,
+    Value<double?>? startHong,
+    Value<double?>? startNguc,
+    Value<double?>? startBapTay,
+    Value<String?>? startDoNgay,
   }) {
     return ProfilesCompanion(
       id: id ?? this.id,
@@ -1381,6 +1611,11 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       tenGoi: tenGoi ?? this.tenGoi,
       nhipKg: nhipKg ?? this.nhipKg,
       startKg: startKg ?? this.startKg,
+      startEo: startEo ?? this.startEo,
+      startHong: startHong ?? this.startHong,
+      startNguc: startNguc ?? this.startNguc,
+      startBapTay: startBapTay ?? this.startBapTay,
+      startDoNgay: startDoNgay ?? this.startDoNgay,
     );
   }
 
@@ -1414,6 +1649,21 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     if (startKg.present) {
       map['start_kg'] = Variable<double>(startKg.value);
     }
+    if (startEo.present) {
+      map['start_eo'] = Variable<double>(startEo.value);
+    }
+    if (startHong.present) {
+      map['start_hong'] = Variable<double>(startHong.value);
+    }
+    if (startNguc.present) {
+      map['start_nguc'] = Variable<double>(startNguc.value);
+    }
+    if (startBapTay.present) {
+      map['start_bap_tay'] = Variable<double>(startBapTay.value);
+    }
+    if (startDoNgay.present) {
+      map['start_do_ngay'] = Variable<String>(startDoNgay.value);
+    }
     return map;
   }
 
@@ -1428,7 +1678,12 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
           ..write('targetKg: $targetKg, ')
           ..write('tenGoi: $tenGoi, ')
           ..write('nhipKg: $nhipKg, ')
-          ..write('startKg: $startKg')
+          ..write('startKg: $startKg, ')
+          ..write('startEo: $startEo, ')
+          ..write('startHong: $startHong, ')
+          ..write('startNguc: $startNguc, ')
+          ..write('startBapTay: $startBapTay, ')
+          ..write('startDoNgay: $startDoNgay')
           ..write(')'))
         .toString();
   }
@@ -4197,6 +4452,11 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<String?> tenGoi,
   Value<double> nhipKg,
   Value<double?> startKg,
+  Value<double?> startEo,
+  Value<double?> startHong,
+  Value<double?> startNguc,
+  Value<double?> startBapTay,
+  Value<String?> startDoNgay,
 });
 typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<int> id,
@@ -4208,6 +4468,11 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<String?> tenGoi,
   Value<double> nhipKg,
   Value<double?> startKg,
+  Value<double?> startEo,
+  Value<double?> startHong,
+  Value<double?> startNguc,
+  Value<double?> startBapTay,
+  Value<String?> startDoNgay,
 });
 
 class $$ProfilesTableFilterComposer
@@ -4261,6 +4526,31 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<double> get startKg => $composableBuilder(
     column: $table.startKg,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get startEo => $composableBuilder(
+    column: $table.startEo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get startHong => $composableBuilder(
+    column: $table.startHong,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get startNguc => $composableBuilder(
+    column: $table.startNguc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get startBapTay => $composableBuilder(
+    column: $table.startBapTay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get startDoNgay => $composableBuilder(
+    column: $table.startDoNgay,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -4318,6 +4608,31 @@ class $$ProfilesTableOrderingComposer
     column: $table.startKg,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get startEo => $composableBuilder(
+    column: $table.startEo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get startHong => $composableBuilder(
+    column: $table.startHong,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get startNguc => $composableBuilder(
+    column: $table.startNguc,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get startBapTay => $composableBuilder(
+    column: $table.startBapTay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get startDoNgay => $composableBuilder(
+    column: $table.startDoNgay,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProfilesTableAnnotationComposer
@@ -4355,6 +4670,25 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<double> get startKg =>
       $composableBuilder(column: $table.startKg, builder: (column) => column);
+
+  GeneratedColumn<double> get startEo =>
+      $composableBuilder(column: $table.startEo, builder: (column) => column);
+
+  GeneratedColumn<double> get startHong =>
+      $composableBuilder(column: $table.startHong, builder: (column) => column);
+
+  GeneratedColumn<double> get startNguc =>
+      $composableBuilder(column: $table.startNguc, builder: (column) => column);
+
+  GeneratedColumn<double> get startBapTay => $composableBuilder(
+    column: $table.startBapTay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get startDoNgay => $composableBuilder(
+    column: $table.startDoNgay,
+    builder: (column) => column,
+  );
 }
 
 class $$ProfilesTableTableManager
@@ -4394,6 +4728,11 @@ class $$ProfilesTableTableManager
                 Value<String?> tenGoi = const Value.absent(),
                 Value<double> nhipKg = const Value.absent(),
                 Value<double?> startKg = const Value.absent(),
+                Value<double?> startEo = const Value.absent(),
+                Value<double?> startHong = const Value.absent(),
+                Value<double?> startNguc = const Value.absent(),
+                Value<double?> startBapTay = const Value.absent(),
+                Value<String?> startDoNgay = const Value.absent(),
               }) => ProfilesCompanion(
                 id: id,
                 sex: sex,
@@ -4404,6 +4743,11 @@ class $$ProfilesTableTableManager
                 tenGoi: tenGoi,
                 nhipKg: nhipKg,
                 startKg: startKg,
+                startEo: startEo,
+                startHong: startHong,
+                startNguc: startNguc,
+                startBapTay: startBapTay,
+                startDoNgay: startDoNgay,
               ),
           createCompanionCallback:
               ({
@@ -4416,6 +4760,11 @@ class $$ProfilesTableTableManager
                 Value<String?> tenGoi = const Value.absent(),
                 Value<double> nhipKg = const Value.absent(),
                 Value<double?> startKg = const Value.absent(),
+                Value<double?> startEo = const Value.absent(),
+                Value<double?> startHong = const Value.absent(),
+                Value<double?> startNguc = const Value.absent(),
+                Value<double?> startBapTay = const Value.absent(),
+                Value<String?> startDoNgay = const Value.absent(),
               }) => ProfilesCompanion.insert(
                 id: id,
                 sex: sex,
@@ -4426,6 +4775,11 @@ class $$ProfilesTableTableManager
                 tenGoi: tenGoi,
                 nhipKg: nhipKg,
                 startKg: startKg,
+                startEo: startEo,
+                startHong: startHong,
+                startNguc: startNguc,
+                startBapTay: startBapTay,
+                startDoNgay: startDoNgay,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

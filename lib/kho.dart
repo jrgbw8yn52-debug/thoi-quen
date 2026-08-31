@@ -101,6 +101,11 @@ class Kho extends ChangeNotifier {
   WeighIn? canMoi;
   double? targetKg;
   double? startKg;
+  double? startEo;
+  double? startHong;
+  double? startNguc;
+  double? startBapTay;
+  String? startDoNgay;
   String? sex;
   double? heightCm;
   String? dob;
@@ -421,6 +426,36 @@ class Kho extends ChangeNotifier {
     return null;
   }
 
+  ({double delta, int ngay})? doiDo(
+    DateTime ngay, {
+    required double? Function(ChiSoIn) lay,
+    required double? moc0,
+    required double? hien,
+  }) {
+    if (hien == null) return null;
+    final d0 = Ngay.cat(ngay);
+    DateTime? t;
+    double? v;
+    for (final c in dsChiSo) {
+      final d = Ngay.parse(c.ngay);
+      if (!d.isBefore(d0)) continue;
+      final x = lay(c);
+      if (x == null) continue;
+      t = d;
+      v = x;
+      break;
+    }
+    final mocD = startDoNgay == null ? null : Ngay.parse(startDoNgay!);
+    if (moc0 != null && mocD != null && mocD.isBefore(d0)) {
+      if (t == null || mocD.isAfter(t)) {
+        t = mocD;
+        v = moc0;
+      }
+    }
+    if (t == null || v == null) return null;
+    return (delta: hien - v, ngay: d0.difference(t).inDays);
+  }
+
   String? get dongTaiKhoan {
     final t = CongThuc.tuoi(dob, homNay);
     final kg = canMoi?.kg;
@@ -676,6 +711,11 @@ class Kho extends ChangeNotifier {
     tenGoi = p.tenGoi;
     nhipKg = p.nhipKg;
     startKg = p.startKg;
+    startEo = p.startEo;
+    startHong = p.startHong;
+    startNguc = p.startNguc;
+    startBapTay = p.startBapTay;
+    startDoNgay = p.startDoNgay;
     dsCan = await db.dsCan();
     canMoi = dsCan.isEmpty ? null : dsCan.first;
     dsEo = await db.dsEo();
@@ -998,9 +1038,18 @@ class Kho extends ChangeNotifier {
     required DateTime? dob,
     required double activity,
     String? banDau,
+    String? eo0,
+    String? hong0,
+    String? nguc0,
+    String? tay0,
   }) async {
     if (!CongThuc.heSo.contains(activity)) return false;
     final kg = So.parseKg(banDau ?? '');
+    final eo = So.parseEo(eo0 ?? '');
+    final hong = So.parseEo(hong0 ?? '');
+    final nguc = So.parseEo(nguc0 ?? '');
+    final tay = So.parseEo(tay0 ?? '');
+    final coMoc = eo != null || hong != null || nguc != null || tay != null;
     await db.suaProfile(
       tenGoi: Value(ten.trim().isEmpty ? null : ten.trim()),
       heightCm: Value(So.parseCm(cao) ?? heightCm),
@@ -1008,6 +1057,11 @@ class Kho extends ChangeNotifier {
       dob: Value(dob == null ? null : Ngay.iso(dob)),
       activity: Value(activity),
       startKg: kg != null ? Value(kg) : const Value.absent(),
+      startEo: eo != null ? Value(eo) : const Value.absent(),
+      startHong: hong != null ? Value(hong) : const Value.absent(),
+      startNguc: nguc != null ? Value(nguc) : const Value.absent(),
+      startBapTay: tay != null ? Value(tay) : const Value.absent(),
+      startDoNgay: coMoc ? Value(Ngay.iso(homNay)) : const Value.absent(),
     );
     if (kg != null && (startKg == null || (startKg! - kg).abs() >= 0.05)) {
       await db.ghiMoc(loai: AppDatabase.loaiBanDau, ngay: homNay, kg: kg);
@@ -1035,14 +1089,17 @@ class Kho extends ChangeNotifier {
     double? hong,
     double? nguc,
     double? bapTay,
+    DateTime? ngay,
   }) async {
-    if (khoaGhi) return false;
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    final cu = chiSoCua(d);
     await db.ghiChiSo(
-      selected,
-      eo: eo,
-      hong: hong,
-      nguc: nguc,
-      bapTay: bapTay,
+      d,
+      eo: eo ?? cu?.eo,
+      hong: hong ?? cu?.hong,
+      nguc: nguc ?? cu?.nguc,
+      bapTay: bapTay ?? cu?.bapTay,
     );
     await tai();
     return true;
