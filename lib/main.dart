@@ -10,9 +10,10 @@ import 'vo_app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Nhac.khoiTao();
   final db = AppDatabase();
-  final kho = Kho(db)..tai();
+  final kho = Kho(db);
+  Nhac.khoiTao(bam: kho.moTuNoti);
+  kho.tai().then((_) => Nhac.xuLyLanMo());
   runApp(ThoiQuenApp(kho: kho));
 }
 

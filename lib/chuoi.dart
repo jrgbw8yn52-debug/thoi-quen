@@ -33,6 +33,7 @@ abstract final class Chuoi {
   static const xoa = 'Xoá';
   static const daCoThoiQuen = 'Đã có thói quen này.';
   static const xoaKhoiMay = 'Xoá khỏi máy này? Không lấy lại được.';
+  static const xoaHetMay = 'Xoá hết dữ liệu trên máy này? Không lấy lại được.';
   static const xoaKhoiNgay = 'Xóa khỏi ngày đang xem';
   static const xoaKhoiTuanSau = 'Xóa khỏi tuần tiếp theo';
   static const xoaKhoiThangSau = 'Xóa khỏi tháng tiếp theo';

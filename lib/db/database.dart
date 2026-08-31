@@ -821,7 +821,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     );
   }
 
-  static const tenBanSao = 'thoi-quen-ban-sao.sqlite';
+  static const tenBanSao = 'habit.sqlite';
 
   static const _bangBanSao = <String>[
     'habits',

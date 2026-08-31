@@ -170,6 +170,47 @@ void main() {
     expect(kho.hang.single.ticked, isFalse);
   });
 
+  test('xuat habit.sqlite, khoi phuc ticks, huy xoa giu data', () async {
+    expect(AppDatabase.tenBanSao, 'habit.sqlite');
+    final kho = Kho(db, bayGio: DateTime(2026, 8, 30, 13));
+    addTearDown(kho.dispose);
+    await kho.tai();
+    await kho.themPreset(ten: 'Dậy 6 giờ');
+    expect(kho.hang.single.ticked, isTrue);
+
+    final dir = await Directory.systemTemp.createTemp('tq-xuat');
+    addTearDown(() => dir.delete(recursive: true));
+    final f = await kho.vietFileXuat(vao: dir);
+    expect(f.uri.pathSegments.last, 'habit.sqlite');
+    expect(await db.laSqlite(f.path), isTrue);
+
+    final apk = AppDatabase(NativeDatabase.memory());
+    addTearDown(apk.close);
+    final k2 = Kho(apk, bayGio: DateTime(2026, 8, 30, 13));
+    addTearDown(k2.dispose);
+    await k2.tai();
+    expect(k2.hang, isEmpty);
+    expect(await k2.khoiPhucTuFile(f.path), isTrue);
+    expect(k2.hang.single.habit.ten, 'Dậy 6 giờ');
+    expect(k2.hang.single.ticked, isTrue);
+
+    final n = k2.dsHien.length;
+    // Huỷ = không gọi xoaDuLieu
+    expect(k2.dsHien.length, n);
+  });
+
+  test('moTuNoti ve Home dung weekday noti', () async {
+    final kho = Kho(db, bayGio: DateTime(2026, 8, 30, 13));
+    addTearDown(kho.dispose);
+    await kho.tai();
+    kho.chonTab(2);
+    kho.moTuNoti('7');
+    expect(kho.tab, 0);
+    expect(kho.selected, DateTime(2026, 8, 30));
+    kho.moTuNoti('1');
+    expect(kho.selected, DateTime(2026, 8, 24));
+  });
+
   test('apk trong khoi phuc file iOS: tick va mon con', () async {
     final tmp = await Directory.systemTemp.createTemp('tq-bs');
     addTearDown(() => tmp.delete(recursive: true));

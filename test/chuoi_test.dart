@@ -35,5 +35,7 @@ void main() {
     expect(Chuoi.danhGia(5, 10), Chuoi.kha);
     expect(Chuoi.danhGia(4, 10), Chuoi.te);
     expect(Chuoi.hoanThanhThoiQuen(1, 3), 'Hoàn thành 1/3 thói quen');
+    expect(Chuoi.thayToanBo, 'Thay toàn bộ dữ liệu trên máy này. Không gộp.');
+    expect(Chuoi.xoaHetMay, 'Xoá hết dữ liệu trên máy này? Không lấy lại được.');
   });
 }

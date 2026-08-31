@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'chuoi.dart';
 import 'cong_thuc.dart';
@@ -1041,6 +1042,21 @@ class Kho extends ChangeNotifier {
     tabBan.ban();
   }
 
+  /// Tap noti → Home, selectedDate = ngày noti (weekday gần nhất ≤ homNay).
+  void moTuNoti(String payload) {
+    final thu = int.tryParse(payload.split('|').last);
+    if (thu == null || thu < 1 || thu > 7) return;
+    var d = homNay;
+    while (d.weekday != thu) {
+      d = d.subtract(const Duration(days: 1));
+    }
+    selected = d;
+    tab = 0;
+    _dongBoHangVaTuan();
+    homeBan.ban();
+    tabBan.ban();
+  }
+
   void chonPhin(int i) {
     phin = i;
     tienDoBan.ban();
@@ -1391,19 +1407,37 @@ class Kho extends ChangeNotifier {
     await tai();
   }
 
+  Future<File> vietFileXuat({Directory? vao}) async {
+    final dir = vao ?? await getTemporaryDirectory();
+    final f = File('${dir.path}/${AppDatabase.tenBanSao}');
+    await db.xuatVao(f.path);
+    return f;
+  }
+
+  /// iOS: Share sheet (Files / Desktop). Android: SAF. Không chỉ SnackBar.
   Future<bool> xuatBanSao() async {
-    final dir = await getTemporaryDirectory();
-    final tmp = File('${dir.path}/${AppDatabase.tenBanSao}');
-    await db.xuatVao(tmp.path);
-    final bytes = await tmp.readAsBytes();
+    final f = await vietFileXuat();
+    if (Platform.isIOS) {
+      final r = await Share.shareXFiles(
+        [
+          XFile(
+            f.path,
+            name: AppDatabase.tenBanSao,
+            mimeType: 'application/octet-stream',
+          ),
+        ],
+        fileNameOverrides: [AppDatabase.tenBanSao],
+      );
+      if (r.status != ShareResultStatus.unavailable) {
+        return r.status == ShareResultStatus.success;
+      }
+    }
+    final bytes = await f.readAsBytes();
     final saved = await FilePicker.platform.saveFile(
       dialogTitle: Chuoi.xuatBanSao,
       fileName: AppDatabase.tenBanSao,
       bytes: bytes,
     );
-    try {
-      await tmp.delete();
-    } catch (_) {}
     return saved != null;
   }
 
@@ -1414,13 +1448,14 @@ class Kho extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> khoiPhucBanSao() async {
+  /// Chọn file. Huỷ picker = null, không đụng DB.
+  Future<String?> chonFileKhoiPhuc() async {
     final r = await FilePicker.platform.pickFiles(
       dialogTitle: Chuoi.khoiPhuc,
       type: FileType.any,
       withData: true,
     );
-    if (r == null || r.files.isEmpty) return false;
+    if (r == null || r.files.isEmpty) return null;
     final f = r.files.single;
     final dir = await getTemporaryDirectory();
     final tmp = File('${dir.path}/khoi-phuc.sqlite');
@@ -1429,13 +1464,16 @@ class Kho extends ChangeNotifier {
     } else if (f.path != null) {
       await File(f.path!).copy(tmp.path);
     } else {
-      return false;
+      return null;
     }
-    final ok = await khoiPhucTuFile(tmp.path);
-    try {
-      await tmp.delete();
-    } catch (_) {}
-    return ok;
+    if (!await db.laSqlite(tmp.path)) return null;
+    return tmp.path;
+  }
+
+  Future<bool> khoiPhucBanSao() async {
+    final path = await chonFileKhoiPhuc();
+    if (path == null) return false;
+    return khoiPhucTuFile(path);
   }
 
   Future<void> xoaDuLieu() async {

@@ -59,25 +59,32 @@ class _ManTaiKhoanState extends State<ManTaiKhoan> {
   }
 
   Future<void> _xuat() async {
-    final duoc = await kho.xuatBanSao();
-    if (!mounted || !duoc) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(Chuoi.daXuat)),
-    );
+    await kho.xuatBanSao();
   }
 
   Future<void> _khoiPhuc() async {
-    final ok = await _hoi(Chuoi.khoiPhuc, '${Chuoi.thayToanBo}\n${Chuoi.haiMayLech}');
+    final path = await kho.chonFileKhoiPhuc();
+    if (path == null || !mounted) return;
+    final ok = await _hoi(
+      Chuoi.khoiPhuc,
+      Chuoi.thayToanBo,
+      xacNhan: Chuoi.khoiPhuc,
+    );
     if (ok != true) return;
-    final duoc = await kho.khoiPhucBanSao();
+    final duoc = await kho.khoiPhucTuFile(path);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(duoc ? Chuoi.daKhoiPhuc : Chuoi.khongCoBanSao)),
+      SnackBar(content: Text(duoc ? Chuoi.daKhoiPhuc : Chuoi.fileKhongPhaiBanSao)),
     );
   }
 
   Future<void> _xoa() async {
-    final ok = await _hoi(Chuoi.xoaDuLieu, Chuoi.xoaKhoiMay);
+    final ok = await _hoi(
+      Chuoi.xoaDuLieu,
+      Chuoi.xoaHetMay,
+      xacNhan: Chuoi.xoa,
+      mauXacNhan: Mau.canhBao,
+    );
     if (ok != true) return;
     await kho.xoaDuLieu();
   }
@@ -116,15 +123,26 @@ class _ManTaiKhoanState extends State<ManTaiKhoan> {
     );
   }
 
-  Future<bool?> _hoi(String tieu, String than) {
+  Future<bool?> _hoi(
+    String tieu,
+    String than, {
+    required String xacNhan,
+    Color? mauXacNhan,
+  }) {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(tieu),
         content: Text(than),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text(Chuoi.huy)),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tieu)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(Chuoi.huy),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(xacNhan, style: TextStyle(color: mauXacNhan)),
+          ),
         ],
       ),
     );
