@@ -128,7 +128,10 @@ abstract final class Chuoi {
   static const danChuGrok = 'Dán chữ Grok';
   static const khoiLuongG = 'Khối lượng (g)';
   static const tinhVaoThucDon = 'Tính vào thực đơn ngày này';
-  static const chiLuuKho = 'Chỉ lưu vào kho';
+  static const chiLuuKho = 'Chỉ lưu kho';
+  static const dam = 'Đạm';
+  static const bot = 'Bột';
+  static const beo = 'Béo';
   static const eoCm = 'Eo';
   static const hongCm = 'Hông';
   static const ngucCm = 'Ngực';
@@ -329,6 +332,9 @@ abstract final class Chuoi {
     if (g == null) return '$ten · $kcal';
     return '$ten · ${So.kg(g)} g · $kcal';
   }
+
+  static String damBotBeo(double dam, double bot, double beo) =>
+      'Đạm ${So.kg(dam)} · Bột ${So.kg(bot)} · Béo ${So.kg(beo)}';
 
   static String napTrenGoi(int nap, int goi) => '$nap / $goi';
 

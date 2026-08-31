@@ -102,6 +102,33 @@ void main() {
     expect(CongThuc.docKcal('450,5 kcal'), 451);
   });
 
+  test('doc mon uu tien MON KCAL DAM BOT BEO, khong bia', () {
+    const van = '''
+MON: Bò lúc lắc
+KHOI_LUONG: 250
+KCAL: 520
+DAM: 40
+BOT: 12
+BEO: 28
+''';
+    final d = CongThuc.docMon(van);
+    expect(d.ten, 'Bò lúc lắc');
+    expect(d.gram, 250);
+    expect(d.kcal, 520);
+    expect(d.dam, 40);
+    expect(d.bot, 12);
+    expect(d.beo, 28);
+
+    final fallback = CongThuc.docMon('Bò lúc lắc 520 kcal');
+    expect(fallback.kcal, 520);
+    expect(fallback.ten, isNull);
+    expect(fallback.dam, isNull);
+
+    final thieu = CongThuc.docMon('không có số');
+    expect(thieu.kcal, isNull);
+    expect(thieu.dam, isNull);
+  });
+
   test('lua tap: gap 0 sang, bo 1-2 giu so, gap 3 luu noi', () {
     final hom = DateTime(2026, 8, 31);
     final truoc = [

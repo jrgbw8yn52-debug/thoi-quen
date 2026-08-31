@@ -3688,8 +3688,44 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _damMeta = const VerificationMeta('dam');
   @override
-  List<GeneratedColumn> get $columns => [id, ten, kcal, gram, vanBan];
+  late final GeneratedColumn<double> dam = GeneratedColumn<double>(
+    'dam',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _botMeta = const VerificationMeta('bot');
+  @override
+  late final GeneratedColumn<double> bot = GeneratedColumn<double>(
+    'bot',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _beoMeta = const VerificationMeta('beo');
+  @override
+  late final GeneratedColumn<double> beo = GeneratedColumn<double>(
+    'beo',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    ten,
+    kcal,
+    gram,
+    vanBan,
+    dam,
+    bot,
+    beo,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3733,6 +3769,24 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
         vanBan.isAcceptableOrUnknown(data['van_ban']!, _vanBanMeta),
       );
     }
+    if (data.containsKey('dam')) {
+      context.handle(
+        _damMeta,
+        dam.isAcceptableOrUnknown(data['dam']!, _damMeta),
+      );
+    }
+    if (data.containsKey('bot')) {
+      context.handle(
+        _botMeta,
+        bot.isAcceptableOrUnknown(data['bot']!, _botMeta),
+      );
+    }
+    if (data.containsKey('beo')) {
+      context.handle(
+        _beoMeta,
+        beo.isAcceptableOrUnknown(data['beo']!, _beoMeta),
+      );
+    }
     return context;
   }
 
@@ -3762,6 +3816,18 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, Food> {
         DriftSqlType.string,
         data['${effectivePrefix}van_ban'],
       ),
+      dam: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}dam'],
+      ),
+      bot: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}bot'],
+      ),
+      beo: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}beo'],
+      ),
     );
   }
 
@@ -3777,12 +3843,18 @@ class Food extends DataClass implements Insertable<Food> {
   final int kcal;
   final double? gram;
   final String? vanBan;
+  final double? dam;
+  final double? bot;
+  final double? beo;
   const Food({
     required this.id,
     required this.ten,
     required this.kcal,
     this.gram,
     this.vanBan,
+    this.dam,
+    this.bot,
+    this.beo,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3796,6 +3868,15 @@ class Food extends DataClass implements Insertable<Food> {
     if (!nullToAbsent || vanBan != null) {
       map['van_ban'] = Variable<String>(vanBan);
     }
+    if (!nullToAbsent || dam != null) {
+      map['dam'] = Variable<double>(dam);
+    }
+    if (!nullToAbsent || bot != null) {
+      map['bot'] = Variable<double>(bot);
+    }
+    if (!nullToAbsent || beo != null) {
+      map['beo'] = Variable<double>(beo);
+    }
     return map;
   }
 
@@ -3808,6 +3889,9 @@ class Food extends DataClass implements Insertable<Food> {
       vanBan: vanBan == null && nullToAbsent
           ? const Value.absent()
           : Value(vanBan),
+      dam: dam == null && nullToAbsent ? const Value.absent() : Value(dam),
+      bot: bot == null && nullToAbsent ? const Value.absent() : Value(bot),
+      beo: beo == null && nullToAbsent ? const Value.absent() : Value(beo),
     );
   }
 
@@ -3822,6 +3906,9 @@ class Food extends DataClass implements Insertable<Food> {
       kcal: serializer.fromJson<int>(json['kcal']),
       gram: serializer.fromJson<double?>(json['gram']),
       vanBan: serializer.fromJson<String?>(json['vanBan']),
+      dam: serializer.fromJson<double?>(json['dam']),
+      bot: serializer.fromJson<double?>(json['bot']),
+      beo: serializer.fromJson<double?>(json['beo']),
     );
   }
   @override
@@ -3833,6 +3920,9 @@ class Food extends DataClass implements Insertable<Food> {
       'kcal': serializer.toJson<int>(kcal),
       'gram': serializer.toJson<double?>(gram),
       'vanBan': serializer.toJson<String?>(vanBan),
+      'dam': serializer.toJson<double?>(dam),
+      'bot': serializer.toJson<double?>(bot),
+      'beo': serializer.toJson<double?>(beo),
     };
   }
 
@@ -3842,12 +3932,18 @@ class Food extends DataClass implements Insertable<Food> {
     int? kcal,
     Value<double?> gram = const Value.absent(),
     Value<String?> vanBan = const Value.absent(),
+    Value<double?> dam = const Value.absent(),
+    Value<double?> bot = const Value.absent(),
+    Value<double?> beo = const Value.absent(),
   }) => Food(
     id: id ?? this.id,
     ten: ten ?? this.ten,
     kcal: kcal ?? this.kcal,
     gram: gram.present ? gram.value : this.gram,
     vanBan: vanBan.present ? vanBan.value : this.vanBan,
+    dam: dam.present ? dam.value : this.dam,
+    bot: bot.present ? bot.value : this.bot,
+    beo: beo.present ? beo.value : this.beo,
   );
   Food copyWithCompanion(FoodsCompanion data) {
     return Food(
@@ -3856,6 +3952,9 @@ class Food extends DataClass implements Insertable<Food> {
       kcal: data.kcal.present ? data.kcal.value : this.kcal,
       gram: data.gram.present ? data.gram.value : this.gram,
       vanBan: data.vanBan.present ? data.vanBan.value : this.vanBan,
+      dam: data.dam.present ? data.dam.value : this.dam,
+      bot: data.bot.present ? data.bot.value : this.bot,
+      beo: data.beo.present ? data.beo.value : this.beo,
     );
   }
 
@@ -3866,13 +3965,16 @@ class Food extends DataClass implements Insertable<Food> {
           ..write('ten: $ten, ')
           ..write('kcal: $kcal, ')
           ..write('gram: $gram, ')
-          ..write('vanBan: $vanBan')
+          ..write('vanBan: $vanBan, ')
+          ..write('dam: $dam, ')
+          ..write('bot: $bot, ')
+          ..write('beo: $beo')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, ten, kcal, gram, vanBan);
+  int get hashCode => Object.hash(id, ten, kcal, gram, vanBan, dam, bot, beo);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3881,7 +3983,10 @@ class Food extends DataClass implements Insertable<Food> {
           other.ten == this.ten &&
           other.kcal == this.kcal &&
           other.gram == this.gram &&
-          other.vanBan == this.vanBan);
+          other.vanBan == this.vanBan &&
+          other.dam == this.dam &&
+          other.bot == this.bot &&
+          other.beo == this.beo);
 }
 
 class FoodsCompanion extends UpdateCompanion<Food> {
@@ -3890,12 +3995,18 @@ class FoodsCompanion extends UpdateCompanion<Food> {
   final Value<int> kcal;
   final Value<double?> gram;
   final Value<String?> vanBan;
+  final Value<double?> dam;
+  final Value<double?> bot;
+  final Value<double?> beo;
   const FoodsCompanion({
     this.id = const Value.absent(),
     this.ten = const Value.absent(),
     this.kcal = const Value.absent(),
     this.gram = const Value.absent(),
     this.vanBan = const Value.absent(),
+    this.dam = const Value.absent(),
+    this.bot = const Value.absent(),
+    this.beo = const Value.absent(),
   });
   FoodsCompanion.insert({
     this.id = const Value.absent(),
@@ -3903,6 +4014,9 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     required int kcal,
     this.gram = const Value.absent(),
     this.vanBan = const Value.absent(),
+    this.dam = const Value.absent(),
+    this.bot = const Value.absent(),
+    this.beo = const Value.absent(),
   }) : ten = Value(ten),
        kcal = Value(kcal);
   static Insertable<Food> custom({
@@ -3911,6 +4025,9 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     Expression<int>? kcal,
     Expression<double>? gram,
     Expression<String>? vanBan,
+    Expression<double>? dam,
+    Expression<double>? bot,
+    Expression<double>? beo,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3918,6 +4035,9 @@ class FoodsCompanion extends UpdateCompanion<Food> {
       if (kcal != null) 'kcal': kcal,
       if (gram != null) 'gram': gram,
       if (vanBan != null) 'van_ban': vanBan,
+      if (dam != null) 'dam': dam,
+      if (bot != null) 'bot': bot,
+      if (beo != null) 'beo': beo,
     });
   }
 
@@ -3927,6 +4047,9 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     Value<int>? kcal,
     Value<double?>? gram,
     Value<String?>? vanBan,
+    Value<double?>? dam,
+    Value<double?>? bot,
+    Value<double?>? beo,
   }) {
     return FoodsCompanion(
       id: id ?? this.id,
@@ -3934,6 +4057,9 @@ class FoodsCompanion extends UpdateCompanion<Food> {
       kcal: kcal ?? this.kcal,
       gram: gram ?? this.gram,
       vanBan: vanBan ?? this.vanBan,
+      dam: dam ?? this.dam,
+      bot: bot ?? this.bot,
+      beo: beo ?? this.beo,
     );
   }
 
@@ -3955,6 +4081,15 @@ class FoodsCompanion extends UpdateCompanion<Food> {
     if (vanBan.present) {
       map['van_ban'] = Variable<String>(vanBan.value);
     }
+    if (dam.present) {
+      map['dam'] = Variable<double>(dam.value);
+    }
+    if (bot.present) {
+      map['bot'] = Variable<double>(bot.value);
+    }
+    if (beo.present) {
+      map['beo'] = Variable<double>(beo.value);
+    }
     return map;
   }
 
@@ -3965,7 +4100,10 @@ class FoodsCompanion extends UpdateCompanion<Food> {
           ..write('ten: $ten, ')
           ..write('kcal: $kcal, ')
           ..write('gram: $gram, ')
-          ..write('vanBan: $vanBan')
+          ..write('vanBan: $vanBan, ')
+          ..write('dam: $dam, ')
+          ..write('bot: $bot, ')
+          ..write('beo: $beo')
           ..write(')'))
         .toString();
   }
@@ -4037,8 +4175,45 @@ class $FoodLogsTable extends FoodLogs with TableInfo<$FoodLogsTable, FoodLog> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _damMeta = const VerificationMeta('dam');
   @override
-  List<GeneratedColumn> get $columns => [id, ngay, foodId, ten, kcal, gram];
+  late final GeneratedColumn<double> dam = GeneratedColumn<double>(
+    'dam',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _botMeta = const VerificationMeta('bot');
+  @override
+  late final GeneratedColumn<double> bot = GeneratedColumn<double>(
+    'bot',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _beoMeta = const VerificationMeta('beo');
+  @override
+  late final GeneratedColumn<double> beo = GeneratedColumn<double>(
+    'beo',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    ngay,
+    foodId,
+    ten,
+    kcal,
+    gram,
+    dam,
+    bot,
+    beo,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4090,6 +4265,24 @@ class $FoodLogsTable extends FoodLogs with TableInfo<$FoodLogsTable, FoodLog> {
         gram.isAcceptableOrUnknown(data['gram']!, _gramMeta),
       );
     }
+    if (data.containsKey('dam')) {
+      context.handle(
+        _damMeta,
+        dam.isAcceptableOrUnknown(data['dam']!, _damMeta),
+      );
+    }
+    if (data.containsKey('bot')) {
+      context.handle(
+        _botMeta,
+        bot.isAcceptableOrUnknown(data['bot']!, _botMeta),
+      );
+    }
+    if (data.containsKey('beo')) {
+      context.handle(
+        _beoMeta,
+        beo.isAcceptableOrUnknown(data['beo']!, _beoMeta),
+      );
+    }
     return context;
   }
 
@@ -4123,6 +4316,18 @@ class $FoodLogsTable extends FoodLogs with TableInfo<$FoodLogsTable, FoodLog> {
         DriftSqlType.double,
         data['${effectivePrefix}gram'],
       ),
+      dam: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}dam'],
+      ),
+      bot: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}bot'],
+      ),
+      beo: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}beo'],
+      ),
     );
   }
 
@@ -4139,6 +4344,9 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
   final String ten;
   final int kcal;
   final double? gram;
+  final double? dam;
+  final double? bot;
+  final double? beo;
   const FoodLog({
     required this.id,
     required this.ngay,
@@ -4146,6 +4354,9 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
     required this.ten,
     required this.kcal,
     this.gram,
+    this.dam,
+    this.bot,
+    this.beo,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4160,6 +4371,15 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
     if (!nullToAbsent || gram != null) {
       map['gram'] = Variable<double>(gram);
     }
+    if (!nullToAbsent || dam != null) {
+      map['dam'] = Variable<double>(dam);
+    }
+    if (!nullToAbsent || bot != null) {
+      map['bot'] = Variable<double>(bot);
+    }
+    if (!nullToAbsent || beo != null) {
+      map['beo'] = Variable<double>(beo);
+    }
     return map;
   }
 
@@ -4173,6 +4393,9 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
       ten: Value(ten),
       kcal: Value(kcal),
       gram: gram == null && nullToAbsent ? const Value.absent() : Value(gram),
+      dam: dam == null && nullToAbsent ? const Value.absent() : Value(dam),
+      bot: bot == null && nullToAbsent ? const Value.absent() : Value(bot),
+      beo: beo == null && nullToAbsent ? const Value.absent() : Value(beo),
     );
   }
 
@@ -4188,6 +4411,9 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
       ten: serializer.fromJson<String>(json['ten']),
       kcal: serializer.fromJson<int>(json['kcal']),
       gram: serializer.fromJson<double?>(json['gram']),
+      dam: serializer.fromJson<double?>(json['dam']),
+      bot: serializer.fromJson<double?>(json['bot']),
+      beo: serializer.fromJson<double?>(json['beo']),
     );
   }
   @override
@@ -4200,6 +4426,9 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
       'ten': serializer.toJson<String>(ten),
       'kcal': serializer.toJson<int>(kcal),
       'gram': serializer.toJson<double?>(gram),
+      'dam': serializer.toJson<double?>(dam),
+      'bot': serializer.toJson<double?>(bot),
+      'beo': serializer.toJson<double?>(beo),
     };
   }
 
@@ -4210,6 +4439,9 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
     String? ten,
     int? kcal,
     Value<double?> gram = const Value.absent(),
+    Value<double?> dam = const Value.absent(),
+    Value<double?> bot = const Value.absent(),
+    Value<double?> beo = const Value.absent(),
   }) => FoodLog(
     id: id ?? this.id,
     ngay: ngay ?? this.ngay,
@@ -4217,6 +4449,9 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
     ten: ten ?? this.ten,
     kcal: kcal ?? this.kcal,
     gram: gram.present ? gram.value : this.gram,
+    dam: dam.present ? dam.value : this.dam,
+    bot: bot.present ? bot.value : this.bot,
+    beo: beo.present ? beo.value : this.beo,
   );
   FoodLog copyWithCompanion(FoodLogsCompanion data) {
     return FoodLog(
@@ -4226,6 +4461,9 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
       ten: data.ten.present ? data.ten.value : this.ten,
       kcal: data.kcal.present ? data.kcal.value : this.kcal,
       gram: data.gram.present ? data.gram.value : this.gram,
+      dam: data.dam.present ? data.dam.value : this.dam,
+      bot: data.bot.present ? data.bot.value : this.bot,
+      beo: data.beo.present ? data.beo.value : this.beo,
     );
   }
 
@@ -4237,13 +4475,17 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
           ..write('foodId: $foodId, ')
           ..write('ten: $ten, ')
           ..write('kcal: $kcal, ')
-          ..write('gram: $gram')
+          ..write('gram: $gram, ')
+          ..write('dam: $dam, ')
+          ..write('bot: $bot, ')
+          ..write('beo: $beo')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, ngay, foodId, ten, kcal, gram);
+  int get hashCode =>
+      Object.hash(id, ngay, foodId, ten, kcal, gram, dam, bot, beo);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4253,7 +4495,10 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
           other.foodId == this.foodId &&
           other.ten == this.ten &&
           other.kcal == this.kcal &&
-          other.gram == this.gram);
+          other.gram == this.gram &&
+          other.dam == this.dam &&
+          other.bot == this.bot &&
+          other.beo == this.beo);
 }
 
 class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
@@ -4263,6 +4508,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
   final Value<String> ten;
   final Value<int> kcal;
   final Value<double?> gram;
+  final Value<double?> dam;
+  final Value<double?> bot;
+  final Value<double?> beo;
   const FoodLogsCompanion({
     this.id = const Value.absent(),
     this.ngay = const Value.absent(),
@@ -4270,6 +4518,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     this.ten = const Value.absent(),
     this.kcal = const Value.absent(),
     this.gram = const Value.absent(),
+    this.dam = const Value.absent(),
+    this.bot = const Value.absent(),
+    this.beo = const Value.absent(),
   });
   FoodLogsCompanion.insert({
     this.id = const Value.absent(),
@@ -4278,6 +4529,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     required String ten,
     required int kcal,
     this.gram = const Value.absent(),
+    this.dam = const Value.absent(),
+    this.bot = const Value.absent(),
+    this.beo = const Value.absent(),
   }) : ngay = Value(ngay),
        ten = Value(ten),
        kcal = Value(kcal);
@@ -4288,6 +4542,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     Expression<String>? ten,
     Expression<int>? kcal,
     Expression<double>? gram,
+    Expression<double>? dam,
+    Expression<double>? bot,
+    Expression<double>? beo,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4296,6 +4553,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
       if (ten != null) 'ten': ten,
       if (kcal != null) 'kcal': kcal,
       if (gram != null) 'gram': gram,
+      if (dam != null) 'dam': dam,
+      if (bot != null) 'bot': bot,
+      if (beo != null) 'beo': beo,
     });
   }
 
@@ -4306,6 +4566,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     Value<String>? ten,
     Value<int>? kcal,
     Value<double?>? gram,
+    Value<double?>? dam,
+    Value<double?>? bot,
+    Value<double?>? beo,
   }) {
     return FoodLogsCompanion(
       id: id ?? this.id,
@@ -4314,6 +4577,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
       ten: ten ?? this.ten,
       kcal: kcal ?? this.kcal,
       gram: gram ?? this.gram,
+      dam: dam ?? this.dam,
+      bot: bot ?? this.bot,
+      beo: beo ?? this.beo,
     );
   }
 
@@ -4338,6 +4604,15 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     if (gram.present) {
       map['gram'] = Variable<double>(gram.value);
     }
+    if (dam.present) {
+      map['dam'] = Variable<double>(dam.value);
+    }
+    if (bot.present) {
+      map['bot'] = Variable<double>(bot.value);
+    }
+    if (beo.present) {
+      map['beo'] = Variable<double>(beo.value);
+    }
     return map;
   }
 
@@ -4349,7 +4624,10 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
           ..write('foodId: $foodId, ')
           ..write('ten: $ten, ')
           ..write('kcal: $kcal, ')
-          ..write('gram: $gram')
+          ..write('gram: $gram, ')
+          ..write('dam: $dam, ')
+          ..write('bot: $bot, ')
+          ..write('beo: $beo')
           ..write(')'))
         .toString();
   }
@@ -6798,6 +7076,9 @@ typedef $$FoodsTableCreateCompanionBuilder = FoodsCompanion Function({
   required int kcal,
   Value<double?> gram,
   Value<String?> vanBan,
+  Value<double?> dam,
+  Value<double?> bot,
+  Value<double?> beo,
 });
 typedef $$FoodsTableUpdateCompanionBuilder = FoodsCompanion Function({
   Value<int> id,
@@ -6805,6 +7086,9 @@ typedef $$FoodsTableUpdateCompanionBuilder = FoodsCompanion Function({
   Value<int> kcal,
   Value<double?> gram,
   Value<String?> vanBan,
+  Value<double?> dam,
+  Value<double?> bot,
+  Value<double?> beo,
 });
 
 final class $$FoodsTableReferences
@@ -6861,6 +7145,21 @@ class $$FoodsTableFilterComposer extends Composer<_$AppDatabase, $FoodsTable> {
 
   ColumnFilters<String> get vanBan => $composableBuilder(
     column: $table.vanBan,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get dam => $composableBuilder(
+    column: $table.dam,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get bot => $composableBuilder(
+    column: $table.bot,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get beo => $composableBuilder(
+    column: $table.beo,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6923,6 +7222,21 @@ class $$FoodsTableOrderingComposer
     column: $table.vanBan,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get dam => $composableBuilder(
+    column: $table.dam,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get bot => $composableBuilder(
+    column: $table.bot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get beo => $composableBuilder(
+    column: $table.beo,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$FoodsTableAnnotationComposer
@@ -6948,6 +7262,15 @@ class $$FoodsTableAnnotationComposer
 
   GeneratedColumn<String> get vanBan =>
       $composableBuilder(column: $table.vanBan, builder: (column) => column);
+
+  GeneratedColumn<double> get dam =>
+      $composableBuilder(column: $table.dam, builder: (column) => column);
+
+  GeneratedColumn<double> get bot =>
+      $composableBuilder(column: $table.bot, builder: (column) => column);
+
+  GeneratedColumn<double> get beo =>
+      $composableBuilder(column: $table.beo, builder: (column) => column);
 
   Expression<T> foodLogsRefs<T extends Object>(
     Expression<T> Function($$FoodLogsTableAnnotationComposer a) f,
@@ -7008,12 +7331,18 @@ class $$FoodsTableTableManager
                 Value<int> kcal = const Value.absent(),
                 Value<double?> gram = const Value.absent(),
                 Value<String?> vanBan = const Value.absent(),
+                Value<double?> dam = const Value.absent(),
+                Value<double?> bot = const Value.absent(),
+                Value<double?> beo = const Value.absent(),
               }) => FoodsCompanion(
                 id: id,
                 ten: ten,
                 kcal: kcal,
                 gram: gram,
                 vanBan: vanBan,
+                dam: dam,
+                bot: bot,
+                beo: beo,
               ),
           createCompanionCallback:
               ({
@@ -7022,12 +7351,18 @@ class $$FoodsTableTableManager
                 required int kcal,
                 Value<double?> gram = const Value.absent(),
                 Value<String?> vanBan = const Value.absent(),
+                Value<double?> dam = const Value.absent(),
+                Value<double?> bot = const Value.absent(),
+                Value<double?> beo = const Value.absent(),
               }) => FoodsCompanion.insert(
                 id: id,
                 ten: ten,
                 kcal: kcal,
                 gram: gram,
                 vanBan: vanBan,
+                dam: dam,
+                bot: bot,
+                beo: beo,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -7082,6 +7417,9 @@ typedef $$FoodLogsTableCreateCompanionBuilder = FoodLogsCompanion Function({
   required String ten,
   required int kcal,
   Value<double?> gram,
+  Value<double?> dam,
+  Value<double?> bot,
+  Value<double?> beo,
 });
 typedef $$FoodLogsTableUpdateCompanionBuilder = FoodLogsCompanion Function({
   Value<int> id,
@@ -7090,6 +7428,9 @@ typedef $$FoodLogsTableUpdateCompanionBuilder = FoodLogsCompanion Function({
   Value<String> ten,
   Value<int> kcal,
   Value<double?> gram,
+  Value<double?> dam,
+  Value<double?> bot,
+  Value<double?> beo,
 });
 
 final class $$FoodLogsTableReferences
@@ -7145,6 +7486,21 @@ class $$FoodLogsTableFilterComposer
 
   ColumnFilters<double> get gram => $composableBuilder(
     column: $table.gram,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get dam => $composableBuilder(
+    column: $table.dam,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get bot => $composableBuilder(
+    column: $table.bot,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get beo => $composableBuilder(
+    column: $table.beo,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7206,6 +7562,21 @@ class $$FoodLogsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get dam => $composableBuilder(
+    column: $table.dam,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get bot => $composableBuilder(
+    column: $table.bot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get beo => $composableBuilder(
+    column: $table.beo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$FoodsTableOrderingComposer get foodId {
     final $$FoodsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -7253,6 +7624,15 @@ class $$FoodLogsTableAnnotationComposer
 
   GeneratedColumn<double> get gram =>
       $composableBuilder(column: $table.gram, builder: (column) => column);
+
+  GeneratedColumn<double> get dam =>
+      $composableBuilder(column: $table.dam, builder: (column) => column);
+
+  GeneratedColumn<double> get bot =>
+      $composableBuilder(column: $table.bot, builder: (column) => column);
+
+  GeneratedColumn<double> get beo =>
+      $composableBuilder(column: $table.beo, builder: (column) => column);
 
   $$FoodsTableAnnotationComposer get foodId {
     final $$FoodsTableAnnotationComposer composer = $composerBuilder(
@@ -7312,6 +7692,9 @@ class $$FoodLogsTableTableManager
                 Value<String> ten = const Value.absent(),
                 Value<int> kcal = const Value.absent(),
                 Value<double?> gram = const Value.absent(),
+                Value<double?> dam = const Value.absent(),
+                Value<double?> bot = const Value.absent(),
+                Value<double?> beo = const Value.absent(),
               }) => FoodLogsCompanion(
                 id: id,
                 ngay: ngay,
@@ -7319,6 +7702,9 @@ class $$FoodLogsTableTableManager
                 ten: ten,
                 kcal: kcal,
                 gram: gram,
+                dam: dam,
+                bot: bot,
+                beo: beo,
               ),
           createCompanionCallback:
               ({
@@ -7328,6 +7714,9 @@ class $$FoodLogsTableTableManager
                 required String ten,
                 required int kcal,
                 Value<double?> gram = const Value.absent(),
+                Value<double?> dam = const Value.absent(),
+                Value<double?> bot = const Value.absent(),
+                Value<double?> beo = const Value.absent(),
               }) => FoodLogsCompanion.insert(
                 id: id,
                 ngay: ngay,
@@ -7335,6 +7724,9 @@ class $$FoodLogsTableTableManager
                 ten: ten,
                 kcal: kcal,
                 gram: gram,
+                dam: dam,
+                bot: bot,
+                beo: beo,
               ),
           withReferenceMapper: (p0) => p0
               .map(

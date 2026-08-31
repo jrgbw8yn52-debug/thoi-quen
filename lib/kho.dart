@@ -314,6 +314,16 @@ class Kho extends ChangeNotifier {
     return napCua(d)?.kcal ?? 0;
   }
 
+  ({double dam, double bot, double beo}) macroNgay(DateTime d) {
+    var dam = 0.0, bot = 0.0, beo = 0.0;
+    for (final x in logNgay(d)) {
+      dam += x.dam ?? 0;
+      bot += x.bot ?? 0;
+      beo += x.beo ?? 0;
+    }
+    return (dam: dam, bot: bot, beo: beo);
+  }
+
   bool get coNap => dsLog.isNotEmpty || dsNap.isNotEmpty;
 
   List<(DateTime ngay, double bmi)> get bmiTheoCan {
@@ -1055,17 +1065,37 @@ class Kho extends ChangeNotifier {
     required int kcal,
     double? gram,
     String? vanBan,
+    double? dam,
+    double? bot,
+    double? beo,
     bool vaoNgay = false,
     DateTime? ngay,
   }) async {
     final t = ten.trim();
     if (t.isEmpty) return null;
     if (kcal < 1 || kcal > 20000) return null;
-    final id = await db.themMon(ten: t, kcal: kcal, gram: gram, vanBan: vanBan);
+    final id = await db.themMon(
+      ten: t,
+      kcal: kcal,
+      gram: gram,
+      vanBan: vanBan,
+      dam: dam,
+      bot: bot,
+      beo: beo,
+    );
     if (vaoNgay) {
       final d = Ngay.cat(ngay ?? selected);
       if (Ngay.ghiDuoc(d, homNay)) {
-        await db.ghiLog(d, foodId: id, ten: t, kcal: kcal, gram: gram);
+        await db.ghiLog(
+          d,
+          foodId: id,
+          ten: t,
+          kcal: kcal,
+          gram: gram,
+          dam: dam,
+          bot: bot,
+          beo: beo,
+        );
       }
     }
     await tai();
@@ -1083,7 +1113,16 @@ class Kho extends ChangeNotifier {
       if (x.id == foodId) f = x;
     }
     if (f == null) return false;
-    await db.ghiLog(d, foodId: f.id, ten: f.ten, kcal: f.kcal, gram: f.gram);
+    await db.ghiLog(
+      d,
+      foodId: f.id,
+      ten: f.ten,
+      kcal: f.kcal,
+      gram: f.gram,
+      dam: f.dam,
+      bot: f.bot,
+      beo: f.beo,
+    );
     await tai();
     return true;
   }

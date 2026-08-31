@@ -55,6 +55,14 @@ abstract final class So {
     return v;
   }
 
+  static double? parseMacro(String raw) {
+    final t = raw.trim().replaceAll(' ', '').replaceAll(',', '.');
+    if (t.isEmpty) return null;
+    final v = double.tryParse(t);
+    if (v == null || v < 0 || v > 500) return null;
+    return v;
+  }
+
   static String heSo(double v) {
     final s = v.toString();
     return s.replaceAll('.', ',');

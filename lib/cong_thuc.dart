@@ -193,6 +193,59 @@ abstract final class CongThuc {
     return n;
   }
 
+  static final _soRe = RegExp(r'(\d+(?:[.,]\d+)?)');
+
+  static String? _dongNhan(String vanBan, String khoa) {
+    final re = RegExp(
+      '^\\s*${RegExp.escape(khoa)}\\s*:\\s*(.+)\\s*\$',
+      caseSensitive: false,
+      multiLine: true,
+    );
+    final m = re.firstMatch(vanBan);
+    if (m == null) return null;
+    final t = m.group(1)!.trim();
+    return t.isEmpty ? null : t;
+  }
+
+  static double? _soNhan(String vanBan, String khoa) {
+    final c = _dongNhan(vanBan, khoa);
+    if (c == null) return null;
+    final m = _soRe.firstMatch(c);
+    if (m == null) return null;
+    return double.tryParse(m.group(1)!.replaceAll(',', '.'));
+  }
+
+  /// Ưu tiên MON: / KHOI_LUONG: / KCAL: / DAM: / BOT: / BEO:
+  /// Không có KCAL: thì bắt số trước kcal|calo|năng lượng. Không bịa.
+  static DocMon docMon(String vanBan) {
+    final ten = _dongNhan(vanBan, 'MON');
+    final gramRaw = _soNhan(vanBan, 'KHOI_LUONG');
+    final kcalRaw = _soNhan(vanBan, 'KCAL');
+    final dam = _soNhan(vanBan, 'DAM');
+    final bot = _soNhan(vanBan, 'BOT');
+    final beo = _soNhan(vanBan, 'BEO');
+    int? kcal;
+    if (kcalRaw != null) {
+      final n = kcalRaw.round();
+      if (n >= 1 && n <= 20000) kcal = n;
+    }
+    kcal ??= docKcal(vanBan);
+    double? gram;
+    if (gramRaw != null && gramRaw > 0 && gramRaw <= 5000) gram = gramRaw;
+    double? hop(double? v) {
+      if (v == null || v < 0 || v > 500) return null;
+      return v;
+    }
+    return DocMon(
+      ten: ten,
+      gram: gram,
+      kcal: kcal,
+      dam: hop(dam),
+      bot: hop(bot),
+      beo: hop(beo),
+    );
+  }
+
   /// Tuần còn lại với nhịp đã chọn.
   static String? nhipDong(double? kg, double? target, double nhip) {
     if (kg == null || target == null) return null;
@@ -221,3 +274,14 @@ class LuaTap {
 }
 
 enum NhanNap { vuot, dung, hoiThap, quaThap }
+
+class DocMon {
+  const DocMon({this.ten, this.gram, this.kcal, this.dam, this.bot, this.beo});
+
+  final String? ten;
+  final double? gram;
+  final int? kcal;
+  final double? dam;
+  final double? bot;
+  final double? beo;
+}

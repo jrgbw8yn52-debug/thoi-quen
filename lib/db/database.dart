@@ -161,6 +161,9 @@ class Foods extends Table {
   IntColumn get kcal => integer()();
   RealColumn get gram => real().nullable()();
   TextColumn get vanBan => text().nullable()();
+  RealColumn get dam => real().nullable()();
+  RealColumn get bot => real().nullable()();
+  RealColumn get beo => real().nullable()();
 }
 
 class FoodLogs extends Table {
@@ -174,6 +177,9 @@ class FoodLogs extends Table {
   TextColumn get ten => text()();
   IntColumn get kcal => integer()();
   RealColumn get gram => real().nullable()();
+  RealColumn get dam => real().nullable()();
+  RealColumn get bot => real().nullable()();
+  RealColumn get beo => real().nullable()();
 }
 
 @DriftDatabase(tables: [
@@ -199,7 +205,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -280,6 +286,13 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
           if (from < 11) {
             await m.createTable(foods);
             await m.createTable(foodLogs);
+          } else if (from < 12) {
+            await m.addColumn(foods, foods.dam);
+            await m.addColumn(foods, foods.bot);
+            await m.addColumn(foods, foods.beo);
+            await m.addColumn(foodLogs, foodLogs.dam);
+            await m.addColumn(foodLogs, foodLogs.bot);
+            await m.addColumn(foodLogs, foodLogs.beo);
           }
         },
         beforeOpen: (details) async {
@@ -567,6 +580,9 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     required int kcal,
     double? gram,
     String? vanBan,
+    double? dam,
+    double? bot,
+    double? beo,
   }) async {
     final cu = await (select(foods)..where((f) => f.ten.equals(ten))).get();
     if (cu.isNotEmpty) {
@@ -576,6 +592,9 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
           kcal: Value(kcal),
           gram: Value(gram),
           vanBan: Value(vanBan),
+          dam: Value(dam),
+          bot: Value(bot),
+          beo: Value(beo),
         ),
       );
       return id;
@@ -586,6 +605,9 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         kcal: kcal,
         gram: Value(gram),
         vanBan: Value(vanBan),
+        dam: Value(dam),
+        bot: Value(bot),
+        beo: Value(beo),
       ),
     );
   }
@@ -600,6 +622,9 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     required String ten,
     required int kcal,
     double? gram,
+    double? dam,
+    double? bot,
+    double? beo,
   }) {
     return into(foodLogs).insert(
       FoodLogsCompanion.insert(
@@ -608,6 +633,9 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         ten: ten,
         kcal: kcal,
         gram: Value(gram),
+        dam: Value(dam),
+        bot: Value(bot),
+        beo: Value(beo),
       ),
     );
   }

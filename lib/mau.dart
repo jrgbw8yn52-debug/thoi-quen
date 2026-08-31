@@ -71,6 +71,13 @@ abstract final class Mau {
           minimumSize: const Size(44, 44),
         ),
       ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: muc,
+          side: const BorderSide(color: vien),
+          minimumSize: const Size(44, 44),
+        ),
+      ),
       dialogTheme: const DialogThemeData(backgroundColor: beMat),
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: beMat),
     );
