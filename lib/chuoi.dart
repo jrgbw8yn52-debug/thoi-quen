@@ -121,6 +121,14 @@ abstract final class Chuoi {
   static const dungChiTieu = 'Đúng chỉ tiêu';
   static const hoiThap = 'Hơi thấp';
   static const quaThap = 'Quá thấp so với chỉ tiêu';
+  static const taoCongThuc = 'Tạo công thức';
+  static const monDaLuu = 'Món đã lưu';
+  static const thucDon = 'Thực đơn';
+  static const thucDonHomNay = 'Thực đơn hôm nay';
+  static const danChuGrok = 'Dán chữ Grok';
+  static const khoiLuongG = 'Khối lượng (g)';
+  static const tinhVaoThucDon = 'Tính vào thực đơn ngày này';
+  static const chiLuuKho = 'Chỉ lưu vào kho';
   static const eoCm = 'Eo';
   static const hongCm = 'Hông';
   static const ngucCm = 'Ngực';
@@ -308,6 +316,19 @@ abstract final class Chuoi {
       '$soVoiBanDau: ${doiCm(delta, soNgay)}';
 
   static String goiYTdee(int goi, int tdee) => 'Gợi ý $goi kcal · TDEE $tdee';
+
+  static String tdeeGoiY(int tdee, int goi) => 'TDEE $tdee · Gợi ý $goi';
+
+  static String docNKcal(int n) => 'Đọc $n kcal';
+
+  static String tongKcalNap(int n) => 'Tổng kcal nạp: $n';
+
+  static String tongKcalTieuThu(int n) => 'Tổng kcal tiêu thụ: $n';
+
+  static String dongMon(String ten, int kcal, {double? g}) {
+    if (g == null) return '$ten · $kcal';
+    return '$ten · ${So.kg(g)} g · $kcal';
+  }
 
   static String napTrenGoi(int nap, int goi) => '$nap / $goi';
 

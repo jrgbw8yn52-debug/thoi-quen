@@ -118,6 +118,8 @@ class Kho extends ChangeNotifier {
   List<MoIn> dsMo = const [];
   List<TapIn> dsTap = const [];
   List<NapIn> dsNap = const [];
+  List<Food> dsMon = const [];
+  List<FoodLog> dsLog = const [];
   List<ChiSoIn> dsChiSo = const [];
   List<MocCan> dsMocBanDau = const [];
   List<MocCan> dsMocDich = const [];
@@ -295,9 +297,24 @@ class Kho extends ChangeNotifier {
     return null;
   }
 
-  int kcalNapCuaNgay(DateTime d) => napCua(d)?.kcal ?? 0;
+  List<FoodLog> logNgay(DateTime d) {
+    final iso = Ngay.iso(d);
+    return [for (final x in dsLog) if (x.ngay == iso) x];
+  }
 
-  bool get coNap => dsNap.isNotEmpty;
+  int kcalNapCuaNgay(DateTime d) {
+    final logs = logNgay(d);
+    if (logs.isNotEmpty) {
+      var s = 0;
+      for (final x in logs) {
+        s += x.kcal;
+      }
+      return s;
+    }
+    return napCua(d)?.kcal ?? 0;
+  }
+
+  bool get coNap => dsLog.isNotEmpty || dsNap.isNotEmpty;
 
   List<(DateTime ngay, double bmi)> get bmiTheoCan {
     final out = <(DateTime, double)>[];
@@ -748,6 +765,8 @@ class Kho extends ChangeNotifier {
     moMoi = dsMo.isEmpty ? null : dsMo.first;
     dsTap = await db.dsTap();
     dsNap = await db.dsNap();
+    dsMon = await db.dsMon();
+    dsLog = await db.dsLog();
     dsChiSo = await db.dsChiSo();
     dsMocBanDau = await db.dsMoc(AppDatabase.loaiBanDau);
     dsMocDich = await db.dsMoc(AppDatabase.loaiDich);
@@ -1027,6 +1046,67 @@ class Kho extends ChangeNotifier {
     if (!Ngay.ghiDuoc(d, homNay)) return false;
     if (kcal < 1 || kcal > 20000) return false;
     await db.ghiNap(d, kcal);
+    await tai();
+    return true;
+  }
+
+  Future<Food?> luuMon({
+    required String ten,
+    required int kcal,
+    double? gram,
+    String? vanBan,
+    bool vaoNgay = false,
+    DateTime? ngay,
+  }) async {
+    final t = ten.trim();
+    if (t.isEmpty) return null;
+    if (kcal < 1 || kcal > 20000) return null;
+    final id = await db.themMon(ten: t, kcal: kcal, gram: gram, vanBan: vanBan);
+    if (vaoNgay) {
+      final d = Ngay.cat(ngay ?? selected);
+      if (Ngay.ghiDuoc(d, homNay)) {
+        await db.ghiLog(d, foodId: id, ten: t, kcal: kcal, gram: gram);
+      }
+    }
+    await tai();
+    for (final f in dsMon) {
+      if (f.id == id) return f;
+    }
+    return null;
+  }
+
+  Future<bool> chonMon(int foodId, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    Food? f;
+    for (final x in dsMon) {
+      if (x.id == foodId) f = x;
+    }
+    if (f == null) return false;
+    await db.ghiLog(d, foodId: f.id, ten: f.ten, kcal: f.kcal, gram: f.gram);
+    await tai();
+    return true;
+  }
+
+  Future<bool> xoaLog(int id, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    final iso = Ngay.iso(d);
+    final co = dsLog.any((l) => l.id == id && l.ngay == iso);
+    if (!co) return false;
+    await db.xoaLog(id);
+    await tai();
+    return true;
+  }
+
+  Future<bool> suaLog(int id, {int? kcal, String? ten, DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    final iso = Ngay.iso(d);
+    final co = dsLog.any((l) => l.id == id && l.ngay == iso);
+    if (!co) return false;
+    if (kcal != null && (kcal < 1 || kcal > 20000)) return false;
+    await db.suaLog(id, kcal: kcal, ten: ten);
     await tai();
     return true;
   }

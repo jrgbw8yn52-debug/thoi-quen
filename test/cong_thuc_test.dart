@@ -93,6 +93,15 @@ void main() {
     expect(CongThuc.nhanNap(1800, null), isNull);
   });
 
+  test('doc kcal so truoc kcal|calo|nang luong, khong bia', () {
+    expect(CongThuc.docKcal('Bò lúc lắc 520 kcal'), 520);
+    expect(CongThuc.docKcal('khoảng 320 calo'), 320);
+    expect(CongThuc.docKcal('200 năng lượng'), 200);
+    expect(CongThuc.docKcal('năng lượng 200'), isNull);
+    expect(CongThuc.docKcal('không có số'), isNull);
+    expect(CongThuc.docKcal('450,5 kcal'), 451);
+  });
+
   test('lua tap: gap 0 sang, bo 1-2 giu so, gap 3 luu noi', () {
     final hom = DateTime(2026, 8, 31);
     final truoc = [

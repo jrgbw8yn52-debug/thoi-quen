@@ -177,6 +177,22 @@ abstract final class CongThuc {
     return NhanNap.quaThap;
   }
 
+  /// Số đứng trước kcal|calo|năng lượng. Không bịa.
+  static int? docKcal(String vanBan) {
+    final re = RegExp(
+      r'(\d+(?:[.,]\d+)?)\s*(?:kcal|calo|năng lượng)',
+      caseSensitive: false,
+    );
+    final m = re.firstMatch(vanBan);
+    if (m == null) return null;
+    final raw = m.group(1)!.replaceAll(',', '.');
+    final v = double.tryParse(raw);
+    if (v == null) return null;
+    final n = v.round();
+    if (n < 1 || n > 20000) return null;
+    return n;
+  }
+
   /// Tuần còn lại với nhịp đã chọn.
   static String? nhipDong(double? kg, double? target, double nhip) {
     if (kg == null || target == null) return null;

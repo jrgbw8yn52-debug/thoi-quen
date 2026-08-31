@@ -27,7 +27,8 @@ void main() {
     expect(ten.contains('weigh_ins'), isTrue);
     expect(ten.contains('moc_can'), isTrue);
     expect(ten.contains('nap_ins'), isTrue);
-    expect(ten.contains('foods'), isFalse);
+    expect(ten.contains('foods'), isTrue);
+    expect(ten.contains('food_log'), isTrue);
 
     final p = await db.docProfile();
     expect(p.id, 1);
@@ -36,8 +37,8 @@ void main() {
     expect(await db.canMoiNhat(), isNull);
   });
 
-  test('schemaVersion = 10', () {
-    expect(db.schemaVersion, 10);
+  test('schemaVersion = 11', () {
+    expect(db.schemaVersion, 11);
   });
 
   test('ticks UNIQUE (habit_id, ngay)', () async {

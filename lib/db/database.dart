@@ -152,6 +152,30 @@ class NapIns extends Table {
   Set<Column> get primaryKey => {ngay};
 }
 
+class Foods extends Table {
+  @override
+  String get tableName => 'foods';
+
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get ten => text()();
+  IntColumn get kcal => integer()();
+  RealColumn get gram => real().nullable()();
+  TextColumn get vanBan => text().nullable()();
+}
+
+class FoodLogs extends Table {
+  @override
+  String get tableName => 'food_log';
+
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get ngay => text()();
+  IntColumn get foodId =>
+      integer().nullable().references(Foods, #id, onDelete: KeyAction.setNull)();
+  TextColumn get ten => text()();
+  IntColumn get kcal => integer()();
+  RealColumn get gram => real().nullable()();
+}
+
 @DriftDatabase(tables: [
   Habits,
   Ticks,
@@ -164,6 +188,8 @@ class NapIns extends Table {
   LoaiTruIns,
   MocCans,
   NapIns,
+  Foods,
+  FoodLogs,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
@@ -173,7 +199,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -250,6 +276,10 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
             await m.addColumn(profiles, profiles.startNguc);
             await m.addColumn(profiles, profiles.startBapTay);
             await m.addColumn(profiles, profiles.startDoNgay);
+          }
+          if (from < 11) {
+            await m.createTable(foods);
+            await m.createTable(foodLogs);
           }
         },
         beforeOpen: (details) async {
@@ -532,6 +562,73 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     return (select(napIns)..orderBy([(n) => OrderingTerm.desc(n.ngay)])).get();
   }
 
+  Future<int> themMon({
+    required String ten,
+    required int kcal,
+    double? gram,
+    String? vanBan,
+  }) async {
+    final cu = await (select(foods)..where((f) => f.ten.equals(ten))).get();
+    if (cu.isNotEmpty) {
+      final id = cu.first.id;
+      await (update(foods)..where((f) => f.id.equals(id))).write(
+        FoodsCompanion(
+          kcal: Value(kcal),
+          gram: Value(gram),
+          vanBan: Value(vanBan),
+        ),
+      );
+      return id;
+    }
+    return into(foods).insert(
+      FoodsCompanion.insert(
+        ten: ten,
+        kcal: kcal,
+        gram: Value(gram),
+        vanBan: Value(vanBan),
+      ),
+    );
+  }
+
+  Future<List<Food>> dsMon() {
+    return (select(foods)..orderBy([(f) => OrderingTerm.asc(f.ten)])).get();
+  }
+
+  Future<int> ghiLog(
+    DateTime ngay, {
+    int? foodId,
+    required String ten,
+    required int kcal,
+    double? gram,
+  }) {
+    return into(foodLogs).insert(
+      FoodLogsCompanion.insert(
+        ngay: Ngay.iso(ngay),
+        foodId: Value(foodId),
+        ten: ten,
+        kcal: kcal,
+        gram: Value(gram),
+      ),
+    );
+  }
+
+  Future<List<FoodLog>> dsLog() {
+    return (select(foodLogs)..orderBy([(l) => OrderingTerm.desc(l.id)])).get();
+  }
+
+  Future<void> xoaLog(int id) async {
+    await (delete(foodLogs)..where((l) => l.id.equals(id))).go();
+  }
+
+  Future<void> suaLog(int id, {int? kcal, String? ten}) async {
+    await (update(foodLogs)..where((l) => l.id.equals(id))).write(
+      FoodLogsCompanion(
+        kcal: kcal == null ? const Value.absent() : Value(kcal),
+        ten: ten == null ? const Value.absent() : Value(ten),
+      ),
+    );
+  }
+
   Future<List<EoIn>> dsEo() {
     return (select(eoIns)..orderBy([(e) => OrderingTerm.desc(e.ngay)])).get();
   }
@@ -671,6 +768,8 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await delete(chiSoIns).go();
     await delete(mocCans).go();
     await delete(napIns).go();
+    await delete(foodLogs).go();
+    await delete(foods).go();
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       const ProfilesCompanion(
         sex: Value(null),

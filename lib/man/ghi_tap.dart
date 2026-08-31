@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../chuoi.dart';
 import '../cong_thuc.dart';
+import '../db/database.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
+import '../so.dart';
 import '../widget/hang_habit.dart';
 import '../widget/lua_tap.dart';
 
@@ -271,6 +273,35 @@ class _ToNgayTapState extends State<_ToNgayTap> {
     setState(() => _suaId = null);
   }
 
+  Future<void> _suaLog(FoodLog log) async {
+    if (_xem) return;
+    final c = TextEditingController(text: '${log.kcal}');
+    final v = await showDialog<int>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: Mau.beMat,
+          title: Text(log.ten, style: const TextStyle(color: Mau.muc)),
+          content: TextField(
+            controller: c,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(suffixText: 'kcal'),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text(Chuoi.huy)),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, So.parseKcal(c.text)),
+              child: const Text(Chuoi.luu),
+            ),
+          ],
+        );
+      },
+    );
+    c.dispose();
+    if (v == null) return;
+    await widget.kho.suaLog(log.id, kcal: v, ngay: widget.ngay);
+  }
+
   @override
   Widget build(BuildContext context) {
     final kho = widget.kho;
@@ -280,6 +311,8 @@ class _ToNgayTapState extends State<_ToNgayTap> {
       builder: (context, _) {
         final ds = kho.tapNgay(ngay);
         final tong = kho.kcalTapCuaNgay(ngay);
+        final logs = kho.logNgay(ngay);
+        final nap = kho.kcalNapCuaNgay(ngay);
         return SafeArea(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -393,9 +426,63 @@ class _ToNgayTapState extends State<_ToNgayTap> {
                         ),
                       ),
                     ),
+                const SizedBox(height: 20),
+                const Text(
+                  Chuoi.thucDon,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+                ),
                 const SizedBox(height: 8),
+                if (logs.isEmpty)
+                  const Text('—', style: TextStyle(color: Mau.mo))
+                else
+                  for (final l in logs)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Material(
+                        color: Mau.giay,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  Chuoi.dongMon(l.ten, l.kcal, g: l.gram),
+                                  style: const TextStyle(fontSize: 15, color: Mau.muc),
+                                ),
+                              ),
+                              if (!_xem) ...[
+                                SizedBox(
+                                  height: 44,
+                                  child: TextButton(
+                                    key: Key('sua-log-${l.id}'),
+                                    onPressed: () => _suaLog(l),
+                                    child: const Text(Chuoi.sua),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 44,
+                                  child: TextButton(
+                                    key: Key('xoa-log-${l.id}'),
+                                    onPressed: () => kho.xoaLog(l.id, ngay: ngay),
+                                    child: const Text(Chuoi.xoa, style: TextStyle(color: Mau.canhBao)),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                const SizedBox(height: 12),
                 Text(
-                  Chuoi.tongHomNay(tong),
+                  key: const Key('tong-kcal-nap'),
+                  Chuoi.tongKcalNap(nap),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  key: const Key('tong-kcal-tieu'),
+                  Chuoi.tongKcalTieuThu(tong),
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Mau.muc),
                 ),
               ],
