@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-/// Habis: #0D0D0D nền · #FF7A00 cam · #FFB000 vàng/lửa. Không mây SoundCloud.
+/// Habis: #0D0D0D nền · #FF7A00 cam · #FFB000 vàng/lửa.
 abstract final class Mau {
   static const giay = Color(0xFF0D0D0D);
   static const beMat = Color(0xFF1A1A1A);
@@ -20,7 +20,7 @@ abstract final class Mau {
       onSurface: muc,
       primary: reu,
       onPrimary: giay,
-      secondary: mo,
+      secondary: lua,
       onSecondary: giay,
       outline: vien,
       error: canhBao,

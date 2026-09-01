@@ -139,43 +139,36 @@ BEO: 28
     expect(motHang.beo, 28);
   });
 
-  test('quy 100 g: Pepsi 0/330, banh bo 240/100 log 50 = 120', () {
-    final pepsi = CongThuc.quy100(const DocMon(ten: 'Pepsi', gram: 330, kcal: 0));
-    expect(pepsi.gram, 100);
+  test('khong bat buoc 100 g: Pepsi 0/330, banh bo 240/100 log 50 = 120', () {
+    final pepsi = CongThuc.tiLe(kcal: 0, gGoc: 330, gMoi: 330);
+    expect(pepsi.gram, 330);
     expect(pepsi.kcal, 0);
-    final logPepsi = CongThuc.dung(kcal100: pepsi.kcal!, g: 330);
-    expect(logPepsi.kcal, 0);
+    expect(CongThuc.tiLe(kcal: 0, gGoc: 330, gMoi: 165).kcal, 0);
 
-    final bo = CongThuc.quy100(const DocMon(ten: 'Bánh bò', gram: 100, kcal: 240));
-    expect(bo.kcal, 240);
-    expect(bo.gram, 100);
-    final logBo = CongThuc.dung(kcal100: 240, g: 50);
+    final logBo = CongThuc.tiLe(kcal: 240, gGoc: 100, gMoi: 50);
     expect(logBo.kcal, 120);
+    expect(logBo.gram, 50);
 
-    final khoi = CongThuc.quy100(const DocMon(
-      ten: 'Bò',
-      gram: 250,
+    final khoi = CongThuc.tiLe(
       kcal: 520,
+      gGoc: 250,
+      gMoi: 125,
       dam: 40,
       bot: 12,
       beo: 28,
-    ));
-    expect(khoi.kcal, 208);
-    expect(khoi.gram, 100);
-    expect(khoi.dam, 16);
-    expect(khoi.bot, 4.8);
-    expect(khoi.beo, 11.2);
-    final logKhoi = CongThuc.dung(
-      kcal100: khoi.kcal!,
-      g: 250,
-      dam100: khoi.dam,
-      bot100: khoi.bot,
-      beo100: khoi.beo,
     );
-    expect(logKhoi.kcal, 520);
-    expect(logKhoi.dam, 40);
-    expect(logKhoi.bot, 12);
-    expect(logKhoi.beo, 28);
+    expect(khoi.kcal, 260);
+    expect(khoi.gram, 125);
+    expect(khoi.dam, 20);
+    expect(khoi.bot, 6);
+    expect(khoi.beo, 14);
+  });
+
+  test('han macro 30/40/30 tu kcal goi y', () {
+    final h = CongThuc.hanMacro(2000);
+    expect(h.dam, 150);
+    expect(h.bot, 200);
+    expect(h.beo, closeTo(66.7, 0.05));
   });
 
   test('lua tap: gap 0 sang, bo 1-2 giu so, gap 3 luu noi', () {

@@ -237,7 +237,7 @@ void main() {
 
     await kho.luuMon(ten: 'Pepsi', kcal: 0, gram: 330, vaoNgay: true);
     expect(kho.dsMon.single.kcal, 0);
-    expect(kho.dsMon.single.gram, 100);
+    expect(kho.dsMon.single.gram, 330);
     expect(kho.logNgay(kho.selected).single.gram, 330);
     expect(kho.logNgay(kho.selected).single.kcal, 0);
 
@@ -253,6 +253,19 @@ void main() {
     expect(log50.kcal, 120);
     expect(log50.gram, 50);
     expect(kho.dsMon.firstWhere((f) => f.ten == 'Bánh bò').kcal, 240);
+  });
+
+  test('kho mon ABC va tim realtime chua ky tu', () async {
+    final kho = Kho(db, bayGio: DateTime(2026, 8, 30, 13));
+    addTearDown(kho.dispose);
+    await kho.tai();
+    await kho.luuMon(ten: 'Phở bò', kcal: 450);
+    await kho.luuMon(ten: 'Cơm', kcal: 200);
+    await kho.luuMon(ten: 'Bánh mì', kcal: 250);
+    expect(kho.dsMon.map((f) => f.ten).toList(), ['Bánh mì', 'Cơm', 'Phở bò']);
+    expect(kho.dsMonLoc('b').map((f) => f.ten).toList(), ['Bánh mì', 'Phở bò']);
+    expect(kho.dsMonLoc('Cơ').map((f) => f.ten).toList(), ['Cơm']);
+    expect(kho.dsMonLoc('xyz'), isEmpty);
   });
 
   test('apk trong khoi phuc file iOS: tick va mon con', () async {

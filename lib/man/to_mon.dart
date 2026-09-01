@@ -523,15 +523,38 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
   }
 }
 
-class ToMonDaLuu extends StatelessWidget {
+class ToMonDaLuu extends StatefulWidget {
   const ToMonDaLuu({super.key, required this.kho, this.ngay});
 
   final Kho kho;
   final DateTime? ngay;
 
-  DateTime get _ngay => ngay ?? kho.selected;
+  @override
+  State<ToMonDaLuu> createState() => _ToMonDaLuuState();
+}
+
+class _ToMonDaLuuState extends State<ToMonDaLuu> {
+  final _tim = TextEditingController();
+
+  Kho get kho => widget.kho;
+
+  DateTime get _ngay => widget.ngay ?? kho.selected;
 
   bool get _khoa => !Ngay.ghiDuoc(_ngay, kho.homNay);
+
+  @override
+  void initState() {
+    super.initState();
+    _tim.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tim.dispose();
+    super.dispose();
+  }
 
   Future<void> _sua(BuildContext context, Food f) async {
     final kq = await moDlgSuaMon(context, f);
@@ -541,7 +564,7 @@ class ToMonDaLuu extends StatelessWidget {
       id: f.id,
       ten: kq.ten,
       kcal: kq.kcal,
-      gram: 100,
+      gram: kq.gram,
       dam: kq.dam,
       bot: kq.bot,
       beo: kq.beo,
@@ -559,6 +582,7 @@ class ToMonDaLuu extends StatelessWidget {
     return ListenableBuilder(
       listenable: kho,
       builder: (context, _) {
+        final ds = kho.dsMonLoc(_tim.text);
         return SafeArea(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -574,10 +598,23 @@ class ToMonDaLuu extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Mau.muc),
                 ),
                 const SizedBox(height: 12),
+                TextField(
+                  key: const Key('tim-kho'),
+                  controller: _tim,
+                  textCapitalization: TextCapitalization.sentences,
+                  enableIMEPersonalizedLearning: true,
+                  decoration: const InputDecoration(
+                    hintText: Chuoi.timMon,
+                    prefixIcon: Icon(Icons.search, color: Mau.mo),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 if (kho.dsMon.isEmpty)
                   const Text('—', style: TextStyle(color: Mau.mo))
+                else if (ds.isEmpty)
+                  const Text('—', style: TextStyle(color: Mau.mo))
                 else
-                  for (final f in kho.dsMon)
+                  for (final f in ds)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 6),
                       child: Material(
@@ -631,3 +668,4 @@ class ToMonDaLuu extends StatelessWidget {
     );
   }
 }
+

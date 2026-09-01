@@ -141,6 +141,10 @@ abstract final class Chuoi {
   static const dam = 'Đạm';
   static const bot = 'Bột';
   static const beo = 'Béo';
+  static const timMon = 'Tìm món';
+  static const kcal = 'kcal';
+  static const kcalConLai = 'kcal còn lại';
+  static const kcalVuot = 'kcal vượt';
   static const eoCm = 'Eo';
   static const hongCm = 'Hông';
   static const ngucCm = 'Ngực';

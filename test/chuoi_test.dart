@@ -9,6 +9,9 @@ void main() {
     expect(Chuoi.caiDat, 'Cài đặt');
     expect(Chuoi.thoiQuen, 'Thói quen');
     expect(Chuoi.tenApp, 'Habis');
+    expect(Chuoi.timMon, 'Tìm món');
+    expect(Chuoi.kcalConLai, 'kcal còn lại');
+    expect(Chuoi.kcalVuot, 'kcal vượt');
     expect(Chuoi.thieuChieuCao, 'Thiếu chiều cao');
     expect(Chuoi.tatPinNhac, 'Tắt tiết kiệm pin cho Habis nếu nhắc không kêu');
     expect(Chuoi.mucTieu, 'Mục tiêu');

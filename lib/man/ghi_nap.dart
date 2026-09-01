@@ -6,6 +6,7 @@ import '../db/database.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../widget/hang_habit.dart';
+import '../widget/vong_kcal.dart';
 import 'to_mon.dart';
 
 class ManGhiNap extends StatefulWidget {
@@ -147,35 +148,19 @@ class _ManGhiNapState extends State<ManGhiNap> {
                     ),
                   ),
                 const SizedBox(height: 12),
-                if (logs.isNotEmpty && goi != null) ...[
-                  Text(
-                    Chuoi.napTrenGoi(nap, goi),
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: mau),
+                if (logs.isNotEmpty) ...[
+                  VongKcalNgay(
+                    nap: nap,
+                    goi: goi,
+                    dam: mac.dam,
+                    bot: mac.bot,
+                    beo: mac.beo,
                   ),
                   if (chuNhan != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.only(top: 10),
                       child: Text(chuNhan, style: TextStyle(fontSize: 15, color: mau)),
                     ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      Chuoi.damBotBeo(mac.dam, mac.bot, mac.beo),
-                      style: const TextStyle(fontSize: 15, color: Mau.mo),
-                    ),
-                  ),
-                ] else if (logs.isNotEmpty) ...[
-                  Text(
-                    '$nap',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Mau.muc),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      Chuoi.damBotBeo(mac.dam, mac.bot, mac.beo),
-                      style: const TextStyle(fontSize: 15, color: Mau.mo),
-                    ),
-                  ),
                 ],
               ],
             ),

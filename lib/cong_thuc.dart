@@ -28,6 +28,11 @@ abstract final class CongThuc {
   static const loaiNhayDay = 'nhay_day';
   static const loaiGianCo = 'gian_co';
 
+  /// Macro chuẩn từ kcal gợi ý: đạm 30% · bột 40% · béo 30%.
+  static const tyLeDam = 0.30;
+  static const tyLeBot = 0.40;
+  static const tyLeBeo = 0.30;
+
   static const mon = [
     (loai: loaiDiBo, met: metDiBo),
     (loai: loaiChay, met: metChay),
@@ -254,27 +259,47 @@ abstract final class CongThuc {
 
   static double motSo(double v) => (v * 10).round() / 10.0;
 
-  /// foods lưu /100 g. Khối khác 100 g thì quy về 100 g.
+  /// Không bắt buộc /100 g. Giữ nguyên khối người dùng đưa.
   static DocMon quy100(DocMon d) {
     final g = d.gram;
     if (g == null || g <= 0 || (g - 100).abs() < 0.05) {
       return DocMon(
         ten: d.ten,
-        gram: 100,
+        gram: g ?? 100,
         kcal: d.kcal,
         dam: d.dam == null ? null : motSo(d.dam!),
         bot: d.bot == null ? null : motSo(d.bot!),
         beo: d.beo == null ? null : motSo(d.beo!),
       );
     }
-    final k = 100 / g;
     return DocMon(
       ten: d.ten,
-      gram: 100,
-      kcal: d.kcal == null ? null : (d.kcal! * k).round(),
-      dam: d.dam == null ? null : motSo(d.dam! * k),
-      bot: d.bot == null ? null : motSo(d.bot! * k),
-      beo: d.beo == null ? null : motSo(d.beo! * k),
+      gram: g,
+      kcal: d.kcal,
+      dam: d.dam == null ? null : motSo(d.dam!),
+      bot: d.bot == null ? null : motSo(d.bot!),
+      beo: d.beo == null ? null : motSo(d.beo!),
+    );
+  }
+
+  /// Scale kcal + macro theo tỷ lệ grams. Làm tròn kcal; macro 1 số.
+  static DocMon tiLe({
+    required int kcal,
+    required double gGoc,
+    required double gMoi,
+    double? dam,
+    double? bot,
+    double? beo,
+    String? ten,
+  }) {
+    final k = gGoc <= 0 ? 1.0 : gMoi / gGoc;
+    return DocMon(
+      ten: ten,
+      gram: gMoi,
+      kcal: (kcal * k).round(),
+      dam: dam == null ? null : motSo(dam * k),
+      bot: bot == null ? null : motSo(bot * k),
+      beo: beo == null ? null : motSo(beo * k),
     );
   }
 
@@ -287,14 +312,23 @@ abstract final class CongThuc {
     double? beo100,
     String? ten,
   }) {
-    final k = g / 100.0;
-    return DocMon(
+    return tiLe(
+      kcal: kcal100,
+      gGoc: 100,
+      gMoi: g,
+      dam: dam100,
+      bot: bot100,
+      beo: beo100,
       ten: ten,
-      gram: g,
-      kcal: (kcal100 * k).round(),
-      dam: dam100 == null ? null : motSo(dam100 * k),
-      bot: bot100 == null ? null : motSo(bot100 * k),
-      beo: beo100 == null ? null : motSo(beo100 * k),
+    );
+  }
+
+  /// Hạn macro (g) từ kcal gợi ý, tỷ lệ 30/40/30.
+  static ({double dam, double bot, double beo}) hanMacro(int kcal) {
+    return (
+      dam: motSo(kcal * tyLeDam / 4),
+      bot: motSo(kcal * tyLeBot / 4),
+      beo: motSo(kcal * tyLeBeo / 9),
     );
   }
 

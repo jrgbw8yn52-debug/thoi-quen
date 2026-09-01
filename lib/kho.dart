@@ -104,6 +104,8 @@ class BanNho extends ChangeNotifier {
   void ban() => notifyListeners();
 }
 
+String _abc(String s) => s.toLowerCase().replaceAll('đ', 'd');
+
 class Kho extends ChangeNotifier {
   Kho(this.db, {DateTime? bayGio}) : homNay = Ngay.cat(bayGio ?? DateTime.now()) {
     selected = homNay;
@@ -819,6 +821,7 @@ class Kho extends ChangeNotifier {
     dsTap = await db.dsTap();
     dsNap = await db.dsNap();
     dsMon = await db.dsMon();
+    dsMon.sort((a, b) => _abc(a.ten).compareTo(_abc(b.ten)));
     dsLog = await db.dsLog();
     dsChiSo = await db.dsChiSo();
     dsMocBanDau = await db.dsMoc(AppDatabase.loaiBanDau);
@@ -1139,44 +1142,30 @@ class Kho extends ChangeNotifier {
     final t = ten.trim();
     if (t.isEmpty) return null;
     if (kcal < 0 || kcal > 20000) return null;
-    final q = CongThuc.quy100(DocMon(
-      ten: t,
-      gram: gram,
-      kcal: kcal,
-      dam: dam,
-      bot: bot,
-      beo: beo,
-    ));
+    final damLuu = dam == null ? null : CongThuc.motSo(dam);
+    final botLuu = bot == null ? null : CongThuc.motSo(bot);
+    final beoLuu = beo == null ? null : CongThuc.motSo(beo);
     final id = await db.themMon(
       ten: t,
-      kcal: q.kcal ?? 0,
-      gram: 100,
+      kcal: kcal,
+      gram: gram,
       vanBan: vanBan,
-      dam: q.dam,
-      bot: q.bot,
-      beo: q.beo,
+      dam: damLuu,
+      bot: botLuu,
+      beo: beoLuu,
     );
     if (vaoNgay) {
       final d = Ngay.cat(ngay ?? selected);
       if (Ngay.ghiDuoc(d, homNay)) {
-        final gLog = gram ?? 100;
-        final log = CongThuc.dung(
-          kcal100: q.kcal ?? 0,
-          g: gLog,
-          dam100: q.dam,
-          bot100: q.bot,
-          beo100: q.beo,
-          ten: t,
-        );
         await db.ghiLog(
           d,
           foodId: id,
           ten: t,
-          kcal: log.kcal ?? 0,
-          gram: gLog,
-          dam: log.dam,
-          bot: log.bot,
-          beo: log.beo,
+          kcal: kcal,
+          gram: gram,
+          dam: damLuu,
+          bot: botLuu,
+          beo: beoLuu,
         );
       }
     }
@@ -1249,6 +1238,12 @@ class Kho extends ChangeNotifier {
     return null;
   }
 
+  List<Food> dsMonLoc(String q) {
+    final k = q.trim().toLowerCase();
+    if (k.isEmpty) return dsMon;
+    return [for (final f in dsMon) if (f.ten.toLowerCase().contains(k)) f];
+  }
+
   Future<bool> suaLogGram(int id, double g, {DateTime? ngay}) async {
     final d = Ngay.cat(ngay ?? selected);
     if (!Ngay.ghiDuoc(d, homNay)) return false;
@@ -1259,30 +1254,14 @@ class Kho extends ChangeNotifier {
       if (l.id == id && l.ngay == iso) log = l;
     }
     if (log == null) return false;
-    final f = monCua(log.foodId);
-    final int kcal100;
-    final double? dam100;
-    final double? bot100;
-    final double? beo100;
-    if (f != null) {
-      kcal100 = f.kcal;
-      dam100 = f.dam;
-      bot100 = f.bot;
-      beo100 = f.beo;
-    } else {
-      final oldG = log.gram ?? 100;
-      final k = oldG <= 0 ? 1.0 : 100 / oldG;
-      kcal100 = (log.kcal * k).round();
-      dam100 = log.dam == null ? null : CongThuc.motSo(log.dam! * k);
-      bot100 = log.bot == null ? null : CongThuc.motSo(log.bot! * k);
-      beo100 = log.beo == null ? null : CongThuc.motSo(log.beo! * k);
-    }
-    final x = CongThuc.dung(
-      kcal100: kcal100,
-      g: g,
-      dam100: dam100,
-      bot100: bot100,
-      beo100: beo100,
+    final gGoc = (log.gram != null && log.gram! > 0) ? log.gram! : 100.0;
+    final x = CongThuc.tiLe(
+      kcal: log.kcal,
+      gGoc: gGoc,
+      gMoi: g,
+      dam: log.dam,
+      bot: log.bot,
+      beo: log.beo,
     );
     await db.suaLog(
       id,

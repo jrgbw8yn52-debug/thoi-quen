@@ -926,6 +926,8 @@ void main() {
     await kho.luuMon(ten: 'A', kcal: goi + 200, vaoNgay: true);
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.vuotChiTieu), findsOneWidget);
+    expect(find.byKey(const Key('vong-kcal')), findsOneWidget);
+    expect(find.byKey(const Key('kcal-con')), findsOneWidget);
     final id = kho.logNgay(kho.selected).first.id;
     await kho.suaLog(id, kcal: goi);
     await tester.pumpAndSettle();
@@ -1045,7 +1047,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(k.logNgay(k.selected).single.dam, 40);
     expect(k.macroNgay(k.selected).dam, 40);
-    expect(find.text(Chuoi.damBotBeo(40, 12, 28)), findsOneWidget);
+    expect(find.byKey(const Key('vong-kcal')), findsOneWidget);
+    expect(find.byKey(const Key('thanh-dam')), findsOneWidget);
     expect(find.text(Chuoi.dongMon('Bò lúc lắc', 520)), findsOneWidget);
   });
 
