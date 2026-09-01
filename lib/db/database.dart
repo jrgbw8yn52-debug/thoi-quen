@@ -740,7 +740,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
   }) async {
     final t = ten.trim();
     if (t.isEmpty) return false;
-    if (kcal < 1 || kcal > 20000) return false;
+    if (kcal < 0 || kcal > 20000) return false;
     final trung = await (select(foods)..where((f) => f.ten.equals(t))).get();
     if (trung.any((f) => f.id != id)) return false;
     final n = await (update(foods)..where((f) => f.id.equals(id))).write(

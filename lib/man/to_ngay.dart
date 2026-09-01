@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 
 import '../chuoi.dart';
@@ -73,13 +72,9 @@ class _ToNgayState extends State<ToNgay> {
     if (!mounted || kq == null) return;
     await Future<void>.delayed(Duration.zero);
     if (!mounted) return;
-    await widget.kho.suaLog(
+    await widget.kho.suaLogGram(
       log.id,
-      kcal: kq.kcal,
-      gram: Value(kq.gram),
-      dam: Value(kq.dam),
-      bot: Value(kq.bot),
-      beo: Value(kq.beo),
+      kq.gram,
       ngay: widget.ngay,
     );
   }

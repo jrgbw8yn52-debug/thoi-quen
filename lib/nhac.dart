@@ -120,7 +120,7 @@ abstract final class Nhac {
       visibility: NotificationVisibility.public,
       category: AndroidNotificationCategory.reminder,
       icon: '@drawable/ic_nhac',
-      color: Color(0xFFE85D04),
+      color: Color(0xFFFF7A00),
       fullScreenIntent: false,
     );
     const ios = DarwinNotificationDetails(

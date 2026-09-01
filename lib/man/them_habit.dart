@@ -8,6 +8,7 @@ import '../mau.dart';
 import '../nhac.dart';
 import '../ten.dart';
 import '../thu.dart';
+import '../widget/o_ten.dart';
 
 class ManThemHabit extends StatefulWidget {
   const ManThemHabit({super.key, required this.kho, this.habit});
@@ -138,21 +139,11 @@ class _ManThemHabitState extends State<ManThemHabit> {
                 ),
               ),
               const SizedBox(height: 20),
-              TextField(
+              OTen(
                 key: const Key('ten-habit'),
                 controller: _ten,
                 autofocus: !_sua,
-                keyboardType: TextInputType.text,
-                textCapitalization: TextCapitalization.none,
-                autocorrect: false,
-                enableSuggestions: false,
-                enableIMEPersonalizedLearning: false,
-                spellCheckConfiguration: const SpellCheckConfiguration.disabled(),
-                smartDashesType: SmartDashesType.disabled,
-                smartQuotesType: SmartQuotesType.disabled,
-                decoration: const InputDecoration(
-                  hintText: Chuoi.tenThoiQuen,
-                ),
+                hint: Chuoi.tenThoiQuen,
               ),
               const SizedBox(height: 16),
               Wrap(

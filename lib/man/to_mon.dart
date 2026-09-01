@@ -7,6 +7,7 @@ import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
 import '../so.dart';
+import '../widget/o_ten.dart';
 
 Future<void> _unfocusRoi() async {
   FocusManager.instance.primaryFocus?.unfocus();
@@ -96,13 +97,9 @@ Future<void> moChonThemMon(BuildContext context, Kho kho, {DateTime? ngay}) asyn
 }
 
 class SuaLogKq {
-  const SuaLogKq({required this.kcal, this.gram, this.dam, this.bot, this.beo});
+  const SuaLogKq({required this.gram});
 
-  final int kcal;
-  final double? gram;
-  final double? dam;
-  final double? bot;
-  final double? beo;
+  final double gram;
 }
 
 class SuaMonKq {
@@ -153,46 +150,26 @@ class _DlgSuaLog extends StatefulWidget {
 }
 
 class _DlgSuaLogState extends State<_DlgSuaLog> {
-  late final TextEditingController _kcal;
   late final TextEditingController _gram;
-  late final TextEditingController _dam;
-  late final TextEditingController _bot;
-  late final TextEditingController _beo;
 
   @override
   void initState() {
     super.initState();
-    final l = widget.log;
-    _kcal = TextEditingController(text: '${l.kcal}');
-    _gram = TextEditingController(text: l.gram == null ? '' : So.kg(l.gram!));
-    _dam = TextEditingController(text: l.dam == null ? '' : So.kg(l.dam!));
-    _bot = TextEditingController(text: l.bot == null ? '' : So.kg(l.bot!));
-    _beo = TextEditingController(text: l.beo == null ? '' : So.kg(l.beo!));
+    final g = widget.log.gram;
+    _gram = TextEditingController(text: g == null ? '' : So.kg(g));
   }
 
   @override
   void dispose() {
-    _kcal.dispose();
     _gram.dispose();
-    _dam.dispose();
-    _bot.dispose();
-    _beo.dispose();
     super.dispose();
   }
 
   void _luu() {
     FocusManager.instance.primaryFocus?.unfocus();
-    final kcal = So.parseKcal(_kcal.text);
-    if (kcal == null) return;
-    Navigator.of(context, rootNavigator: true).pop(
-      SuaLogKq(
-        kcal: kcal,
-        gram: So.parseG(_gram.text),
-        dam: So.parseMacro(_dam.text),
-        bot: So.parseMacro(_bot.text),
-        beo: So.parseMacro(_beo.text),
-      ),
-    );
+    final g = So.parseG(_gram.text);
+    if (g == null) return;
+    Navigator.of(context, rootNavigator: true).pop(SuaLogKq(gram: g));
   }
 
   @override
@@ -201,44 +178,11 @@ class _DlgSuaLogState extends State<_DlgSuaLog> {
       backgroundColor: Mau.beMat,
       scrollable: true,
       title: Text(widget.log.ten, style: const TextStyle(color: Mau.muc)),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            key: const Key('sua-kcal'),
-            controller: _kcal,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(suffixText: 'kcal'),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            key: const Key('sua-gram'),
-            controller: _gram,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(hintText: Chuoi.khoiLuongG, suffixText: 'g'),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            key: const Key('sua-dam'),
-            controller: _dam,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(hintText: Chuoi.dam, suffixText: 'g'),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            key: const Key('sua-bot'),
-            controller: _bot,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(hintText: Chuoi.bot, suffixText: 'g'),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            key: const Key('sua-beo'),
-            controller: _beo,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(hintText: Chuoi.beo, suffixText: 'g'),
-          ),
-        ],
+      content: TextField(
+        key: const Key('sua-gram'),
+        controller: _gram,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: const InputDecoration(hintText: Chuoi.khoiLuongG, suffixText: 'g'),
       ),
       actions: [
         TextButton(
@@ -321,11 +265,10 @@ class _DlgSuaMonState extends State<_DlgSuaMon> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
+          OTen(
             key: const Key('sua-ten-mon'),
             controller: _ten,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(hintText: Chuoi.taoCongThuc),
+            hint: Chuoi.taoCongThuc,
           ),
           const SizedBox(height: 8),
           TextField(
@@ -413,6 +356,7 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
   }
 
   void _gan(TextEditingController c, String v) {
+    if (c.value.composing.isValid) return;
     if (c.text == v) return;
     c.value = TextEditingValue(
       text: v,
@@ -494,20 +438,19 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
             ),
             const SizedBox(height: 12),
             if (!coMon) ...[
-              TextField(
+              OTen(
                 key: const Key('ten-mon'),
                 controller: _ten,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(hintText: Chuoi.taoCongThuc),
+                hint: Chuoi.taoCongThuc,
               ),
               const SizedBox(height: 8),
             ],
-            TextField(
+            OTen(
               key: const Key('dan-chu'),
               controller: _dan,
+              hint: Chuoi.danChuGrok,
               minLines: 4,
               maxLines: 8,
-              decoration: const InputDecoration(hintText: Chuoi.danChuGrok),
             ),
             if (doc.kcal != null)
               Padding(
@@ -598,7 +541,7 @@ class ToMonDaLuu extends StatelessWidget {
       id: f.id,
       ten: kq.ten,
       kcal: kq.kcal,
-      gram: kq.gram,
+      gram: 100,
       dam: kq.dam,
       bot: kq.bot,
       beo: kq.beo,

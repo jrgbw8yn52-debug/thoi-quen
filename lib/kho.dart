@@ -542,11 +542,17 @@ class Kho extends ChangeNotifier {
     ];
   }
 
-  String? get dongTaiKhoan {
+  String get dongTaiKhoan {
+    final thieu = <String>[
+      if (sex == null) Chuoi.thieuGioi,
+      if (dob == null) Chuoi.thieuNgaySinh,
+      if (heightCm == null) Chuoi.thieuChieuCao,
+      if (startKg == null && canMoi == null) Chuoi.thieuCan,
+    ];
+    if (thieu.isNotEmpty) return thieu.join(' · ');
     final t = CongThuc.tuoi(dob, homNay);
-    final kg = canMoi?.kg;
-    if (t == null || kg == null || heightCm == null) return null;
-    return Chuoi.tuoiCanCao('$t', So.kg(kg), So.kg(heightCm!));
+    final kg = canMoi?.kg ?? startKg;
+    return Chuoi.tuoiCanCao('$t', So.kg(kg!), So.kg(heightCm!));
   }
 
   DateTime? get duKienDoc => CongThuc.duKien(
@@ -1132,28 +1138,45 @@ class Kho extends ChangeNotifier {
   }) async {
     final t = ten.trim();
     if (t.isEmpty) return null;
-    if (kcal < 1 || kcal > 20000) return null;
-    final id = await db.themMon(
+    if (kcal < 0 || kcal > 20000) return null;
+    final q = CongThuc.quy100(DocMon(
       ten: t,
-      kcal: kcal,
       gram: gram,
-      vanBan: vanBan,
+      kcal: kcal,
       dam: dam,
       bot: bot,
       beo: beo,
+    ));
+    final id = await db.themMon(
+      ten: t,
+      kcal: q.kcal ?? 0,
+      gram: 100,
+      vanBan: vanBan,
+      dam: q.dam,
+      bot: q.bot,
+      beo: q.beo,
     );
     if (vaoNgay) {
       final d = Ngay.cat(ngay ?? selected);
       if (Ngay.ghiDuoc(d, homNay)) {
+        final gLog = gram ?? 100;
+        final log = CongThuc.dung(
+          kcal100: q.kcal ?? 0,
+          g: gLog,
+          dam100: q.dam,
+          bot100: q.bot,
+          beo100: q.beo,
+          ten: t,
+        );
         await db.ghiLog(
           d,
           foodId: id,
           ten: t,
-          kcal: kcal,
-          gram: gram,
-          dam: dam,
-          bot: bot,
-          beo: beo,
+          kcal: log.kcal ?? 0,
+          gram: gLog,
+          dam: log.dam,
+          bot: log.bot,
+          beo: log.beo,
         );
       }
     }
@@ -1212,8 +1235,63 @@ class Kho extends ChangeNotifier {
     final iso = Ngay.iso(d);
     final co = dsLog.any((l) => l.id == id && l.ngay == iso);
     if (!co) return false;
-    if (kcal != null && (kcal < 1 || kcal > 20000)) return false;
+    if (kcal != null && (kcal < 0 || kcal > 20000)) return false;
     await db.suaLog(id, kcal: kcal, ten: ten, gram: gram, dam: dam, bot: bot, beo: beo);
+    await tai();
+    return true;
+  }
+
+  Food? monCua(int? id) {
+    if (id == null) return null;
+    for (final f in dsMon) {
+      if (f.id == id) return f;
+    }
+    return null;
+  }
+
+  Future<bool> suaLogGram(int id, double g, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    if (g <= 0 || g > 5000) return false;
+    final iso = Ngay.iso(d);
+    FoodLog? log;
+    for (final l in dsLog) {
+      if (l.id == id && l.ngay == iso) log = l;
+    }
+    if (log == null) return false;
+    final f = monCua(log.foodId);
+    final int kcal100;
+    final double? dam100;
+    final double? bot100;
+    final double? beo100;
+    if (f != null) {
+      kcal100 = f.kcal;
+      dam100 = f.dam;
+      bot100 = f.bot;
+      beo100 = f.beo;
+    } else {
+      final oldG = log.gram ?? 100;
+      final k = oldG <= 0 ? 1.0 : 100 / oldG;
+      kcal100 = (log.kcal * k).round();
+      dam100 = log.dam == null ? null : CongThuc.motSo(log.dam! * k);
+      bot100 = log.bot == null ? null : CongThuc.motSo(log.bot! * k);
+      beo100 = log.beo == null ? null : CongThuc.motSo(log.beo! * k);
+    }
+    final x = CongThuc.dung(
+      kcal100: kcal100,
+      g: g,
+      dam100: dam100,
+      bot100: bot100,
+      beo100: beo100,
+    );
+    await db.suaLog(
+      id,
+      kcal: x.kcal ?? 0,
+      gram: Value(g),
+      dam: Value(x.dam),
+      bot: Value(x.bot),
+      beo: Value(x.beo),
+    );
     await tai();
     return true;
   }
@@ -1292,11 +1370,11 @@ class Kho extends ChangeNotifier {
     final coMoc = eo != null || hong != null || nguc != null || tay != null;
     await db.suaProfile(
       tenGoi: Value(ten.trim().isEmpty ? null : ten.trim()),
-      heightCm: Value(So.parseCm(cao) ?? heightCm),
+      heightCm: Value(So.parseCm(cao)),
       sex: Value(sex),
       dob: Value(dob == null ? null : Ngay.iso(dob)),
       activity: Value(activity),
-      startKg: kg != null ? Value(kg) : const Value.absent(),
+      startKg: Value(kg),
       startEo: eo != null ? Value(eo) : const Value.absent(),
       startHong: hong != null ? Value(hong) : const Value.absent(),
       startNguc: nguc != null ? Value(nguc) : const Value.absent(),

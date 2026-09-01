@@ -274,7 +274,8 @@ void main() {
     expect(find.text(Chuoi.nguonDisclaimer), findsOneWidget);
     expect(find.text(Chuoi.phienBan), findsOneWidget);
 
-    await tester.tap(find.text(Chuoi.thieuDuLieu).first);
+    expect(find.textContaining(Chuoi.thieuChieuCao), findsOneWidget);
+    await tester.tap(find.textContaining(Chuoi.thieuGioi));
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.itVanDong), findsOneWidget);
     expect(find.text(Chuoi.luuHoSo), findsOneWidget);
@@ -328,11 +329,12 @@ void main() {
     expect(tf.onChanged, isNull);
     expect(tf.autocorrect, isFalse);
     expect(tf.enableSuggestions, isFalse);
-    expect(tf.textCapitalization, TextCapitalization.none);
-    await tester.enterText(find.byKey(const Key('ten-habit')), 'Dậy');
-    expect(tf.controller!.text, 'Dậy');
-    await tester.enterText(find.byKey(const Key('ten-habit')), 'Đọc sách');
-    expect(tf.controller!.text, 'Đọc sách');
+    expect(tf.textCapitalization, TextCapitalization.sentences);
+    expect(tf.enableIMEPersonalizedLearning, isTrue);
+    await tester.enterText(find.byKey(const Key('ten-habit')), 'taapj');
+    expect(tf.controller!.text, 'taapj');
+    await tester.enterText(find.byKey(const Key('ten-habit')), 'tập');
+    expect(tf.controller!.text, 'tập');
   });
 
   testWidgets('Hom nay 31/8: 1/9 co, 29/8 khong, hang phu co dinh', (tester) async {
@@ -1110,8 +1112,10 @@ void main() {
     final id = k.logNgay(DateTime(2026, 8, 25)).single.id;
     await tester.tap(find.byKey(Key('sua-log-$id')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('sua-kcal')), findsOneWidget);
-    await tester.enterText(find.byKey(const Key('sua-kcal')), '600');
+    expect(find.byKey(const Key('sua-gram')), findsOneWidget);
+    expect(find.byKey(const Key('sua-kcal')), findsNothing);
+    expect(find.byKey(const Key('sua-dam')), findsNothing);
+    await tester.enterText(find.byKey(const Key('sua-gram')), '96,8');
     await tester.pump();
     await tester.tap(find.byKey(const Key('sua-log-luu')));
     await tester.pumpAndSettle();

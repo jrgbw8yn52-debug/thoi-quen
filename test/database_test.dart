@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:thoi_quen/chuoi.dart';
 import 'package:thoi_quen/db/database.dart';
 import 'package:thoi_quen/kho.dart';
 import 'package:thoi_quen/ngay.dart';
@@ -209,6 +210,49 @@ void main() {
     expect(kho.selected, DateTime(2026, 8, 30));
     kho.moTuNoti('1');
     expect(kho.selected, DateTime(2026, 8, 24));
+  });
+
+  test('ho so du 4 field, can dich khong tinh; Pepsi 0 va banh bo 50 g', () async {
+    final kho = Kho(db, bayGio: DateTime(2026, 8, 30, 13));
+    addTearDown(kho.dispose);
+    await kho.tai();
+    expect(kho.dongTaiKhoan, contains(Chuoi.thieuChieuCao));
+    expect(kho.dongTaiKhoan, contains(Chuoi.thieuGioi));
+    expect(kho.dongTaiKhoan, isNot(equals(Chuoi.thieuDuLieu)));
+    await kho.luuMucTieu(dich: '65', nhip: 0.5);
+    expect(kho.dongTaiKhoan, contains(Chuoi.thieuChieuCao));
+    await kho.luuHoSo(
+      ten: 'A',
+      cao: '170',
+      sex: 'nam',
+      dob: DateTime(1996, 1, 1),
+      activity: 1.2,
+      banDau: '70',
+    );
+    expect(kho.heightCm, 170);
+    expect(kho.sex, 'nam');
+    expect(kho.dob, '1996-01-01');
+    expect(kho.startKg, 70);
+    expect(kho.dongTaiKhoan, isNot(contains('Thiếu')));
+
+    await kho.luuMon(ten: 'Pepsi', kcal: 0, gram: 330, vaoNgay: true);
+    expect(kho.dsMon.single.kcal, 0);
+    expect(kho.dsMon.single.gram, 100);
+    expect(kho.logNgay(kho.selected).single.gram, 330);
+    expect(kho.logNgay(kho.selected).single.kcal, 0);
+
+    await kho.luuMon(ten: 'Bánh bò', kcal: 240, gram: 100, vaoNgay: false);
+    final bb = kho.dsMon.firstWhere((f) => f.ten == 'Bánh bò');
+    expect(bb.kcal, 240);
+    expect(bb.gram, 100);
+    await kho.chonMon(bb.id);
+    final log100 = kho.logNgay(kho.selected).firstWhere((l) => l.ten == 'Bánh bò');
+    expect(log100.kcal, 240);
+    expect(await kho.suaLogGram(log100.id, 50), isTrue);
+    final log50 = kho.logNgay(kho.selected).firstWhere((l) => l.ten == 'Bánh bò');
+    expect(log50.kcal, 120);
+    expect(log50.gram, 50);
+    expect(kho.dsMon.firstWhere((f) => f.ten == 'Bánh bò').kcal, 240);
   });
 
   test('apk trong khoi phuc file iOS: tick va mon con', () async {

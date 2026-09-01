@@ -1,16 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-/// Cam–đen. Không neon, không tím, không vàng gold, không AEGIS.
-/// Lửa #ffb020 — không dùng cam nút cho lửa.
+/// Habis: #0D0D0D nền · #FF7A00 cam · #FFB000 vàng/lửa. Không mây SoundCloud.
 abstract final class Mau {
-  static const giay = Color(0xFF100E0C);
-  static const beMat = Color(0xFF1C1713);
+  static const giay = Color(0xFF0D0D0D);
+  static const beMat = Color(0xFF1A1A1A);
   static const muc = Color(0xFFF3ECE4);
   static const mo = Color(0xFFC4B6A8);
-  static const reu = Color(0xFFE85D04);
-  static const today = Color(0xFFFF7A2F);
-  static const lua = Color(0xFFFFB020);
+  static const reu = Color(0xFFFF7A00);
+  static const today = Color(0xFFFF7A00);
+  static const lua = Color(0xFFFFB000);
   static const canhBao = Color(0xFFD94A38);
   static const vien = Color(0xFF3A322C);
   static const chipBat = Color(0xFF2A1C14);

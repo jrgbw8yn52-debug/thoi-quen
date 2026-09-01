@@ -8,7 +8,6 @@ import 'man/lich.dart';
 import 'man/luoi_ghi.dart';
 import 'man/tien_do.dart';
 import 'mau.dart';
-import 'nhac.dart';
 import 'widget/thanh_day.dart';
 
 class VoApp extends StatelessWidget {
@@ -63,7 +62,6 @@ class _ThanMayState extends State<_ThanMay> {
       ManTaiKhoan(kho: kho),
     ];
     kho.tabBan.addListener(_veTab);
-    Nhac.xinQuyen();
   }
 
   void _veTab() {

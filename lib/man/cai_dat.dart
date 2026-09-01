@@ -180,7 +180,7 @@ class _ManTaiKhoanState extends State<ManTaiKhoan> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   child: Text(
-                    kho.dongTaiKhoan ?? Chuoi.thieuDuLieu,
+                    kho.dongTaiKhoan,
                     style: const TextStyle(fontSize: 16, color: Mau.muc),
                   ),
                 ),
@@ -256,6 +256,10 @@ class _ManTaiKhoanState extends State<ManTaiKhoan> {
           const Padding(
             padding: EdgeInsets.fromLTRB(12, 0, 12, 16),
             child: Text(Chuoi.haiMayLech, style: TextStyle(fontSize: 15, height: 1.4, color: Mau.mo)),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(12, 0, 12, 16),
+            child: Text(Chuoi.tatPinNhac, style: TextStyle(fontSize: 15, height: 1.4, color: Mau.mo)),
           ),
           _Hang(chu: Chuoi.xuatBanSao, onTap: _xuat),
           _Hang(chu: Chuoi.khoiPhuc, onTap: _khoiPhuc),

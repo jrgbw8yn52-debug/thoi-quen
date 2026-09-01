@@ -43,7 +43,7 @@ abstract final class So {
     final t = raw.trim().replaceAll(' ', '');
     if (t.isEmpty) return null;
     final v = int.tryParse(t);
-    if (v == null || v < 1 || v > 20000) return null;
+    if (v == null || v < 0 || v > 20000) return null;
     return v;
   }
 

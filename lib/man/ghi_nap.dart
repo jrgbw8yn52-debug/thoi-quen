@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 
 import '../chuoi.dart';
@@ -27,13 +26,9 @@ class _ManGhiNapState extends State<ManGhiNap> {
     if (!mounted || kq == null) return;
     await Future<void>.delayed(Duration.zero);
     if (!mounted) return;
-    await kho.suaLog(
+    await kho.suaLogGram(
       log.id,
-      kcal: kq.kcal,
-      gram: Value(kq.gram),
-      dam: Value(kq.dam),
-      bot: Value(kq.bot),
-      beo: Value(kq.beo),
+      kq.gram,
     );
   }
 

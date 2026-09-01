@@ -189,7 +189,7 @@ abstract final class CongThuc {
     final v = double.tryParse(raw);
     if (v == null) return null;
     final n = v.round();
-    if (n < 1 || n > 20000) return null;
+    if (n < 0 || n > 20000) return null;
     return n;
   }
 
@@ -233,7 +233,7 @@ abstract final class CongThuc {
     int? kcal;
     if (kcalRaw != null) {
       final n = kcalRaw.round();
-      if (n >= 1 && n <= 20000) kcal = n;
+      if (n >= 0 && n <= 20000) kcal = n;
     }
     kcal ??= docKcal(vanBan);
     double? gram;
@@ -249,6 +249,52 @@ abstract final class CongThuc {
       dam: hop(dam),
       bot: hop(bot),
       beo: hop(beo),
+    );
+  }
+
+  static double motSo(double v) => (v * 10).round() / 10.0;
+
+  /// foods lưu /100 g. Khối khác 100 g thì quy về 100 g.
+  static DocMon quy100(DocMon d) {
+    final g = d.gram;
+    if (g == null || g <= 0 || (g - 100).abs() < 0.05) {
+      return DocMon(
+        ten: d.ten,
+        gram: 100,
+        kcal: d.kcal,
+        dam: d.dam == null ? null : motSo(d.dam!),
+        bot: d.bot == null ? null : motSo(d.bot!),
+        beo: d.beo == null ? null : motSo(d.beo!),
+      );
+    }
+    final k = 100 / g;
+    return DocMon(
+      ten: d.ten,
+      gram: 100,
+      kcal: d.kcal == null ? null : (d.kcal! * k).round(),
+      dam: d.dam == null ? null : motSo(d.dam! * k),
+      bot: d.bot == null ? null : motSo(d.bot! * k),
+      beo: d.beo == null ? null : motSo(d.beo! * k),
+    );
+  }
+
+  /// kcal_dung = kcal100 * g / 100. Macro cùng công thức, làm tròn 1 số.
+  static DocMon dung({
+    required int kcal100,
+    required double g,
+    double? dam100,
+    double? bot100,
+    double? beo100,
+    String? ten,
+  }) {
+    final k = g / 100.0;
+    return DocMon(
+      ten: ten,
+      gram: g,
+      kcal: (kcal100 * k).round(),
+      dam: dam100 == null ? null : motSo(dam100 * k),
+      bot: bot100 == null ? null : motSo(bot100 * k),
+      beo: beo100 == null ? null : motSo(beo100 * k),
     );
   }
 

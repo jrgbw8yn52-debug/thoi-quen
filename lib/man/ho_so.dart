@@ -8,6 +8,7 @@ import '../mau.dart';
 import '../ngay.dart';
 import '../so.dart';
 import '../widget/lan_ngay.dart';
+import '../widget/o_ten.dart';
 
 class ManHoSo extends StatefulWidget {
   const ManHoSo({super.key, required this.kho});
@@ -195,10 +196,9 @@ class _ManHoSoState extends State<ManHoSo> {
             const SizedBox(height: 16),
             const Text(Chuoi.tenGoi, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),
             const SizedBox(height: 8),
-            TextField(
+            OTen(
               controller: _goi,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(hintText: Chuoi.tenGoi),
+              hint: Chuoi.tenGoi,
             ),
             const SizedBox(height: 16),
             const Text(Chuoi.gioi, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),

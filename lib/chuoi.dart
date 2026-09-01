@@ -1,8 +1,8 @@
 import 'so.dart';
 
-/// Mọi chữ hiện trên UI. Cấm thêm chuỗi Anh (Today/Done/Backup/Restore/Habits/Settings/Goal/Streak).
+/// Mọi chữ hiện trên UI. Cấm thêm chuỗi Anh (Today/Done/Backup/Restore/Settings/Goal/Streak).
 abstract final class Chuoi {
-  static const tenApp = 'Habits';
+  static const tenApp = 'Habis';
   static const homNay = 'Hôm nay';
   static const tienDo = 'Tiến độ';
   static const caiDat = 'Cài đặt';
@@ -26,6 +26,10 @@ abstract final class Chuoi {
   static const canHomNay = 'Cân hôm nay';
   static const kg = 'kg';
   static const thieuDuLieu = 'Thiếu dữ liệu';
+  static const thieuGioi = 'Thiếu giới';
+  static const thieuNgaySinh = 'Thiếu ngày sinh';
+  static const thieuChieuCao = 'Thiếu chiều cao';
+  static const thieuCan = 'Thiếu cân';
   static const chuaCoCan = 'Chưa có lần cân.';
   static const themThoiQuen = 'Thêm thói quen';
   static const lich = 'Lịch';
@@ -84,6 +88,7 @@ abstract final class Chuoi {
   static const nguonDisclaimer = 'Nguồn & disclaimer';
   static const phienBan = 'Phiên bản 0.1.0';
   static const haiMayLech = 'Hai máy cùng ghi sẽ lệch. Chỉ một máy ghi.';
+  static const tatPinNhac = 'Tắt tiết kiệm pin cho Habis nếu nhắc không kêu';
   static const thayToanBo = 'Thay toàn bộ dữ liệu trên máy này. Không gộp.';
   static const daXuat = 'Đã xuất bản sao.';
   static const khongCoBanSao = 'Không có bản sao.';
