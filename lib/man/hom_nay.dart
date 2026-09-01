@@ -201,13 +201,10 @@ class _ThanHome extends StatelessWidget {
                   )
                 : RepaintBoundary(
                     child: ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-                      itemCount: kho.hang.length + (kho.themDuoc ? 1 : 0),
+                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+                      itemCount: kho.hang.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 6),
                       itemBuilder: (context, i) {
-                        if (i == kho.hang.length) {
-                          return _NutThem(onTap: onThem);
-                        }
                         final h = kho.hang[i];
                         return RepaintBoundary(
                           child: HangHabit(
@@ -232,6 +229,11 @@ class _ThanHome extends StatelessWidget {
                     ),
                   ),
           ),
+          if (kho.themDuoc)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: _NutThem(onTap: onThem),
+            ),
         ],
       ),
     );
@@ -248,6 +250,7 @@ class _NutThem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        key: const Key('them-thoi-quen'),
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
         child: ConstrainedBox(

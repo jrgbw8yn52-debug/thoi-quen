@@ -375,7 +375,7 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
     if (d.dam != null) _gan(_dam, So.kg(d.dam!));
     if (d.bot != null) _gan(_bot, So.kg(d.bot!));
     if (d.beo != null) _gan(_beo, So.kg(d.beo!));
-    if (d.ten != null) _gan(_ten, d.ten!);
+    if (d.ten != null && !_ten.value.composing.isValid) _gan(_ten, d.ten!);
     _ve();
   }
 
@@ -535,6 +535,7 @@ class ToMonDaLuu extends StatefulWidget {
 
 class _ToMonDaLuuState extends State<ToMonDaLuu> {
   final _tim = TextEditingController();
+  final _loc = ValueNotifier<String>('');
 
   Kho get kho => widget.kho;
 
@@ -543,16 +544,9 @@ class _ToMonDaLuuState extends State<ToMonDaLuu> {
   bool get _khoa => !Ngay.ghiDuoc(_ngay, kho.homNay);
 
   @override
-  void initState() {
-    super.initState();
-    _tim.addListener(() {
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
   void dispose() {
     _tim.dispose();
+    _loc.dispose();
     super.dispose();
   }
 
@@ -577,12 +571,66 @@ class _ToMonDaLuuState extends State<ToMonDaLuu> {
     await kho.xoaMon(f.id);
   }
 
+  Future<void> _chon(Food f) async {
+    if (_khoa) return;
+    await kho.chonMon(f.id, ngay: _ngay);
+  }
+
+  Widget _hangMon(Food f, {required String keyPrefix, required bool nut}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Material(
+        color: Mau.giay,
+        child: Row(
+          children: [
+            Expanded(
+              child: InkWell(
+                key: Key('$keyPrefix${f.id}'),
+                onTap: _khoa ? null : () => _chon(f),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 44),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        Chuoi.dongMon(f.ten, f.kcal, g: f.gram),
+                        style: const TextStyle(fontSize: 15, color: Mau.muc),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (nut) ...[
+              SizedBox(
+                height: 44,
+                child: TextButton(
+                  key: Key('sua-mon-kho-${f.id}'),
+                  onPressed: () => _sua(context, f),
+                  child: const Text(Chuoi.sua),
+                ),
+              ),
+              SizedBox(
+                height: 44,
+                child: TextButton(
+                  key: Key('xoa-mon-kho-${f.id}'),
+                  onPressed: () => _xoa(f),
+                  child: const Text(Chuoi.xoa, style: TextStyle(color: Mau.canhBao)),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: kho,
       builder: (context, _) {
-        final ds = kho.dsMonLoc(_tim.text);
         return SafeArea(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -603,63 +651,41 @@ class _ToMonDaLuuState extends State<ToMonDaLuu> {
                   controller: _tim,
                   textCapitalization: TextCapitalization.sentences,
                   enableIMEPersonalizedLearning: true,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  spellCheckConfiguration: const SpellCheckConfiguration.disabled(),
+                  smartDashesType: SmartDashesType.disabled,
+                  smartQuotesType: SmartQuotesType.disabled,
+                  onChanged: (v) => _loc.value = v,
                   decoration: const InputDecoration(
                     hintText: Chuoi.timMon,
                     prefixIcon: Icon(Icons.search, color: Mau.mo),
                   ),
                 ),
+                ValueListenableBuilder<String>(
+                  valueListenable: _loc,
+                  builder: (context, q, _) {
+                    final goi = kho.goiYMon(q);
+                    if (goi.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Column(
+                        key: const Key('goi-y-mon'),
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final f in goi)
+                            _hangMon(f, keyPrefix: 'goi-mon-', nut: false),
+                        ],
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 12),
                 if (kho.dsMon.isEmpty)
                   const Text('—', style: TextStyle(color: Mau.mo))
-                else if (ds.isEmpty)
-                  const Text('—', style: TextStyle(color: Mau.mo))
                 else
-                  for (final f in ds)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Material(
-                        color: Mau.giay,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                key: Key('mon-kho-${f.id}'),
-                                onTap: _khoa ? null : () => kho.chonMon(f.id, ngay: _ngay),
-                                child: ConstrainedBox(
-                                  constraints: const BoxConstraints(minHeight: 44),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        Chuoi.dongMon(f.ten, f.kcal, g: f.gram),
-                                        style: const TextStyle(fontSize: 15, color: Mau.muc),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 44,
-                              child: TextButton(
-                                key: Key('sua-mon-kho-${f.id}'),
-                                onPressed: () => _sua(context, f),
-                                child: const Text(Chuoi.sua),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 44,
-                              child: TextButton(
-                                key: Key('xoa-mon-kho-${f.id}'),
-                                onPressed: () => _xoa(f),
-                                child: const Text(Chuoi.xoa, style: TextStyle(color: Mau.canhBao)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  for (final f in kho.dsMon)
+                    _hangMon(f, keyPrefix: 'mon-kho-', nut: true),
               ],
             ),
           ),
@@ -668,4 +694,3 @@ class _ToMonDaLuuState extends State<ToMonDaLuu> {
     );
   }
 }
-

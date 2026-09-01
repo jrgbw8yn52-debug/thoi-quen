@@ -71,13 +71,22 @@ void main() {
     );
     await tester.pump();
     expect(find.byKey(const Key('tim-kho')), findsOneWidget);
+    final tf = tester.widget<TextField>(find.byKey(const Key('tim-kho')));
+    expect(tf.inputFormatters ?? const [], isEmpty);
+    expect(tf.controller, isNotNull);
     expect(find.textContaining('Bánh mì'), findsOneWidget);
     expect(find.textContaining('Cơm'), findsOneWidget);
     expect(find.textContaining('Phở bò'), findsOneWidget);
+    final com = kho.dsMon.firstWhere((f) => f.ten == 'Cơm');
     await tester.enterText(find.byKey(const Key('tim-kho')), 'Cơ');
     await tester.pump();
-    expect(find.textContaining('Cơm'), findsOneWidget);
-    expect(find.textContaining('Bánh mì'), findsNothing);
-    expect(find.textContaining('Phở bò'), findsNothing);
+    expect(find.byKey(const Key('goi-y-mon')), findsOneWidget);
+    expect(find.byKey(Key('goi-mon-${com.id}')), findsOneWidget);
+    expect(find.byKey(Key('mon-kho-${com.id}')), findsOneWidget);
+    expect(find.textContaining('Bánh mì'), findsOneWidget);
+    expect(find.textContaining('Phở bò'), findsOneWidget);
+    await tester.tap(find.byKey(Key('goi-mon-${com.id}')));
+    await tester.pump();
+    expect(kho.logNgay(kho.selected).any((l) => l.ten == 'Cơm'), isTrue);
   });
 }

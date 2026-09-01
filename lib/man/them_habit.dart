@@ -51,6 +51,9 @@ class _ManThemHabitState extends State<ManThemHabit> {
   }
 
   Future<void> _luu() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    await Future<void>.delayed(Duration.zero);
+    if (!mounted) return;
     setState(() => _loi = null);
     final ten = _ten.text;
     if (Ten.sach(ten).isEmpty) return;

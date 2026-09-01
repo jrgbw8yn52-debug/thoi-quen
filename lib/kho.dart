@@ -106,6 +106,13 @@ class BanNho extends ChangeNotifier {
 
 String _abc(String s) => s.toLowerCase().replaceAll('đ', 'd');
 
+bool _chuaVi(String ten, String q) {
+  final t = ten.toLowerCase();
+  final k = q.toLowerCase();
+  if (k.isEmpty) return true;
+  return t.contains(k);
+}
+
 class Kho extends ChangeNotifier {
   Kho(this.db, {DateTime? bayGio}) : homNay = Ngay.cat(bayGio ?? DateTime.now()) {
     selected = homNay;
@@ -1241,7 +1248,20 @@ class Kho extends ChangeNotifier {
   List<Food> dsMonLoc(String q) {
     final k = q.trim().toLowerCase();
     if (k.isEmpty) return dsMon;
-    return [for (final f in dsMon) if (f.ten.toLowerCase().contains(k)) f];
+    return [for (final f in dsMon) if (_chuaVi(f.ten, k)) f];
+  }
+
+  /// Gợi ý realtime: ≥1 ký tự, tối đa 8, tên chứa chuỗi (không phân biệt hoa, vi).
+  List<Food> goiYMon(String q, {int toiDa = 8}) {
+    final k = q.trim().toLowerCase();
+    if (k.isEmpty) return const [];
+    final out = <Food>[];
+    for (final f in dsMon) {
+      if (!_chuaVi(f.ten, k)) continue;
+      out.add(f);
+      if (out.length >= toiDa) break;
+    }
+    return out;
   }
 
   Future<bool> suaLogGram(int id, double g, {DateTime? ngay}) async {

@@ -266,6 +266,12 @@ void main() {
     expect(kho.dsMonLoc('b').map((f) => f.ten).toList(), ['Bánh mì', 'Phở bò']);
     expect(kho.dsMonLoc('Cơ').map((f) => f.ten).toList(), ['Cơm']);
     expect(kho.dsMonLoc('xyz'), isEmpty);
+    expect(kho.goiYMon('').isEmpty, isTrue);
+    expect(kho.goiYMon('Cơ').map((f) => f.ten).toList(), ['Cơm']);
+    for (var i = 0; i < 9; i++) {
+      await kho.luuMon(ten: 'A$i xôi', kcal: 10 + i);
+    }
+    expect(kho.goiYMon('xôi').length, 8);
   });
 
   test('apk trong khoi phuc file iOS: tick va mon con', () async {

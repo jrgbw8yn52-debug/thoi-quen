@@ -74,11 +74,13 @@ void main() {
     expect(find.textContaining('0/0'), findsOneWidget);
     expect(find.textContaining('hôm nay 30/8/2026'), findsOneWidget);
     expect(find.text(Chuoi.day6Gio), findsOneWidget);
+    expect(find.byKey(const Key('them-thoi-quen')), findsOneWidget);
 
     await tester.tap(find.text(Chuoi.day6Gio));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('1/1'), findsOneWidget);
+    expect(find.byKey(const Key('them-thoi-quen')), findsOneWidget);
 
     await tester.tap(find.text(Chuoi.day6Gio));
     await tester.pumpAndSettle();
@@ -335,6 +337,9 @@ void main() {
     expect(tf.controller!.text, 'taapj');
     await tester.enterText(find.byKey(const Key('ten-habit')), 'tập');
     expect(tf.controller!.text, 'tập');
+    await tester.tap(find.text(Chuoi.luu));
+    await tester.pumpAndSettle();
+    expect(kho.dsHien.any((h) => h.ten == 'tập'), isTrue);
   });
 
   testWidgets('Hom nay 31/8: 1/9 co, 29/8 khong, hang phu co dinh', (tester) async {
