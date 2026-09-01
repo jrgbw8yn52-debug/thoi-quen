@@ -53,7 +53,8 @@ void main() {
     await tester.pump();
     final tf = tester.widget<TextField>(find.byKey(const Key('tim-kho')));
     expect(tf.inputFormatters ?? const [], isEmpty);
-    expect(tf.onChanged, isNotNull);
+    expect(tf.onChanged, isNull);
+    expect(tf.controller, isNotNull);
     await tester.enterText(find.byKey(const Key('tim-kho')), 'taapj');
     expect(tf.controller!.text, 'taapj');
     await tester.enterText(find.byKey(const Key('tim-kho')), 'tập');

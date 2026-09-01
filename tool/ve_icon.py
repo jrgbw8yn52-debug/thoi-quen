@@ -56,12 +56,14 @@ def square_on_bg(mark: Image.Image, size: int, *, pad_ratio: float = 0.18) -> Im
 
 
 def fg_adaptive(mark: Image.Image, out: int = 432) -> Image.Image:
-    """Foreground adaptive: trong suốt, mark trong safe zone ~66%."""
+    """Foreground adaptive: trong suốt, mark trong safe zone ~66%, dịch trái 8% (vạch nghiêng phải)."""
     canvas = Image.new("RGBA", (out, out), (0, 0, 0, 0))
     inner = int(out * 0.66)
     fig = fit_square(mark, inner)
-    xy = (out - inner) // 2
-    canvas.paste(fig, (xy, xy), fig)
+    dx = int(round(out * 0.08))
+    xy_x = (out - inner) // 2 - dx
+    xy_y = (out - inner) // 2
+    canvas.paste(fig, (xy_x, xy_y), fig)
     return canvas
 
 

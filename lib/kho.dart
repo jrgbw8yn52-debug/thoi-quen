@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'chuoi.dart';
 import 'cong_thuc.dart';
 import 'db/database.dart';
+import 'khung.dart';
 import 'ngay.dart';
 import 'nhac.dart';
 import 'so.dart';
@@ -104,13 +105,26 @@ class BanNho extends ChangeNotifier {
   void ban() => notifyListeners();
 }
 
-String _abc(String s) => s.toLowerCase().replaceAll('đ', 'd');
+String _abc(String s) => _boDau(s);
+
+String _boDau(String s) {
+  const from =
+      'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ';
+  const to = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
+  final b = StringBuffer();
+  for (final c in s.toLowerCase().split('')) {
+    final i = from.indexOf(c);
+    b.write(i >= 0 ? to[i] : c);
+  }
+  return b.toString();
+}
 
 bool _chuaVi(String ten, String q) {
-  final t = ten.toLowerCase();
-  final k = q.toLowerCase();
+  final k = q.trim().toLowerCase();
   if (k.isEmpty) return true;
-  return t.contains(k);
+  final t = ten.toLowerCase();
+  if (t.contains(k)) return true;
+  return _boDau(t).contains(_boDau(k));
 }
 
 class Kho extends ChangeNotifier {
@@ -373,31 +387,35 @@ class Kho extends ChangeNotifier {
   List<(DateTime ngay, double bmi)> get bmiTheoCan {
     final out = <(DateTime, double)>[];
     for (final c in dsCan.reversed) {
+      final d = Ngay.parse(c.ngay);
+      if (Ngay.sau(d, homNay)) continue;
       final b = CongThuc.bmi(c.kg, heightCm);
       if (b == null) continue;
-      out.add((Ngay.parse(c.ngay), b));
+      out.add((d, b));
     }
     return out;
   }
 
   List<(DateTime ngay, int kcal)> diemKcalPhin(int p, int Function(DateTime) cua) {
-    switch (p) {
-      case 1:
-        return [for (final d in Ngay.cacNgayThang(selected)) (d, cua(d))];
-      case 2:
-        return _gopTuan(Ngay.congThang(selected, -6), selected, cua);
-      case 3:
-        final out = <(DateTime, int)>[];
-        for (var i = 11; i >= 0; i--) {
-          final d = DateTime(selected.year, selected.month - i, 1);
-          final a = DateTime(d.year, d.month, 1);
-          final b = DateTime(d.year, d.month, Ngay.soNgayThang(d.year, d.month));
-          out.add((a, _kcalKhoangFn(a, b, cua)));
-        }
-        return out;
-      default:
-        return [for (final d in Ngay.tuan(selected)) (d, cua(d))];
+    final List<(DateTime, int)> ds;
+    if (p == 1) {
+      ds = [for (final d in Ngay.cacNgayThang(selected)) (d, cua(d))];
+    } else if (p == 2) {
+      ds = _gopTuan(Ngay.congThang(selected, -6), selected, cua);
+    } else if (p == 3) {
+      ds = [
+        for (var i = 11; i >= 0; i--)
+          _diemThang(DateTime(selected.year, selected.month - i, 1), cua),
+      ];
+    } else {
+      ds = [for (final d in Ngay.tuan(selected)) (d, cua(d))];
     }
+    return [for (final x in ds) if (!Ngay.sau(x.$1, homNay)) x];
+  }
+
+  (DateTime, int) _diemThang(DateTime a, int Function(DateTime) cua) {
+    final b = DateTime(a.year, a.month, Ngay.soNgayThang(a.year, a.month));
+    return (a, _kcalKhoangFn(a, b, cua));
   }
 
   List<(DateTime, int)> _gopTuan(DateTime a, DateTime b, int Function(DateTime) cua) {
@@ -1145,6 +1163,7 @@ class Kho extends ChangeNotifier {
     double? beo,
     bool vaoNgay = false,
     DateTime? ngay,
+    String? khung,
   }) async {
     final t = ten.trim();
     if (t.isEmpty) return null;
@@ -1173,6 +1192,7 @@ class Kho extends ChangeNotifier {
           dam: damLuu,
           bot: botLuu,
           beo: beoLuu,
+          khung: Khung.chuan(khung),
         );
       }
     }
@@ -1183,7 +1203,7 @@ class Kho extends ChangeNotifier {
     return null;
   }
 
-  Future<bool> chonMon(int foodId, {DateTime? ngay}) async {
+  Future<bool> chonMon(int foodId, {DateTime? ngay, String? khung}) async {
     final d = Ngay.cat(ngay ?? selected);
     if (!Ngay.ghiDuoc(d, homNay)) return false;
     Food? f;
@@ -1200,6 +1220,7 @@ class Kho extends ChangeNotifier {
       dam: f.dam,
       bot: f.bot,
       beo: f.beo,
+      khung: Khung.chuan(khung),
     );
     await tai();
     return true;

@@ -6,6 +6,7 @@ import '../mau.dart';
 import '../ngay.dart';
 import '../widget/duong_thong_ke.dart';
 import '../widget/lan_ngay.dart';
+import '../widget/xem_them.dart';
 
 class ManThoiKhoa extends StatefulWidget {
   const ManThoiKhoa({super.key, required this.kho});
@@ -126,43 +127,47 @@ class _ManThoiKhoaState extends State<ManThoiKhoa> {
                 if (chua.isEmpty)
                   const Text('—', style: TextStyle(color: Mau.mo))
                 else
-                  for (final c in chua)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 88,
-                            child: Text(
-                              c.ten,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 13, color: Mau.muc),
-                            ),
-                          ),
-                          Expanded(
-                            child: SizedBox(
-                              height: 10,
-                              child: FractionallySizedBox(
-                                alignment: Alignment.centerLeft,
-                                widthFactor: c.so / maxChua,
-                                child: const DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: Mau.canhBao,
-                                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                  XemThem(
+                    hang: [
+                      for (final c in chua)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 88,
+                                child: Text(
+                                  c.ten,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 13, color: Mau.muc),
+                                ),
+                              ),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 10,
+                                  child: FractionallySizedBox(
+                                    alignment: Alignment.centerLeft,
+                                    widthFactor: c.so / maxChua,
+                                    child: const DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: Mau.canhBao,
+                                        borderRadius: BorderRadius.all(Radius.circular(2)),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${c.so}',
+                                style: const TextStyle(fontSize: 13, color: Mau.canhBao),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${c.so}',
-                            style: const TextStyle(fontSize: 13, color: Mau.canhBao),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+                    ],
+                  ),
                 const SizedBox(height: 24),
                 const Text(
                   Chuoi.chiXem,

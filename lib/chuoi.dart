@@ -145,6 +145,15 @@ abstract final class Chuoi {
   static const kcal = 'kcal';
   static const kcalConLai = 'kcal còn lại';
   static const kcalVuot = 'kcal vượt';
+  static const sang = 'Sáng';
+  static const trua = 'Trưa';
+  static const chieu = 'Chiều';
+  static const toi = 'Tối';
+  static const xemThem = 'Xem thêm';
+  static const thuGon = 'Thu gọn';
+  static const nap = 'Nạp';
+  static const goiY = 'Gợi ý';
+  static const tieuThu = 'Tiêu thụ';
   static const eoCm = 'Eo';
   static const hongCm = 'Hông';
   static const ngucCm = 'Ngực';
@@ -360,6 +369,19 @@ abstract final class Chuoi {
   static String dongMon(String ten, int kcal, {double? g}) {
     if (g == null) return '$ten · $kcal';
     return '$ten · ${So.kg(g)} g · $kcal';
+  }
+
+  static String hangKhung(String ten, int n, int kcal) =>
+      '$ten · $n món · $kcal kcal';
+
+  static String tenKhung(String ma) {
+    return switch (ma) {
+      'sang' => sang,
+      'trua' => trua,
+      'chieu' => chieu,
+      'toi' => toi,
+      _ => sang,
+    };
   }
 
   static String damBotBeo(double dam, double bot, double beo) =>

@@ -181,6 +181,7 @@ class FoodLogs extends Table {
   RealColumn get dam => real().nullable()();
   RealColumn get bot => real().nullable()();
   RealColumn get beo => real().nullable()();
+  TextColumn get khung => text().withDefault(const Constant('sang'))();
 }
 
 @DriftDatabase(tables: [
@@ -206,7 +207,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -287,13 +288,18 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
           if (from < 11) {
             await m.createTable(foods);
             await m.createTable(foodLogs);
-          } else if (from < 12) {
-            await m.addColumn(foods, foods.dam);
-            await m.addColumn(foods, foods.bot);
-            await m.addColumn(foods, foods.beo);
-            await m.addColumn(foodLogs, foodLogs.dam);
-            await m.addColumn(foodLogs, foodLogs.bot);
-            await m.addColumn(foodLogs, foodLogs.beo);
+          } else {
+            if (from < 12) {
+              await m.addColumn(foods, foods.dam);
+              await m.addColumn(foods, foods.bot);
+              await m.addColumn(foods, foods.beo);
+              await m.addColumn(foodLogs, foodLogs.dam);
+              await m.addColumn(foodLogs, foodLogs.bot);
+              await m.addColumn(foodLogs, foodLogs.beo);
+            }
+            if (from < 13) {
+              await m.addColumn(foodLogs, foodLogs.khung);
+            }
           }
         },
         beforeOpen: (details) async {
@@ -681,6 +687,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     double? dam,
     double? bot,
     double? beo,
+    String khung = 'sang',
   }) {
     return into(foodLogs).insert(
       FoodLogsCompanion.insert(
@@ -692,6 +699,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         dam: Value(dam),
         bot: Value(bot),
         beo: Value(beo),
+        khung: Value(khung),
       ),
     );
   }

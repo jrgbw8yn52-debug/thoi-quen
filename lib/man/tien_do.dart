@@ -41,7 +41,10 @@ class _ManTienDoState extends State<ManTienDo> {
 
   @override
   Widget build(BuildContext context) {
-    final spark = kho.dsCan.reversed.map((c) => c.kg).toList();
+    final canDiem = <(DateTime, double)>[
+      for (final c in kho.dsCan.reversed)
+        if (!Ngay.sau(Ngay.parse(c.ngay), kho.homNay)) (Ngay.parse(c.ngay), c.kg),
+    ];
     final bmi = kho.bmiTheoCan;
     final tieu = kho.diemKcalPhin(_phinKcal, kho.kcalTapCuaNgay);
     final nap = kho.diemKcalPhin(_phinKcal, kho.kcalNapCuaNgay);
@@ -152,8 +155,13 @@ class _ManTienDoState extends State<ManTienDo> {
             const SizedBox(height: 28),
             const Text(Chuoi.hoanThanhTheoThu, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 72,
+            Container(
+              height: 88,
+              padding: const EdgeInsets.fromLTRB(6, 8, 6, 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Mau.vien),
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -175,8 +183,13 @@ class _ManTienDoState extends State<ManTienDo> {
             const SizedBox(height: 28),
             const Text(Chuoi.hoanThanhTheoNgay, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 56,
+            Container(
+              height: 72,
+              padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Mau.vien),
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -198,8 +211,13 @@ class _ManTienDoState extends State<ManTienDo> {
             const SizedBox(height: 28),
             const Text(Chuoi.hoanThanhTheoThang, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo)),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 72,
+            Container(
+              height: 88,
+              padding: const EdgeInsets.fromLTRB(6, 8, 6, 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Mau.vien),
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -207,6 +225,7 @@ class _ManTienDoState extends State<ManTienDo> {
                     Expanded(
                       child: _CotThangNho(
                         cot: c,
+                        soCot: true,
                         onTap: () {
                           HapticFeedback.selectionClick();
                           final last = DateTime(c.ngay.year, c.ngay.month, Ngay.soNgayThang(c.ngay.year, c.ngay.month));
@@ -224,14 +243,15 @@ class _ManTienDoState extends State<ManTienDo> {
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
           ),
           const SizedBox(height: 8),
-          if (spark.isNotEmpty || kho.netSang.isNotEmpty)
-            DuongCan(
-              key: const Key('duong-can'),
-              diem: spark,
-              sang: kho.netSang,
-              mo: kho.netMo,
-              truc: true,
-            ),
+          DuongCan(
+            key: const Key('duong-can'),
+            diem: [for (final c in canDiem) c.$2],
+            nhanNgay: [for (final c in canDiem) c.$1],
+            sang: kho.netSang,
+            mo: kho.netMo,
+            soTrenDiem: true,
+            truc: true,
+          ),
           if (kho.banDauKg != null || kho.hienTaiKg != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -249,29 +269,13 @@ class _ManTienDoState extends State<ManTienDo> {
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
           ),
           const SizedBox(height: 8),
-          if (bmi.isEmpty)
-            const Text(Chuoi.thieuDuLieu, style: TextStyle(color: Mau.mo))
-          else ...[
-            DuongCan(
-              key: const Key('duong-bmi'),
-              diem: [for (final b in bmi) b.$2],
-              truc: true,
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${bmi.first.$1.day}/${bmi.first.$1.month}',
-                  style: const TextStyle(fontSize: 11, color: Mau.mo),
-                ),
-                Text(
-                  '${bmi.last.$1.day}/${bmi.last.$1.month}',
-                  style: const TextStyle(fontSize: 11, color: Mau.mo),
-                ),
-              ],
-            ),
-          ],
+          DuongCan(
+            key: const Key('duong-bmi'),
+            diem: [for (final b in bmi) b.$2],
+            nhanNgay: [for (final b in bmi) b.$1],
+            soTrenDiem: true,
+            truc: true,
+          ),
           const SizedBox(height: 28),
           const Text(
             Chuoi.nangLuong,
@@ -316,7 +320,9 @@ class _ManTienDoState extends State<ManTienDo> {
           DuongCan(
             key: const Key('duong-nap'),
             diem: [for (final d in nap) d.$2.toDouble()],
+            nhanNgay: [for (final d in nap) d.$1],
             sang: goiPhin == null ? const [] : [goiPhin.toDouble()],
+            soTrenDiem: true,
             truc: true,
           ),
           if (!kho.coNap)
@@ -383,6 +389,11 @@ class _CotTuan extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 3),
         child: Column(
           children: [
+            Text(
+              '${cot.tick}',
+              style: const TextStyle(fontSize: 9, color: Mau.mo),
+            ),
+            const SizedBox(height: 2),
             Expanded(
               child: Align(
                 alignment: Alignment.bottomCenter,
@@ -415,10 +426,11 @@ class _CotTuan extends StatelessWidget {
 }
 
 class _CotThangNho extends StatelessWidget {
-  const _CotThangNho({required this.cot, required this.onTap});
+  const _CotThangNho({required this.cot, required this.onTap, this.soCot = false});
 
   final CotThang cot;
   final VoidCallback? onTap;
+  final bool soCot;
 
   @override
   Widget build(BuildContext context) {
@@ -426,18 +438,29 @@ class _CotThangNho extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0.5),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: FractionallySizedBox(
-            heightFactor: math.max(0.08, cot.phan),
-            widthFactor: 1,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: cot.dangXem ? Mau.reu : Mau.reu.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(1.5),
+        child: Column(
+          children: [
+            if (soCot)
+              Text(
+                '${cot.tick}',
+                style: const TextStyle(fontSize: 8, color: Mau.mo),
+              ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: FractionallySizedBox(
+                  heightFactor: math.max(0.08, cot.phan),
+                  widthFactor: 1,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: cot.dangXem ? Mau.reu : Mau.reu.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(1.5),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -452,33 +475,56 @@ class _CotKcalHang extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final max = diem.fold<int>(1, (a, b) => b.$2 > a ? b.$2 : a);
-    return SizedBox(
+    return Container(
       key: const Key('duong-tieu-thu'),
-      height: 72,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (final d in diem)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.5),
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: FractionallySizedBox(
-                    heightFactor: math.max(0.06, d.$2 / max),
-                    widthFactor: 1,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Mau.reu.withValues(alpha: d.$2 == 0 ? 0.25 : 0.9),
-                        borderRadius: BorderRadius.circular(2),
+      height: 132,
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Mau.vien),
+      ),
+      child: diem.isEmpty
+          ? const SizedBox.expand()
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final d in diem)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 1),
+                      child: Column(
+                        children: [
+                          Text(
+                            '${d.$2}',
+                            style: const TextStyle(fontSize: 9, color: Mau.mo),
+                          ),
+                          const SizedBox(height: 2),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: FractionallySizedBox(
+                                heightFactor: math.max(0.06, d.$2 / max),
+                                widthFactor: 1,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Mau.reu.withValues(alpha: d.$2 == 0 ? 0.25 : 0.9),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${d.$1.day}/${d.$1.month}',
+                            style: const TextStyle(fontSize: 9, color: Mau.mo),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
-              ),
+              ],
             ),
-        ],
-      ),
     );
   }
 }

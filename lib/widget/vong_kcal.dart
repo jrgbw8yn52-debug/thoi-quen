@@ -16,6 +16,7 @@ class VongKcalNgay extends StatelessWidget {
     required this.dam,
     required this.bot,
     required this.beo,
+    this.tieu = 0,
   });
 
   final int nap;
@@ -23,6 +24,7 @@ class VongKcalNgay extends StatelessWidget {
   final double dam;
   final double bot;
   final double beo;
+  final int tieu;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +80,14 @@ class VongKcalNgay extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _So3(nhan: Chuoi.nap, gia: '$nap', key: const Key('so-nap')),
+              _So3(nhan: Chuoi.goiY, gia: goi == null ? '—' : '$goi', key: const Key('so-goi')),
+              _So3(nhan: Chuoi.tieuThu, gia: '$tieu', key: const Key('so-tieu')),
+            ],
           ),
           const SizedBox(height: 20),
           ThanhMacro(
@@ -173,6 +183,33 @@ class ThanhMacro extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _So3 extends StatelessWidget {
+  const _So3({super.key, required this.nhan, required this.gia});
+
+  final String nhan;
+  final String gia;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(nhan, style: const TextStyle(fontSize: 12, color: Mau.mo)),
+          const SizedBox(height: 4),
+          Text(
+            gia,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Mau.muc,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

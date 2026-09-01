@@ -1001,6 +1001,10 @@ void main() {
     expect(find.descendant(of: to, matching: find.text(Chuoi.thucDon)), findsOneWidget);
     expect(find.descendant(of: to, matching: find.text(Chuoi.thoiQuen)), findsOneWidget);
     expect(find.descendant(of: to, matching: find.text(Chuoi.tap)), findsOneWidget);
+    await tester.tap(find.byKey(const Key('khoi-tap')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('khoi-thuc-don')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const Key('nut-them-mon')), findsOneWidget);
     expect(find.descendant(of: to, matching: find.textContaining('Phở')), findsOneWidget);
     expect(find.descendant(of: to, matching: find.textContaining('Đi bộ ·')), findsOneWidget);
@@ -1013,6 +1017,10 @@ void main() {
     await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(DateTime(2026, 8, 24))}')));
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.chiXem)), findsOneWidget);
+    await tester.tap(find.byKey(const Key('khoi-tap')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('khoi-thuc-don')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const Key('nut-them-mon')), findsNothing);
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.sua)), findsNothing);
     expect(find.descendant(of: find.byKey(const Key('to-ngay-tap')), matching: find.text(Chuoi.xoa)), findsNothing);
@@ -1117,6 +1125,8 @@ void main() {
     await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(DateTime(2026, 8, 25))}')));
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.napTieu(620, 0)), findsOneWidget);
+    await tester.tap(find.byKey(const Key('khoi-thuc-don')));
+    await tester.pumpAndSettle();
     final id = k.logNgay(DateTime(2026, 8, 25)).single.id;
     await tester.tap(find.byKey(Key('sua-log-$id')));
     await tester.pumpAndSettle();

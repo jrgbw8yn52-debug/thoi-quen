@@ -11,6 +11,9 @@ class DuongCan extends StatelessWidget {
     this.truc = false,
     this.sang = const [],
     this.mo = const [],
+    this.nhanNgay = const [],
+    this.soTrenDiem = false,
+    this.khung = true,
   });
 
   final List<double> diem;
@@ -18,20 +21,30 @@ class DuongCan extends StatelessWidget {
   final bool truc;
   final List<double> sang;
   final List<double> mo;
+  final List<DateTime> nhanNgay;
+  final bool soTrenDiem;
+  final bool khung;
 
   @override
   Widget build(BuildContext context) {
-    if (diem.isEmpty && sang.isEmpty && mo.isEmpty && dich == null) {
-      return const SizedBox.shrink();
-    }
+    final h = soTrenDiem || nhanNgay.isNotEmpty ? 148.0 : (truc ? 96.0 : 72.0);
     return SizedBox(
-      height: truc ? 72 : 56,
+      height: h,
       child: LayoutBuilder(
         builder: (context, c) {
           return RepaintBoundary(
             child: CustomPaint(
-              size: Size(c.maxWidth, truc ? 72 : 56),
-              painter: _VeDuong(diem, dich, truc, sang, mo),
+              size: Size(c.maxWidth, h),
+              painter: _VeDuong(
+                diem,
+                dich,
+                truc,
+                sang,
+                mo,
+                nhanNgay,
+                soTrenDiem,
+                khung,
+              ),
             ),
           );
         },
@@ -41,53 +54,93 @@ class DuongCan extends StatelessWidget {
 }
 
 class _VeDuong extends CustomPainter {
-  _VeDuong(this.diem, this.dich, this.truc, this.sang, this.mo);
+  _VeDuong(
+    this.diem,
+    this.dich,
+    this.truc,
+    this.sang,
+    this.mo,
+    this.nhanNgay,
+    this.soTrenDiem,
+    this.khung,
+  );
 
   final List<double> diem;
   final double? dich;
   final bool truc;
   final List<double> sang;
   final List<double> mo;
+  final List<DateTime> nhanNgay;
+  final bool soTrenDiem;
+  final bool khung;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final all = <double>[...diem, ...sang, ...mo];
-    if (dich != null) all.add(dich!);
-    if (all.isEmpty) return;
-    var minV = all.first;
-    var maxV = all.first;
-    for (final v in all) {
-      if (v < minV) minV = v;
-      if (v > maxV) maxV = v;
-    }
-    final left = truc ? 28.0 : 0.0;
-    final span = (maxV - minV).abs() < 0.05 ? 1.0 : (maxV - minV);
-    double yOf(double v) =>
-        size.height - ((v - minV) / span) * (size.height - 4) - 2;
-    double xOf(int i) {
-      final w = size.width - left;
-      if (diem.length <= 1) return left + w / 2;
-      return left + w * i / (diem.length - 1);
+    const left = 32.0;
+    const top = 18.0;
+    final bot = nhanNgay.isNotEmpty ? 22.0 : 8.0;
+    final plot = Rect.fromLTRB(left, top, size.width - 6, size.height - bot);
+
+    if (khung) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(plot.inflate(4), const Radius.circular(8)),
+        Paint()
+          ..color = Mau.vien
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1,
+      );
     }
 
-    if (truc) {
-      void veChu(String s, Offset o) {
-        final tp = TextPainter(
-          text: TextSpan(text: s, style: const TextStyle(fontSize: 10, color: Mau.mo)),
-          textDirection: TextDirection.ltr,
-        )..layout();
-        tp.paint(canvas, o);
+    final all = <double>[...diem, ...sang, ...mo];
+    if (dich != null) all.add(dich!);
+    var minV = 0.0;
+    var maxV = 1.0;
+    if (all.isNotEmpty) {
+      minV = all.first;
+      maxV = all.first;
+      for (final v in all) {
+        if (v < minV) minV = v;
+        if (v > maxV) maxV = v;
       }
-      veChu(So.kg(maxV), Offset(0, 0));
-      veChu(So.kg(minV), Offset(0, size.height - 12));
+      if ((maxV - minV).abs() < 0.05) {
+        minV -= 1;
+        maxV += 1;
+      }
     }
+
+    final span = (maxV - minV).abs() < 0.05 ? 1.0 : (maxV - minV);
+    double yOf(double v) => plot.bottom - ((v - minV) / span) * plot.height;
+    double xOf(int i) {
+      if (diem.length <= 1) return plot.left + plot.width / 2;
+      return plot.left + plot.width * i / (diem.length - 1);
+    }
+
+    void chu(String s, Offset o, {double fs = 10}) {
+      final tp = TextPainter(
+        text: TextSpan(text: s, style: TextStyle(fontSize: fs, color: Mau.mo)),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, o);
+    }
+
+    chu(So.kg(maxV), Offset(2, plot.top - 2));
+    chu(So.kg(minV), Offset(2, plot.bottom - 10));
+
+    final grid = Paint()
+      ..color = Mau.vien
+      ..strokeWidth = 1;
+    canvas.drawLine(Offset(plot.left, plot.bottom), Offset(plot.right, plot.bottom), grid);
+    canvas.drawLine(Offset(plot.left, plot.top), Offset(plot.left, plot.bottom), grid);
 
     void netNgang(double v, Color c, double w) {
       final y = yOf(v);
-      final p = Paint()
-        ..color = c
-        ..strokeWidth = w;
-      canvas.drawLine(Offset(left, y), Offset(size.width, y), p);
+      canvas.drawLine(
+        Offset(plot.left, y),
+        Offset(plot.right, y),
+        Paint()
+          ..color = c
+          ..strokeWidth = w,
+      );
     }
 
     for (final v in mo) {
@@ -97,52 +150,51 @@ class _VeDuong extends CustomPainter {
       netNgang(v, Mau.reu, 1.6);
     }
 
-    if (dich != null && !sang.any((x) => (x - dich!).abs() < 0.05)) {
-      final y = yOf(dich!);
-      final dash = Paint()
-        ..color = Mau.mo
-        ..strokeWidth = 1;
-      const w = 6.0;
-      for (var x = left; x < size.width; x += w * 2) {
-        canvas.drawLine(Offset(x, y), Offset(x + w, y), dash);
-      }
-    }
-
     if (diem.isEmpty) return;
+
     final paint = Paint()
       ..color = Mau.muc
       ..strokeWidth = 1.6
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    final path = Path();
+    if (diem.length > 1) {
+      final path = Path();
+      for (var i = 0; i < diem.length; i++) {
+        final x = xOf(i);
+        final y = yOf(diem[i]);
+        if (i == 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+      }
+      canvas.drawPath(path, paint);
+    }
+
+    final cham = Paint()
+      ..color = Mau.reu
+      ..style = PaintingStyle.fill;
     for (var i = 0; i < diem.length; i++) {
-      final x = xOf(i);
-      final y = yOf(diem[i]);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
+      final o = Offset(xOf(i), yOf(diem[i]));
+      canvas.drawCircle(o, diem.length == 1 ? 5 : 3.2, cham);
+      if (soTrenDiem) {
+        final s = diem[i] == 0 ? '0' : So.kg(diem[i]);
+        chu(s, Offset(o.dx - 8, o.dy - 16), fs: 9);
       }
     }
-    canvas.drawPath(path, paint);
-    final cham = Paint()
-      ..color = Mau.muc
-      ..style = PaintingStyle.fill;
-    if (diem.length == 1) {
-      canvas.drawCircle(Offset(xOf(0), yOf(diem.first)), 5, cham);
-    } else {
-      for (var i = 0; i < diem.length; i++) {
-        canvas.drawCircle(Offset(xOf(i), yOf(diem[i])), 3, cham);
+
+    if (nhanNgay.isNotEmpty && diem.isNotEmpty) {
+      final n = nhanNgay.length < diem.length ? nhanNgay.length : diem.length;
+      final step = n > 8 ? (n / 4).ceil() : 1;
+      for (var i = 0; i < n; i += step) {
+        final d = nhanNgay[i];
+        chu('${d.day}/${d.month}', Offset(xOf(i) - 10, plot.bottom + 2), fs: 9);
       }
     }
   }
 
   @override
   bool shouldRepaint(covariant _VeDuong old) =>
-      old.diem != diem ||
-      old.dich != dich ||
-      old.truc != truc ||
-      old.sang != sang ||
-      old.mo != mo;
+      old.diem != diem || old.soTrenDiem != soTrenDiem;
 }

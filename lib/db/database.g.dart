@@ -4202,6 +4202,16 @@ class $FoodLogsTable extends FoodLogs with TableInfo<$FoodLogsTable, FoodLog> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _khungMeta = const VerificationMeta('khung');
+  @override
+  late final GeneratedColumn<String> khung = GeneratedColumn<String>(
+    'khung',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('sang'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4213,6 +4223,7 @@ class $FoodLogsTable extends FoodLogs with TableInfo<$FoodLogsTable, FoodLog> {
     dam,
     bot,
     beo,
+    khung,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4283,6 +4294,12 @@ class $FoodLogsTable extends FoodLogs with TableInfo<$FoodLogsTable, FoodLog> {
         beo.isAcceptableOrUnknown(data['beo']!, _beoMeta),
       );
     }
+    if (data.containsKey('khung')) {
+      context.handle(
+        _khungMeta,
+        khung.isAcceptableOrUnknown(data['khung']!, _khungMeta),
+      );
+    }
     return context;
   }
 
@@ -4328,6 +4345,10 @@ class $FoodLogsTable extends FoodLogs with TableInfo<$FoodLogsTable, FoodLog> {
         DriftSqlType.double,
         data['${effectivePrefix}beo'],
       ),
+      khung: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}khung'],
+      )!,
     );
   }
 
@@ -4347,6 +4368,7 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
   final double? dam;
   final double? bot;
   final double? beo;
+  final String khung;
   const FoodLog({
     required this.id,
     required this.ngay,
@@ -4357,6 +4379,7 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
     this.dam,
     this.bot,
     this.beo,
+    required this.khung,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4380,6 +4403,7 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
     if (!nullToAbsent || beo != null) {
       map['beo'] = Variable<double>(beo);
     }
+    map['khung'] = Variable<String>(khung);
     return map;
   }
 
@@ -4396,6 +4420,7 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
       dam: dam == null && nullToAbsent ? const Value.absent() : Value(dam),
       bot: bot == null && nullToAbsent ? const Value.absent() : Value(bot),
       beo: beo == null && nullToAbsent ? const Value.absent() : Value(beo),
+      khung: Value(khung),
     );
   }
 
@@ -4414,6 +4439,7 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
       dam: serializer.fromJson<double?>(json['dam']),
       bot: serializer.fromJson<double?>(json['bot']),
       beo: serializer.fromJson<double?>(json['beo']),
+      khung: serializer.fromJson<String>(json['khung']),
     );
   }
   @override
@@ -4429,6 +4455,7 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
       'dam': serializer.toJson<double?>(dam),
       'bot': serializer.toJson<double?>(bot),
       'beo': serializer.toJson<double?>(beo),
+      'khung': serializer.toJson<String>(khung),
     };
   }
 
@@ -4442,6 +4469,7 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
     Value<double?> dam = const Value.absent(),
     Value<double?> bot = const Value.absent(),
     Value<double?> beo = const Value.absent(),
+    String? khung,
   }) => FoodLog(
     id: id ?? this.id,
     ngay: ngay ?? this.ngay,
@@ -4452,6 +4480,7 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
     dam: dam.present ? dam.value : this.dam,
     bot: bot.present ? bot.value : this.bot,
     beo: beo.present ? beo.value : this.beo,
+    khung: khung ?? this.khung,
   );
   FoodLog copyWithCompanion(FoodLogsCompanion data) {
     return FoodLog(
@@ -4464,6 +4493,7 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
       dam: data.dam.present ? data.dam.value : this.dam,
       bot: data.bot.present ? data.bot.value : this.bot,
       beo: data.beo.present ? data.beo.value : this.beo,
+      khung: data.khung.present ? data.khung.value : this.khung,
     );
   }
 
@@ -4478,14 +4508,15 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
           ..write('gram: $gram, ')
           ..write('dam: $dam, ')
           ..write('bot: $bot, ')
-          ..write('beo: $beo')
+          ..write('beo: $beo, ')
+          ..write('khung: $khung')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, ngay, foodId, ten, kcal, gram, dam, bot, beo);
+      Object.hash(id, ngay, foodId, ten, kcal, gram, dam, bot, beo, khung);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4498,7 +4529,8 @@ class FoodLog extends DataClass implements Insertable<FoodLog> {
           other.gram == this.gram &&
           other.dam == this.dam &&
           other.bot == this.bot &&
-          other.beo == this.beo);
+          other.beo == this.beo &&
+          other.khung == this.khung);
 }
 
 class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
@@ -4511,6 +4543,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
   final Value<double?> dam;
   final Value<double?> bot;
   final Value<double?> beo;
+  final Value<String> khung;
   const FoodLogsCompanion({
     this.id = const Value.absent(),
     this.ngay = const Value.absent(),
@@ -4521,6 +4554,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     this.dam = const Value.absent(),
     this.bot = const Value.absent(),
     this.beo = const Value.absent(),
+    this.khung = const Value.absent(),
   });
   FoodLogsCompanion.insert({
     this.id = const Value.absent(),
@@ -4532,6 +4566,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     this.dam = const Value.absent(),
     this.bot = const Value.absent(),
     this.beo = const Value.absent(),
+    this.khung = const Value.absent(),
   }) : ngay = Value(ngay),
        ten = Value(ten),
        kcal = Value(kcal);
@@ -4545,6 +4580,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     Expression<double>? dam,
     Expression<double>? bot,
     Expression<double>? beo,
+    Expression<String>? khung,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4556,6 +4592,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
       if (dam != null) 'dam': dam,
       if (bot != null) 'bot': bot,
       if (beo != null) 'beo': beo,
+      if (khung != null) 'khung': khung,
     });
   }
 
@@ -4569,6 +4606,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     Value<double?>? dam,
     Value<double?>? bot,
     Value<double?>? beo,
+    Value<String>? khung,
   }) {
     return FoodLogsCompanion(
       id: id ?? this.id,
@@ -4580,6 +4618,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
       dam: dam ?? this.dam,
       bot: bot ?? this.bot,
       beo: beo ?? this.beo,
+      khung: khung ?? this.khung,
     );
   }
 
@@ -4613,6 +4652,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
     if (beo.present) {
       map['beo'] = Variable<double>(beo.value);
     }
+    if (khung.present) {
+      map['khung'] = Variable<String>(khung.value);
+    }
     return map;
   }
 
@@ -4627,7 +4669,8 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
           ..write('gram: $gram, ')
           ..write('dam: $dam, ')
           ..write('bot: $bot, ')
-          ..write('beo: $beo')
+          ..write('beo: $beo, ')
+          ..write('khung: $khung')
           ..write(')'))
         .toString();
   }
@@ -7420,6 +7463,7 @@ typedef $$FoodLogsTableCreateCompanionBuilder = FoodLogsCompanion Function({
   Value<double?> dam,
   Value<double?> bot,
   Value<double?> beo,
+  Value<String> khung,
 });
 typedef $$FoodLogsTableUpdateCompanionBuilder = FoodLogsCompanion Function({
   Value<int> id,
@@ -7431,6 +7475,7 @@ typedef $$FoodLogsTableUpdateCompanionBuilder = FoodLogsCompanion Function({
   Value<double?> dam,
   Value<double?> bot,
   Value<double?> beo,
+  Value<String> khung,
 });
 
 final class $$FoodLogsTableReferences
@@ -7501,6 +7546,11 @@ class $$FoodLogsTableFilterComposer
 
   ColumnFilters<double> get beo => $composableBuilder(
     column: $table.beo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get khung => $composableBuilder(
+    column: $table.khung,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7577,6 +7627,11 @@ class $$FoodLogsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get khung => $composableBuilder(
+    column: $table.khung,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$FoodsTableOrderingComposer get foodId {
     final $$FoodsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -7633,6 +7688,9 @@ class $$FoodLogsTableAnnotationComposer
 
   GeneratedColumn<double> get beo =>
       $composableBuilder(column: $table.beo, builder: (column) => column);
+
+  GeneratedColumn<String> get khung =>
+      $composableBuilder(column: $table.khung, builder: (column) => column);
 
   $$FoodsTableAnnotationComposer get foodId {
     final $$FoodsTableAnnotationComposer composer = $composerBuilder(
@@ -7695,6 +7753,7 @@ class $$FoodLogsTableTableManager
                 Value<double?> dam = const Value.absent(),
                 Value<double?> bot = const Value.absent(),
                 Value<double?> beo = const Value.absent(),
+                Value<String> khung = const Value.absent(),
               }) => FoodLogsCompanion(
                 id: id,
                 ngay: ngay,
@@ -7705,6 +7764,7 @@ class $$FoodLogsTableTableManager
                 dam: dam,
                 bot: bot,
                 beo: beo,
+                khung: khung,
               ),
           createCompanionCallback:
               ({
@@ -7717,6 +7777,7 @@ class $$FoodLogsTableTableManager
                 Value<double?> dam = const Value.absent(),
                 Value<double?> bot = const Value.absent(),
                 Value<double?> beo = const Value.absent(),
+                Value<String> khung = const Value.absent(),
               }) => FoodLogsCompanion.insert(
                 id: id,
                 ngay: ngay,
@@ -7727,6 +7788,7 @@ class $$FoodLogsTableTableManager
                 dam: dam,
                 bot: bot,
                 beo: beo,
+                khung: khung,
               ),
           withReferenceMapper: (p0) => p0
               .map(

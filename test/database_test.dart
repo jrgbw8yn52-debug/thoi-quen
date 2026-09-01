@@ -42,8 +42,8 @@ void main() {
     expect(await db.canMoiNhat(), isNull);
   });
 
-  test('schemaVersion = 12', () {
-    expect(db.schemaVersion, 12);
+  test('schemaVersion = 13', () {
+    expect(db.schemaVersion, 13);
   });
 
   test('ticks UNIQUE (habit_id, ngay)', () async {
@@ -266,12 +266,22 @@ void main() {
     expect(kho.dsMonLoc('b').map((f) => f.ten).toList(), ['Bánh mì', 'Phở bò']);
     expect(kho.dsMonLoc('Cơ').map((f) => f.ten).toList(), ['Cơm']);
     expect(kho.dsMonLoc('xyz'), isEmpty);
-    expect(kho.goiYMon('').isEmpty, isTrue);
-    expect(kho.goiYMon('Cơ').map((f) => f.ten).toList(), ['Cơm']);
+    expect(kho.goiYMon('banh').map((f) => f.ten).toList(), ['Bánh mì']);
+    expect(kho.goiYMon('buns').isEmpty, isTrue);
     for (var i = 0; i < 9; i++) {
       await kho.luuMon(ten: 'A$i xôi', kcal: 10 + i);
     }
     expect(kho.goiYMon('xôi').length, 8);
+  });
+
+  test('food_log khung sang/trua theo gio, mac dinh sang', () async {
+    final kho = Kho(db, bayGio: DateTime(2026, 8, 30, 13));
+    addTearDown(kho.dispose);
+    await kho.tai();
+    await kho.luuMon(ten: 'Phở', kcal: 400, vaoNgay: true, khung: 'trua');
+    expect(kho.logNgay(kho.selected).single.khung, 'trua');
+    await kho.luuMon(ten: 'Cơm', kcal: 200, vaoNgay: true);
+    expect(kho.logNgay(kho.selected).map((l) => l.khung).toSet(), {'trua', 'sang'});
   });
 
   test('apk trong khoi phuc file iOS: tick va mon con', () async {

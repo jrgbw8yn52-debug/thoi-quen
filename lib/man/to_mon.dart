@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../chuoi.dart';
@@ -8,13 +10,14 @@ import '../mau.dart';
 import '../ngay.dart';
 import '../so.dart';
 import '../widget/o_ten.dart';
+import '../widget/xem_them.dart';
 
 Future<void> _unfocusRoi() async {
   FocusManager.instance.primaryFocus?.unfocus();
   await Future<void>.delayed(Duration.zero);
 }
 
-Future<void> moToTaoCongThuc(BuildContext context, Kho kho, {DateTime? ngay}) async {
+Future<void> moToTaoCongThuc(BuildContext context, Kho kho, {DateTime? ngay, String? khung}) async {
   await _unfocusRoi();
   if (!context.mounted) return;
   await showModalBottomSheet<void>(
@@ -25,13 +28,13 @@ Future<void> moToTaoCongThuc(BuildContext context, Kho kho, {DateTime? ngay}) as
     builder: (ctx) {
       return Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
-        child: ToTaoCongThuc(kho: kho, ngay: ngay),
+        child: ToTaoCongThuc(kho: kho, ngay: ngay, khung: khung),
       );
     },
   );
 }
 
-Future<void> moToMonDaLuu(BuildContext context, Kho kho, {DateTime? ngay}) async {
+Future<void> moToMonDaLuu(BuildContext context, Kho kho, {DateTime? ngay, String? khung}) async {
   await _unfocusRoi();
   if (!context.mounted) return;
   await showModalBottomSheet<void>(
@@ -42,7 +45,7 @@ Future<void> moToMonDaLuu(BuildContext context, Kho kho, {DateTime? ngay}) async
     builder: (ctx) {
       return Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
-        child: ToMonDaLuu(kho: kho, ngay: ngay),
+        child: ToMonDaLuu(kho: kho, ngay: ngay, khung: khung),
       );
     },
   );
@@ -320,10 +323,11 @@ class _DlgSuaMonState extends State<_DlgSuaMon> {
 }
 
 class ToTaoCongThuc extends StatefulWidget {
-  const ToTaoCongThuc({super.key, required this.kho, this.ngay});
+  const ToTaoCongThuc({super.key, required this.kho, this.ngay, this.khung});
 
   final Kho kho;
   final DateTime? ngay;
+  final String? khung;
 
   @override
   State<ToTaoCongThuc> createState() => _ToTaoCongThucState();
@@ -415,6 +419,7 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
       beo: beo,
       vaoNgay: vaoNgay,
       ngay: ngay,
+      khung: widget.khung,
     );
   }
 
@@ -524,10 +529,11 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
 }
 
 class ToMonDaLuu extends StatefulWidget {
-  const ToMonDaLuu({super.key, required this.kho, this.ngay});
+  const ToMonDaLuu({super.key, required this.kho, this.ngay, this.khung});
 
   final Kho kho;
   final DateTime? ngay;
+  final String? khung;
 
   @override
   State<ToMonDaLuu> createState() => _ToMonDaLuuState();
@@ -536,6 +542,7 @@ class ToMonDaLuu extends StatefulWidget {
 class _ToMonDaLuuState extends State<ToMonDaLuu> {
   final _tim = TextEditingController();
   final _loc = ValueNotifier<String>('');
+  Timer? _deb;
 
   Kho get kho => widget.kho;
 
@@ -544,7 +551,23 @@ class _ToMonDaLuuState extends State<ToMonDaLuu> {
   bool get _khoa => !Ngay.ghiDuoc(_ngay, kho.homNay);
 
   @override
+  void initState() {
+    super.initState();
+    _tim.addListener(_locTelex);
+  }
+
+  void _locTelex() {
+    if (_tim.value.composing.isValid) return;
+    _deb?.cancel();
+    _deb = Timer(const Duration(milliseconds: 200), () {
+      if (mounted) _loc.value = _tim.text;
+    });
+  }
+
+  @override
   void dispose() {
+    _deb?.cancel();
+    _tim.removeListener(_locTelex);
     _tim.dispose();
     _loc.dispose();
     super.dispose();
@@ -573,7 +596,7 @@ class _ToMonDaLuuState extends State<ToMonDaLuu> {
 
   Future<void> _chon(Food f) async {
     if (_khoa) return;
-    await kho.chonMon(f.id, ngay: _ngay);
+    await kho.chonMon(f.id, ngay: _ngay, khung: widget.khung);
   }
 
   Widget _hangMon(Food f, {required String keyPrefix, required bool nut}) {
@@ -656,7 +679,7 @@ class _ToMonDaLuuState extends State<ToMonDaLuu> {
                   spellCheckConfiguration: const SpellCheckConfiguration.disabled(),
                   smartDashesType: SmartDashesType.disabled,
                   smartQuotesType: SmartQuotesType.disabled,
-                  onChanged: (v) => _loc.value = v,
+                  onSubmitted: (v) => _loc.value = v,
                   decoration: const InputDecoration(
                     hintText: Chuoi.timMon,
                     prefixIcon: Icon(Icons.search, color: Mau.mo),
@@ -684,8 +707,21 @@ class _ToMonDaLuuState extends State<ToMonDaLuu> {
                 if (kho.dsMon.isEmpty)
                   const Text('—', style: TextStyle(color: Mau.mo))
                 else
-                  for (final f in kho.dsMon)
-                    _hangMon(f, keyPrefix: 'mon-kho-', nut: true),
+                  ValueListenableBuilder<String>(
+                    valueListenable: _loc,
+                    builder: (context, q, _) {
+                      final ds = q.trim().isEmpty ? kho.dsMon : kho.dsMonLoc(q);
+                      if (ds.isEmpty) {
+                        return const Text('—', style: TextStyle(color: Mau.mo));
+                      }
+                      return XemThem(
+                        hang: [
+                          for (final f in ds)
+                            _hangMon(f, keyPrefix: 'mon-kho-', nut: true),
+                        ],
+                      );
+                    },
+                  ),
               ],
             ),
           ),

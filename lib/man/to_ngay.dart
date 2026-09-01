@@ -7,8 +7,10 @@ import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
 import '../widget/hang_habit.dart';
+import '../widget/khoi_gap.dart';
 import '../widget/picker_mon.dart';
 import '../widget/the_ngay.dart';
+import '../widget/xem_them.dart';
 import 'to_mon.dart';
 
 Future<void> moToNgay(BuildContext context, Kho kho, DateTime ngay) async {
@@ -116,183 +118,195 @@ class _ToNgayState extends State<ToNgay> {
                   ngay: ngay,
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  Chuoi.thoiQuen,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  Chuoi.hoanThanhThoiQuen(
+                KhoiGap(
+                  key: const Key('khoi-thoi-quen'),
+                  tieuDe: Chuoi.thoiQuen,
+                  phu: Chuoi.nTrenM(
                     kho.hang.where((h) => h.ticked).length,
                     kho.hang.length,
                   ),
-                  style: const TextStyle(fontSize: 15, color: Mau.mo),
+                  children: [
+                    if (kho.hang.isEmpty)
+                      const Text('—', style: TextStyle(color: Mau.mo))
+                    else
+                      XemThem(
+                        hang: [
+                          for (final h in kho.hang)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: HangHabit(
+                                hang: h,
+                                khoaGhi: true,
+                                choVuot: false,
+                                onTap: () {},
+                                onSua: () {},
+                                onXoa: () {},
+                              ),
+                            ),
+                        ],
+                      ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                if (kho.hang.isEmpty)
-                  const Text('—', style: TextStyle(color: Mau.mo))
-                else
-                  for (final h in kho.hang)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: HangHabit(
-                        hang: h,
-                        khoaGhi: true,
-                        choVuot: false,
-                        onTap: () {},
-                        onSua: () {},
-                        onXoa: () {},
+                const SizedBox(height: 10),
+                KhoiGap(
+                  key: const Key('khoi-tap'),
+                  tieuDe: Chuoi.tap,
+                  phu: '$tong kcal',
+                  children: [
+                    if (!_xem) ...[
+                      HangPickerMon(
+                        loai: _loai,
+                        onChon: (v) => setState(() => _loai = v),
                       ),
-                    ),
-                const SizedBox(height: 16),
-                const Text(
-                  Chuoi.tap,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
-                ),
-                if (!_xem) ...[
-                  const SizedBox(height: 8),
-                  HangPickerMon(
-                    loai: _loai,
-                    onChon: (v) => setState(() => _loai = v),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      NutBuocPhut(
-                        chu: '−',
-                        onTap: _phut <= 5 ? null : () => setState(() => _phut -= 5),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          '$_phut ${Chuoi.phut}',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Mau.muc),
-                        ),
-                      ),
-                      NutBuocPhut(
-                        chu: '+',
-                        onTap: _phut >= 180 ? null : () => setState(() => _phut += 5),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: SizedBox(
-                          height: 44,
-                          child: FilledButton(
-                            key: const Key('luu-to-ngay'),
-                            onPressed: _luuTap,
-                            child: const Text(Chuoi.luu),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          NutBuocPhut(
+                            chu: '−',
+                            onTap: _phut <= 5 ? null : () => setState(() => _phut -= 5),
                           ),
-                        ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              '$_phut ${Chuoi.phut}',
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Mau.muc),
+                            ),
+                          ),
+                          NutBuocPhut(
+                            chu: '+',
+                            onTap: _phut >= 180 ? null : () => setState(() => _phut += 5),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: SizedBox(
+                              height: 44,
+                              child: FilledButton(
+                                key: const Key('luu-to-ngay'),
+                                onPressed: _luuTap,
+                                child: const Text(Chuoi.luu),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 8),
                     ],
-                  ),
-                ],
-                const SizedBox(height: 8),
-                if (ds.isEmpty)
-                  const Text('—', style: TextStyle(color: Mau.mo))
-                else
-                  for (final t in ds)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Material(
-                        color: Mau.giay,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  Chuoi.dongPhien(Chuoi.tenMon(t.loai), t.phut, _kcal(t.loai, t.phut)),
-                                  style: const TextStyle(fontSize: 15, color: Mau.muc),
+                    if (ds.isEmpty)
+                      const Text('—', style: TextStyle(color: Mau.mo))
+                    else
+                      XemThem(
+                        hang: [
+                          for (final t in ds)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Material(
+                                color: Mau.giay,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          Chuoi.dongPhien(Chuoi.tenMon(t.loai), t.phut, _kcal(t.loai, t.phut)),
+                                          style: const TextStyle(fontSize: 15, color: Mau.muc),
+                                        ),
+                                      ),
+                                      if (!_xem) ...[
+                                        SizedBox(
+                                          height: 44,
+                                          child: TextButton(
+                                            key: Key('sua-phien-${t.id}'),
+                                            onPressed: () {
+                                              setState(() {
+                                                _suaId = t.id;
+                                                _loai = t.loai;
+                                                _phut = t.phut;
+                                              });
+                                            },
+                                            child: const Text(Chuoi.sua),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 44,
+                                          child: TextButton(
+                                            key: Key('xoa-phien-${t.id}'),
+                                            onPressed: () => kho.xoaTap(t.id, ngay: ngay),
+                                            child: const Text(Chuoi.xoa, style: TextStyle(color: Mau.canhBao)),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                 ),
                               ),
-                              if (!_xem) ...[
-                                SizedBox(
-                                  height: 44,
-                                  child: TextButton(
-                                    key: Key('sua-phien-${t.id}'),
-                                    onPressed: () {
-                                      setState(() {
-                                        _suaId = t.id;
-                                        _loai = t.loai;
-                                        _phut = t.phut;
-                                      });
-                                    },
-                                    child: const Text(Chuoi.sua),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 44,
-                                  child: TextButton(
-                                    key: Key('xoa-phien-${t.id}'),
-                                    onPressed: () => kho.xoaTap(t.id, ngay: ngay),
-                                    child: const Text(Chuoi.xoa, style: TextStyle(color: Mau.canhBao)),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
+                            ),
+                        ],
                       ),
-                    ),
-                const SizedBox(height: 16),
-                const Text(
-                  Chuoi.thucDon,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Mau.mo),
+                  ],
                 ),
-                if (!_xem) ...[
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 44,
-                    child: OutlinedButton(
-                      key: const Key('nut-them-mon'),
-                      onPressed: () => moChonThemMon(context, kho, ngay: ngay),
-                      child: const Text(Chuoi.themMon),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 8),
-                if (logs.isEmpty)
-                  const Text('—', style: TextStyle(color: Mau.mo))
-                else
-                  for (final l in logs)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Material(
-                        color: Mau.giay,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  Chuoi.dongMon(l.ten, l.kcal, g: l.gram),
-                                  style: const TextStyle(fontSize: 15, color: Mau.muc),
-                                ),
-                              ),
-                              if (!_xem) ...[
-                                SizedBox(
-                                  height: 44,
-                                  child: TextButton(
-                                    key: Key('sua-log-${l.id}'),
-                                    onPressed: () => _suaLog(l),
-                                    child: const Text(Chuoi.sua),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 44,
-                                  child: TextButton(
-                                    key: Key('xoa-log-${l.id}'),
-                                    onPressed: () => kho.xoaLog(l.id, ngay: ngay),
-                                    child: const Text(Chuoi.xoa, style: TextStyle(color: Mau.canhBao)),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
+                const SizedBox(height: 10),
+                KhoiGap(
+                  key: const Key('khoi-thuc-don'),
+                  tieuDe: Chuoi.thucDon,
+                  phu: '$nap kcal',
+                  children: [
+                    if (!_xem)
+                      SizedBox(
+                        height: 44,
+                        child: OutlinedButton(
+                          key: const Key('nut-them-mon'),
+                          onPressed: () => moChonThemMon(context, kho, ngay: ngay),
+                          child: const Text(Chuoi.themMon),
                         ),
                       ),
-                    ),
+                    const SizedBox(height: 8),
+                    if (logs.isEmpty)
+                      const Text('—', style: TextStyle(color: Mau.mo))
+                    else
+                      XemThem(
+                        hang: [
+                          for (final l in logs)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Material(
+                                color: Mau.giay,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          Chuoi.dongMon(l.ten, l.kcal, g: l.gram),
+                                          style: const TextStyle(fontSize: 15, color: Mau.muc),
+                                        ),
+                                      ),
+                                      if (!_xem) ...[
+                                        SizedBox(
+                                          height: 44,
+                                          child: TextButton(
+                                            key: Key('sua-log-${l.id}'),
+                                            onPressed: () => _suaLog(l),
+                                            child: const Text(Chuoi.sua),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 44,
+                                          child: TextButton(
+                                            key: Key('xoa-log-${l.id}'),
+                                            onPressed: () => kho.xoaLog(l.id, ngay: ngay),
+                                            child: const Text(Chuoi.xoa, style: TextStyle(color: Mau.canhBao)),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                  ],
+                ),
                 const SizedBox(height: 12),
                 Text(
                   key: const Key('nap-tieu'),
