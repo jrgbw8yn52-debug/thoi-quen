@@ -69,16 +69,40 @@ class _HangHabitState extends State<HangHabit> {
                   _NutTick(bat: _bat, mo: widget.khoaGhi),
                   const SizedBox(width: 14),
                   Expanded(
-                    child: Text(
-                      widget.hang.habit.gioNhac == null
-                          ? widget.hang.habit.ten
-                          : '${widget.hang.habit.ten} · ${Chuoi.gioNhacChu(widget.hang.habit.gioNhac!)}',
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
-                        height: 1.2,
-                        color: Mau.muc,
-                      ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.hang.habit.ten,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                              height: 1.2,
+                              color: Mau.muc,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 80,
+                          child: Text(
+                            widget.hang.habit.gioNhac == null
+                                ? ''
+                                : Chuoi.gioNhacChu(widget.hang.habit.gioNhac!),
+                            maxLines: 1,
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              height: 1.2,
+                              color: Mau.muc,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

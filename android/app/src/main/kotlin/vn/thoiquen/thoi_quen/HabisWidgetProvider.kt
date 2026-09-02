@@ -47,6 +47,7 @@ class HabisWidgetProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
             views.setOnClickPendingIntent(R.id.wid_root, pi)
+            views.setOnClickPendingIntent(R.id.wid_dai, pi)
             manager.updateAppWidget(id, views)
         }
     }

@@ -3,93 +3,117 @@
     android:id="@+id/wid_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/cam"
-    android:clipChildren="false"
-    android:clipToPadding="false"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
+    android:background="@android:color/transparent"
+    android:orientation="vertical"
     android:padding="0dp">
 
-    <!-- Mark ~70% chiều cao widget, lề 12dp. Cấm 16dp. -->
-    <ImageView
-        android:id="@+id/wid_mark"
-        android:layout_width="wrap_content"
-        android:layout_height="76dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
-        android:adjustViewBounds="true"
-        android:contentDescription="@null"
-        android:scaleType="fitCenter"
-        android:src="@drawable/widget_mark" />
+    <!-- Trên trong suốt: thấy wallpaper. -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="19"
+        android:background="@android:color/transparent" />
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="8dp"
-        android:layout_weight="1"
+        android:id="@+id/wid_dai"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="62"
+        android:background="@drawable/wid_nen"
         android:gravity="center_vertical"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/wid_ngay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:maxLines="1"
-            android:text="Thứ Tư 2/9"
-            android:textColor="@color/muc_toi"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/wid_habit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:includeFontPadding="false"
-            android:maxLines="1"
-            android:text="3/5 thói quen"
-            android:textColor="@color/muc_toi"
-            android:textSize="13sp" />
-
-        <TextView
-            android:id="@+id/wid_kcal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:includeFontPadding="false"
-            android:maxLines="1"
-            android:text="969 / 2920 kcal"
-            android:textColor="@color/muc_toi"
-            android:textSize="13sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="12dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
 
         <ImageView
-            android:id="@+id/wid_lua"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:id="@+id/wid_mark"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:adjustViewBounds="true"
             android:contentDescription="@null"
             android:scaleType="fitCenter"
-            android:src="@drawable/widget_lua" />
+            android:src="@drawable/widget_mark" />
 
         <TextView
-            android:id="@+id/wid_so"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent" />
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:text="12"
-            android:textColor="@color/muc_toi"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:layout_marginEnd="12dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/wid_ngay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="Thứ Tư 2/9"
+                android:textColor="@color/muc_toi"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/wid_habit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="3/5 thói quen"
+                android:textColor="@color/muc_toi"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/wid_kcal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="2250 / 2920 kcal"
+                android:textColor="@color/muc_toi"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/wid_lua"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                android:src="@drawable/widget_lua" />
+
+            <TextView
+                android:id="@+id/wid_so"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:text="12"
+                android:textColor="@color/muc_toi"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
+
+    <!-- Dưới trong suốt: thấy wallpaper. -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="19"
+        android:background="@android:color/transparent" />
 </LinearLayout>

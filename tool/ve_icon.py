@@ -172,37 +172,46 @@ def save_all():
     den_h = den.resize((nw, nh), Image.Resampling.LANCZOS)
     den_h.save(drawable / "widget_mark.png", "PNG")
 
-    # Preview widget 4×2: nền cam đặc, mark lớn trái, 3 dòng giữa, lửa+số phải.
+    # Preview 4×2: trên/dưới trong suốt, dải cam 62% bo 20dp, chữ sát lửa.
     pw, ph = 750, 330
-    prev = Image.new("RGB", (pw, ph), CAM[:3])
-    mh = int(round(ph * 0.70))
+    prev = Image.new("RGBA", (pw, ph), (0, 0, 0, 0))
+    band_h = int(round(ph * 0.62))
+    band_y = (ph - band_h) // 2
+    radius = int(round(20 * (ph / 110)))
+    draw = ImageDraw.Draw(prev)
+    draw.rounded_rectangle(
+        [0, band_y, pw - 1, band_y + band_h - 1],
+        radius=radius,
+        fill=CAM,
+    )
+    mh = int(round(band_h * 0.78))
     mw = max(1, int(round(nw * mh / nh)))
     m = den_h.resize((mw, mh), Image.Resampling.LANCZOS)
     margin = int(round(12 * (ph / 110)))
-    prev.paste(m, (margin, (ph - mh) // 2), m)
-    draw = ImageDraw.Draw(prev)
+    prev.paste(m, (margin, band_y + (band_h - mh) // 2), m)
     try:
         font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 42)
         font_s = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 34)
+        font_k = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 38)
         font_n = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 72)
     except OSError:
         font = ImageFont.load_default()
         font_s = font
+        font_k = font
         font_n = font
-    tx = margin + mw + margin
-    ty = ph // 2 - 58
-    draw.text((tx, ty), "Thứ Tư 2/9", fill=MUC[:3], font=font)
-    draw.text((tx, ty + 50), "3/5 thói quen", fill=MUC[:3], font=font_s)
-    draw.text((tx, ty + 92), "969 / 2920 kcal", fill=MUC[:3], font=font_s)
-    # lửa tam giác + số
-    flame_h = 84  # ≥ 1.6 × số ~52
+    flame_h = 84
     fx = pw - 200
-    fy = (ph - flame_h) // 2
+    fy = band_y + (band_h - flame_h) // 2
     draw.polygon(
         [(fx + 28, fy), (fx + 8, fy + flame_h - 8), (fx + 48, fy + flame_h - 8)],
         fill=MUC[:3],
     )
     draw.text((fx + 56, fy + 8), "12", fill=MUC[:3], font=font_n)
+    tx = fx - 16 - 280
+    ty = band_y + band_h // 2 - 54
+    draw.text((tx, ty), "Thứ Tư 2/9", fill=MUC[:3], font=font)
+    draw.text((tx, ty + 48), "3/5 thói quen", fill=MUC[:3], font=font_s)
+    draw.text((tx, ty + 88), "2250 / 2920 kcal", fill=MUC[:3], font=font_k)
     prev.save(drawable / "widget_preview.png", "PNG")
 
     anydpi = android_res / "mipmap-anydpi-v26"

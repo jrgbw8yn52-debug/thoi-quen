@@ -379,9 +379,10 @@ void main() {
     await tester.tap(find.byKey(Key('lua-ngay-${Ngay.iso(DateTime(2026, 9, 1))}')));
     await tester.pumpAndSettle();
     expect(k.selected, DateTime(2026, 9, 1));
-    expect(find.text('Dậy sớm · 7:00 SA'), findsOneWidget);
+    expect(find.text('Dậy sớm'), findsWidgets);
+    expect(find.text('7:00 SA'), findsOneWidget);
     expect(find.text(Chuoi.hoanThanhThoiQuen(0, 1)), findsOneWidget);
-    await tester.tap(find.text('Dậy sớm · 7:00 SA'));
+    await tester.tap(find.text('Dậy sớm').first);
     await tester.pumpAndSettle();
     expect(k.ticksCua(k.dsHien.single.id).contains('2026-09-01'), isFalse);
   });

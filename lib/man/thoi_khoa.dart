@@ -168,11 +168,6 @@ class _ManThoiKhoaState extends State<ManThoiKhoa> {
                         ),
                     ],
                   ),
-                const SizedBox(height: 24),
-                const Text(
-                  Chuoi.chiXem,
-                  style: TextStyle(fontSize: 13, color: Mau.mo),
-                ),
               ],
             );
           },
