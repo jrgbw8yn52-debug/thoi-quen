@@ -341,6 +341,7 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
   final _dam = TextEditingController();
   final _bot = TextEditingController();
   final _beo = TextEditingController();
+  final _kcalDoc = ValueNotifier<int?>(null);
   bool _suaTay = false;
 
   Kho get kho => widget.kho;
@@ -355,10 +356,6 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
     _dan.addListener(_docDan);
   }
 
-  void _ve() {
-    if (mounted) setState(() {});
-  }
-
   void _gan(TextEditingController c, String v) {
     if (c.value.composing.isValid) return;
     if (c.text == v) return;
@@ -369,23 +366,22 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
   }
 
   void _docDan() {
-    if (_suaTay) {
-      _ve();
-      return;
-    }
+    if (_suaTay) return;
     final d = CongThuc.docMon(_dan.text);
+    if (d.kcal != _kcalDoc.value) _kcalDoc.value = d.kcal;
+    if (_dan.value.composing.isValid || _ten.value.composing.isValid) return;
     if (d.kcal != null) _gan(_kcal, '${d.kcal}');
     if (d.gram != null) _gan(_gram, So.kg(d.gram!));
     if (d.dam != null) _gan(_dam, So.kg(d.dam!));
     if (d.bot != null) _gan(_bot, So.kg(d.bot!));
     if (d.beo != null) _gan(_beo, So.kg(d.beo!));
-    if (d.ten != null && !_ten.value.composing.isValid) _gan(_ten, d.ten!);
-    _ve();
+    if (d.ten != null) _gan(_ten, d.ten!);
   }
 
   @override
   void dispose() {
     _dan.removeListener(_docDan);
+    _kcalDoc.dispose();
     _ten.dispose();
     _dan.dispose();
     _kcal.dispose();
@@ -425,8 +421,6 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
 
   @override
   Widget build(BuildContext context) {
-    final doc = CongThuc.docMon(_dan.text);
-    final coMon = doc.ten != null;
     return SafeArea(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -442,14 +436,12 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Mau.muc),
             ),
             const SizedBox(height: 12),
-            if (!coMon) ...[
-              OTen(
-                key: const Key('ten-mon'),
-                controller: _ten,
-                hint: Chuoi.taoCongThuc,
-              ),
-              const SizedBox(height: 8),
-            ],
+            OTen(
+              key: const Key('ten-mon'),
+              controller: _ten,
+              hint: Chuoi.taoCongThuc,
+            ),
+            const SizedBox(height: 8),
             OTen(
               key: const Key('dan-chu'),
               controller: _dan,
@@ -457,11 +449,19 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
               minLines: 4,
               maxLines: 8,
             ),
-            if (doc.kcal != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(Chuoi.docNKcal(doc.kcal!), style: const TextStyle(fontSize: 13, color: Mau.mo)),
-              ),
+            ValueListenableBuilder<int?>(
+              valueListenable: _kcalDoc,
+              builder: (context, kcal, _) {
+                if (kcal == null) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    Chuoi.docNKcal(kcal),
+                    style: const TextStyle(fontSize: 13, color: Mau.mo),
+                  ),
+                );
+              },
+            ),
             const SizedBox(height: 8),
             TextField(
               key: const Key('doc-kcal'),

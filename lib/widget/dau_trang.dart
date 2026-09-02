@@ -6,7 +6,7 @@ import '../mau.dart';
 import '../ngay.dart';
 import 'nhan_habis.dart';
 
-/// Đầu Home: mark + HABIS, chào theo giờ, câu cam, thẻ chuỗi tập.
+/// Đầu Home: mark 28 + HABIS, chào theo giờ, câu cam, thẻ STREAK HIỆN TẠI.
 class DauTrangHabis extends StatelessWidget {
   const DauTrangHabis({
     super.key,
@@ -24,13 +24,13 @@ class DauTrangHabis extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const NhanHabis(size: 28),
-              const SizedBox(width: 10),
+              NhanHabis(size: 28),
+              SizedBox(width: 10),
               Text(
                 Chuoi.habisNhan,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 6,
@@ -44,7 +44,7 @@ class DauTrangHabis extends StatelessWidget {
           Text(
             Chuoi.chaoTheoGio(kho.bayGio),
             style: const TextStyle(
-              fontSize: 26,
+              fontSize: 28,
               fontWeight: FontWeight.w600,
               letterSpacing: -0.3,
               height: 1.15,
@@ -90,40 +90,61 @@ class TheChuoiTap extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+          padding: const EdgeInsets.fromLTRB(18, 14, 16, 16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                Chuoi.chuoiHienTai.toUpperCase(),
-                style: const TextStyle(
+              const Text(
+                Chuoi.chuoiHienTai,
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 1.6,
+                  letterSpacing: 1.4,
                   color: Mau.mo,
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                '${lua.so}',
-                style: TextStyle(
-                  fontSize: 52,
-                  fontWeight: FontWeight.w700,
-                  height: 1.05,
-                  color: lua.sang ? Mau.lua : Mau.muc,
-                ),
-              ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  for (final d in tuan)
-                    Expanded(
-                      child: _ChamTap(
-                        thu: Chuoi.thuNgan[d.weekday - 1],
-                        co: kho.tapNgay(d).isNotEmpty,
-                        homNay: Ngay.cungNgay(d, kho.homNay),
-                        tuongLai: Ngay.sau(d, kho.homNay),
-                      ),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${lua.so}',
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w700,
+                            height: 1,
+                            color: Mau.reu,
+                          ),
+                        ),
+                        const TextSpan(
+                          text: ' ${Chuoi.ngayDonVi}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            height: 1.1,
+                            color: Mau.muc,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < tuan.length; i++)
+                        Padding(
+                          padding: EdgeInsets.only(left: i == 0 ? 0 : 7),
+                          child: _ChamTap(
+                            co: kho.tapNgay(tuan[i]).isNotEmpty,
+                            homNay: Ngay.cungNgay(tuan[i], kho.homNay),
+                            tuongLai: Ngay.sau(tuan[i], kho.homNay),
+                          ),
+                        ),
+                    ],
+                  ),
                 ],
               ),
             ],
@@ -136,45 +157,30 @@ class TheChuoiTap extends StatelessWidget {
 
 class _ChamTap extends StatelessWidget {
   const _ChamTap({
-    required this.thu,
     required this.co,
     required this.homNay,
     required this.tuongLai,
   });
 
-  final String thu;
   final bool co;
   final bool homNay;
   final bool tuongLai;
 
   @override
   Widget build(BuildContext context) {
-    final r = homNay ? 9.0 : 6.0;
+    final r = homNay ? 7.0 : 5.0;
     final dac = co && !tuongLai;
-    return Column(
-      children: [
-        Container(
-          width: r * 2,
-          height: r * 2,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: dac ? Mau.reu : Colors.transparent,
-            border: Border.all(
-              color: dac ? Mau.reu : (homNay ? Mau.muc : Mau.vien),
-              width: homNay ? 2 : 1.4,
-            ),
-          ),
+    return Container(
+      width: r * 2,
+      height: r * 2,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: dac ? Mau.reu : Colors.transparent,
+        border: Border.all(
+          color: dac ? Mau.reu : (homNay ? Mau.reu : Mau.vien),
+          width: homNay ? 2 : 1.4,
         ),
-        const SizedBox(height: 6),
-        Text(
-          thu,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: homNay ? FontWeight.w700 : FontWeight.w500,
-            color: homNay ? Mau.muc : Mau.mo,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

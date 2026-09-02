@@ -7,7 +7,6 @@ import 'kho.dart';
 import 'mau.dart';
 import 'nhac.dart';
 import 'vo_app.dart';
-import 'widget/nhan_habis.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,9 +86,17 @@ class _ManSplash extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Mau.giay,
-      body: Center(child: NhanHabis(size: 96)),
+    return const ColoredBox(
+      color: Color(0xFF000000),
+      child: SizedBox.expand(
+        child: Image(
+          image: AssetImage('assets/habis_splash.png'),
+          fit: BoxFit.contain,
+          alignment: Alignment.center,
+          filterQuality: FilterQuality.high,
+          gaplessPlayback: true,
+        ),
+      ),
     );
   }
 }

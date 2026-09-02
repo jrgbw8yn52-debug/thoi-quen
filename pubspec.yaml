@@ -31,3 +31,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/habis_mark.png
+    - assets/habis_splash.png

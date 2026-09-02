@@ -31,11 +31,11 @@ void main() {
     expect(find.text(Chuoi.habisNhan), findsOneWidget);
     expect(find.text(Chuoi.chaoChieu), findsOneWidget);
     expect(find.text(Chuoi.totHonHomQua), findsOneWidget);
-    expect(find.text(Chuoi.chuoiHienTai.toUpperCase()), findsOneWidget);
+    expect(find.text(Chuoi.chuoiHienTai), findsOneWidget);
     expect(find.byKey(const Key('lua-home')), findsOneWidget);
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('T2'), findsOneWidget);
-    expect(find.text('CN'), findsOneWidget);
+    expect(find.text('0 ngày'), findsOneWidget);
+    expect(find.text('T2'), findsNothing);
+    expect(find.text('CN'), findsNothing);
   });
 
   testWidgets('chao sang 8h', (tester) async {
@@ -48,5 +48,27 @@ void main() {
     ));
     await tester.pump();
     expect(find.text(Chuoi.chaoSang), findsOneWidget);
+  });
+
+  testWidgets('chao toi 18h va dem 22h', (tester) async {
+    final toi = Kho(db, bayGio: DateTime(2026, 8, 31, 18));
+    addTearDown(toi.dispose);
+    await toi.tai();
+    await tester.pumpWidget(MaterialApp(
+      theme: Mau.theme(),
+      home: Scaffold(body: DauTrangHabis(kho: toi)),
+    ));
+    await tester.pump();
+    expect(find.text(Chuoi.chaoToi), findsOneWidget);
+
+    final dem = Kho(db, bayGio: DateTime(2026, 8, 31, 22));
+    addTearDown(dem.dispose);
+    await dem.tai();
+    await tester.pumpWidget(MaterialApp(
+      theme: Mau.theme(),
+      home: Scaffold(body: DauTrangHabis(kho: dem)),
+    ));
+    await tester.pump();
+    expect(find.text(Chuoi.chaoDem), findsOneWidget);
   });
 }

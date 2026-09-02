@@ -15,6 +15,7 @@ import 'nhac.dart';
 import 'so.dart';
 import 'ten.dart';
 import 'thu.dart';
+import 'wid_home.dart';
 
 class HangHabitView {
   const HangHabitView({
@@ -862,6 +863,7 @@ class Kho extends ChangeNotifier {
     notifyListeners();
     if (lanDau) shellBan.ban();
     await Nhac.dongBo(dsHien);
+    _dongWid();
   }
 
   void chonNgay(DateTime d) {
@@ -904,6 +906,7 @@ class Kho extends ChangeNotifier {
     }
     _dongBoHangVaTuan();
     homeBan.ban();
+    _dongWid();
 
     final khoa = '${habit.id}-$iso';
     final viec = (_ghiTick[khoa] ?? Future.value()).then((_) {
@@ -951,6 +954,17 @@ class Kho extends ChangeNotifier {
           dangXem: Ngay.cungNgay(d, selected),
         ),
     ];
+  }
+
+  void _dongWid() {
+    final goi = kcalGoiYDoc;
+    final nap = kcalNapCuaNgay(homNay);
+    WidHome.capNhat(
+      ngay: '${homNay.day}/${homNay.month}',
+      habit: '$nTickHom/$mHom',
+      kcal: '$nap/${goi ?? 0}',
+      lua: luaTapHom.so,
+    );
   }
 
   Future<bool> themPreset({

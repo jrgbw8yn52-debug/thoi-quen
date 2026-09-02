@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Ô tên Telex: TextField + controller. Cấm formatter, cấm đụng composing.
+/// Ô tên Telex: TextField + controller.
+/// Cấm formatter. Cấm onChanged. Cấm gán text/selection.
 class OTen extends StatelessWidget {
   OTen({
     Key? key,
@@ -9,7 +10,6 @@ class OTen extends StatelessWidget {
     this.autofocus = false,
     this.minLines,
     this.maxLines = 1,
-    this.onChanged,
     this.onSubmitted,
     this.onEditingComplete,
   })  : _fieldKey = key,
@@ -21,7 +21,6 @@ class OTen extends StatelessWidget {
   final bool autofocus;
   final int? minLines;
   final int maxLines;
-  final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final VoidCallback? onEditingComplete;
 
@@ -42,7 +41,6 @@ class OTen extends StatelessWidget {
       spellCheckConfiguration: const SpellCheckConfiguration.disabled(),
       smartDashesType: SmartDashesType.disabled,
       smartQuotesType: SmartQuotesType.disabled,
-      onChanged: onChanged,
       onSubmitted: onSubmitted,
       onEditingComplete: onEditingComplete,
       decoration: InputDecoration(hintText: hint),

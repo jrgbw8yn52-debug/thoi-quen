@@ -9,7 +9,8 @@ abstract final class Chuoi {
   static const chaoToi = 'Chào buổi tối!';
   static const chaoDem = 'Chào đêm muộn!';
   static const totHonHomQua = 'Hôm nay, bạn sẽ tốt hơn hôm qua.';
-  static const chuoiHienTai = 'Chuỗi hiện tại';
+  static const chuoiHienTai = 'STREAK HIỆN TẠI';
+  static const ngayDonVi = 'ngày';
   static const homNay = 'Hôm nay';
   static const tienDo = 'Tiến độ';
   static const caiDat = 'Cài đặt';

@@ -15,7 +15,8 @@ void main() {
     expect(Chuoi.chaoToi, 'Chào buổi tối!');
     expect(Chuoi.chaoDem, 'Chào đêm muộn!');
     expect(Chuoi.totHonHomQua, 'Hôm nay, bạn sẽ tốt hơn hôm qua.');
-    expect(Chuoi.chuoiHienTai, 'Chuỗi hiện tại');
+    expect(Chuoi.chuoiHienTai, 'STREAK HIỆN TẠI');
+    expect(Chuoi.ngayDonVi, 'ngày');
     expect(Chuoi.chaoTheoGio(DateTime(2026, 8, 30, 5)), Chuoi.chaoSang);
     expect(Chuoi.chaoTheoGio(DateTime(2026, 8, 30, 10, 59)), Chuoi.chaoSang);
     expect(Chuoi.chaoTheoGio(DateTime(2026, 8, 30, 11)), Chuoi.chaoChieu);
