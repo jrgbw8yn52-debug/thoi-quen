@@ -1,33 +1,29 @@
 #!/usr/bin/env python3
-"""Icon/splash từ ảnh đính — không vẽ lại mark. Nền #0D0D0D."""
+"""Icon/splash từ ảnh đính — không vẽ lại mark. Căn giữa tuyệt đối. Nền #000000 / #0D0D0D."""
 from __future__ import annotations
 
 from pathlib import Path
 
-from PIL import Image, ImageFilter
+from PIL import Image
 
-BG = (13, 13, 13, 255)  # #0D0D0D
-SRC = Path("/workspace/attachments/619D66D3-3006-4AF5-A15C-3910A26B626F")
+BG_ICON = (0, 0, 0, 255)  # #000000 launcher
+BG_SPLASH = (13, 13, 13, 255)  # #0D0D0D splash
+SRC = Path("/workspace/attachments/F26C7BBE-1827-49BD-8D38-A712108C056A")
 ROOT = Path("/workspace/thoi_quen")
 
 
 def extract_mark(src: Image.Image) -> Image.Image:
-    """Giữ pixel mark (cam/vàng + viền) từ ảnh; còn lại trong suốt."""
+    """Giữ pixel mark cam; nền trong suốt. Không giãn, không xoay."""
     rgba = src.convert("RGBA")
     px = rgba.load()
     w, h = rgba.size
-    mask = Image.new("L", (w, h), 0)
-    m = mask.load()
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    op = out.load()
     for y in range(h):
         for x in range(w):
             r, g, b, a = px[x, y]
-            # Chỉ vệt cam/vàng của mark, không lấy quầng mockup.
-            if r > 140 and r >= b + 18 and g > 28:
-                m[x, y] = 255
-    mask = mask.filter(ImageFilter.MaxFilter(7)).filter(ImageFilter.GaussianBlur(0.6))
-    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    out.paste(rgba, (0, 0))
-    out.putalpha(mask)
+            if r > 60 and r >= b + 12 and g > 16:
+                op[x, y] = (r, g, b, 255)
     box = out.getbbox()
     if box is None:
         raise SystemExit("no mark")
@@ -35,7 +31,7 @@ def extract_mark(src: Image.Image) -> Image.Image:
 
 
 def fit_square(mark: Image.Image, inner: int) -> Image.Image:
-    """Giữ tỉ lệ, fit vào inner×inner, trong suốt."""
+    """Giữ tỉ lệ, fit vào inner×inner, giữa hình học."""
     w, h = mark.size
     scale = inner / max(w, h)
     nw, nh = max(1, int(round(w * scale))), max(1, int(round(h * scale)))
@@ -45,9 +41,9 @@ def fit_square(mark: Image.Image, inner: int) -> Image.Image:
     return box
 
 
-def square_on_bg(mark: Image.Image, size: int, *, pad_ratio: float = 0.18) -> Image.Image:
-    """Mark giữa canvas size×size, nền #0D0D0D. pad_ratio = lề mỗi bên."""
-    canvas = Image.new("RGB", (size, size), BG[:3])
+def square_on_bg(mark: Image.Image, size: int, *, pad_ratio: float, bg: tuple[int, int, int, int]) -> Image.Image:
+    """Mark giữa canvas, không bias."""
+    canvas = Image.new("RGB", (size, size), bg[:3])
     inner = max(1, int(round(size * (1 - 2 * pad_ratio))))
     fig = fit_square(mark, inner)
     xy = (size - inner) // 2
@@ -56,19 +52,16 @@ def square_on_bg(mark: Image.Image, size: int, *, pad_ratio: float = 0.18) -> Im
 
 
 def fg_adaptive(mark: Image.Image, out: int = 432) -> Image.Image:
-    """Foreground adaptive: trong suốt, mark trong safe zone ~66%, dịch trái 8% (vạch nghiêng phải)."""
+    """Foreground adaptive: trong suốt, mark trong safe zone 66%, căn giữa tuyệt đối."""
     canvas = Image.new("RGBA", (out, out), (0, 0, 0, 0))
-    inner = int(out * 0.66)
+    inner = int(round(out * 0.66))
     fig = fit_square(mark, inner)
-    dx = int(round(out * 0.08))
-    xy_x = (out - inner) // 2 - dx
-    xy_y = (out - inner) // 2
-    canvas.paste(fig, (xy_x, xy_y), fig)
+    xy = (out - inner) // 2
+    canvas.paste(fig, (xy, xy), fig)
     return canvas
 
 
 def mono_mark(mark: Image.Image) -> Image.Image:
-    """Monochrome / notification: alpha của mark, pixel trắng."""
     a = mark.split()[-1]
     out = Image.new("RGBA", mark.size, (0, 0, 0, 0))
     white = Image.new("RGBA", mark.size, (255, 255, 255, 255))
@@ -82,15 +75,14 @@ def save_all():
     (ROOT / "tool").mkdir(exist_ok=True)
     mark.save(ROOT / "tool/mark_extracted.png", "PNG")
 
-    master = square_on_bg(mark, 1024, pad_ratio=0.12)
+    master = square_on_bg(mark, 1024, pad_ratio=0.12, bg=BG_ICON)
     master.save(ROOT / "tool/preview_icon.png", "PNG")
 
     assets = ROOT / "assets"
     assets.mkdir(exist_ok=True)
-    # Splash Flutter: mark trong suốt, Home vẽ nền #0D0D0D.
     splash_mark = fit_square(mark, 512)
     splash_mark.save(assets / "habis_mark.png", "PNG")
-    square_on_bg(mark, 1024, pad_ratio=0.12).save(assets / "habis_icon.png", "PNG")
+    square_on_bg(mark, 1024, pad_ratio=0.12, bg=BG_ICON).save(assets / "habis_icon.png", "PNG")
 
     ios = ROOT / "ios/Runner/Assets.xcassets/AppIcon.appiconset"
     ios.mkdir(parents=True, exist_ok=True)
@@ -112,7 +104,7 @@ def save_all():
         "Icon-App-1024x1024@1x.png": 1024,
     }
     for name, px in sizes.items():
-        square_on_bg(mark, px, pad_ratio=0.12).save(ios / name, "PNG")
+        square_on_bg(mark, px, pad_ratio=0.12, bg=BG_ICON).save(ios / name, "PNG")
 
     android_res = ROOT / "android/app/src/main/res"
     legacy = {
@@ -125,7 +117,7 @@ def save_all():
     for folder, px in legacy.items():
         dest_dir = android_res / folder
         dest_dir.mkdir(parents=True, exist_ok=True)
-        im = square_on_bg(mark, px, pad_ratio=0.12)
+        im = square_on_bg(mark, px, pad_ratio=0.12, bg=BG_ICON)
         im.save(dest_dir / "ic_launcher.png", "PNG")
         im.save(dest_dir / "ic_launcher_round.png", "PNG")
 
@@ -163,7 +155,7 @@ def save_all():
         "app_icon_512.png": 512,
         "app_icon_1024.png": 1024,
     }.items():
-        square_on_bg(mark, px, pad_ratio=0.12).save(mac_dir / name, "PNG")
+        square_on_bg(mark, px, pad_ratio=0.12, bg=BG_ICON).save(mac_dir / name, "PNG")
 
     launch_dir = ROOT / "ios/Runner/Assets.xcassets/LaunchImage.imageset"
     launch_dir.mkdir(parents=True, exist_ok=True)
@@ -172,7 +164,7 @@ def save_all():
         ("LaunchImage@2x.png", 336, 192),
         ("LaunchImage@3x.png", 504, 288),
     ):
-        canvas = Image.new("RGB", (px, px), BG[:3])
+        canvas = Image.new("RGB", (px, px), BG_SPLASH[:3])
         m = fit_square(mark, mpx)
         xy = (px - mpx) // 2
         canvas.paste(m, (xy, xy), m)

@@ -128,11 +128,14 @@ bool _chuaVi(String ten, String q) {
 }
 
 class Kho extends ChangeNotifier {
-  Kho(this.db, {DateTime? bayGio}) : homNay = Ngay.cat(bayGio ?? DateTime.now()) {
+  Kho(this.db, {DateTime? bayGio})
+      : bayGio = bayGio ?? DateTime.now(),
+        homNay = Ngay.cat(bayGio ?? DateTime.now()) {
     selected = homNay;
   }
 
   final AppDatabase db;
+  final DateTime bayGio;
   final DateTime homNay;
   late DateTime selected;
   int tab = 0;

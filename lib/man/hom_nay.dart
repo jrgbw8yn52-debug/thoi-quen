@@ -6,9 +6,9 @@ import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
 import '../widget/dai_tuan.dart';
+import '../widget/dau_trang.dart';
 import '../widget/hang_habit.dart';
 import '../widget/lan_ngay.dart';
-import '../widget/lua_tap.dart';
 import 'them_habit.dart';
 import 'xoa_habit.dart';
 import 'ghi_tap.dart';
@@ -88,6 +88,17 @@ class _ThanHome extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          DauTrangHabis(
+            kho: kho,
+            onChuoi: () {
+              kho.veHomNay();
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => ManGhiTap(kho: kho),
+                ),
+              );
+            },
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
             child: Material(
@@ -106,15 +117,13 @@ class _ThanHome extends StatelessWidget {
                           child: Text(
                             kho.dongNgay,
                             style: const TextStyle(
-                              fontSize: 28,
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
-                              height: 1.15,
-                              letterSpacing: -0.4,
                               color: Mau.muc,
                             ),
                           ),
                         ),
-                        const Icon(Icons.expand_more, color: Mau.mo),
+                        const Icon(Icons.calendar_today_outlined, size: 18, color: Mau.mo),
                       ],
                     ),
                   ),
@@ -123,57 +132,38 @@ class _ThanHome extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      key: const Key('hang-hom-nay'),
-                      onTap: kho.veHomNay,
-                      borderRadius: BorderRadius.circular(8),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 44),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text.rich(
-                              TextSpan(
-                                style: const TextStyle(fontSize: 15, color: Mau.mo, height: 1.3),
-                                children: [
-                                  TextSpan(text: '${kho.nTickHom}/${kho.mHom} '),
-                                  TextSpan(
-                                    text: Chuoi.homNayNgay(kho.homNay),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: Mau.muc,
-                                    ),
-                                  ),
-                                ],
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                key: const Key('hang-hom-nay'),
+                onTap: kho.veHomNay,
+                borderRadius: BorderRadius.circular(8),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 44),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text.rich(
+                        TextSpan(
+                          style: const TextStyle(fontSize: 15, color: Mau.mo, height: 1.3),
+                          children: [
+                            TextSpan(text: '${kho.nTickHom}/${kho.mHom} '),
+                            TextSpan(
+                              text: Chuoi.homNayNgay(kho.homNay),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Mau.muc,
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ),
-                LuaTapHien(
-                  key: const Key('lua-home'),
-                  lua: kho.luaTapHom,
-                  to: true,
-                  onTap: () {
-                    kho.veHomNay();
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => ManGhiTap(kho: kho),
-                      ),
-                    );
-                  },
-                ),
-              ],
+              ),
             ),
           ),
           GestureDetector(

@@ -3,6 +3,13 @@ import 'so.dart';
 /// Mọi chữ hiện trên UI. Cấm thêm chuỗi Anh (Today/Done/Backup/Restore/Settings/Goal/Streak).
 abstract final class Chuoi {
   static const tenApp = 'Habis';
+  static const habisNhan = 'HABIS';
+  static const chaoSang = 'Chào buổi sáng!';
+  static const chaoChieu = 'Chào buổi chiều!';
+  static const chaoToi = 'Chào buổi tối!';
+  static const chaoDem = 'Chào đêm muộn!';
+  static const totHonHomQua = 'Hôm nay, bạn sẽ tốt hơn hôm qua.';
+  static const chuoiHienTai = 'Chuỗi hiện tại';
   static const homNay = 'Hôm nay';
   static const tienDo = 'Tiến độ';
   static const caiDat = 'Cài đặt';
@@ -223,6 +230,14 @@ abstract final class Chuoi {
   ];
 
   static const thuNgan = [t2, t3, t4, t5, t6, t7, cn];
+
+  static String chaoTheoGio(DateTime t) {
+    final h = t.hour;
+    if (h >= 5 && h < 11) return chaoSang;
+    if (h >= 11 && h < 17) return chaoChieu;
+    if (h >= 17 && h < 21) return chaoToi;
+    return chaoDem;
+  }
 
   static String denNgay(DateTime d) =>
       'đến ${d.day}/${d.month}/${d.year}';
