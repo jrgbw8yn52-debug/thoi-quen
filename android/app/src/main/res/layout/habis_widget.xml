@@ -3,50 +3,55 @@
     android:id="@+id/wid_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/wid_nen"
+    android:background="@color/cam"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="14dp"
-    android:paddingTop="12dp"
-    android:paddingEnd="14dp"
-    android:paddingBottom="12dp">
+    android:padding="0dp">
+
+    <!-- Mark ~70% chiều cao widget, lề 12dp. Cấm 16dp. -->
+    <ImageView
+        android:id="@+id/wid_mark"
+        android:layout_width="wrap_content"
+        android:layout_height="76dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        android:src="@drawable/widget_mark" />
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
         android:layout_weight="1"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/wid_ngay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/wid_mark"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:contentDescription="@null"
-                android:src="@drawable/widget_mark" />
-
-            <TextView
-                android:id="@+id/wid_ngay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="—"
-                android:textColor="@color/muc_toi"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="Thứ Tư 2/9"
+            android:textColor="@color/muc_toi"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/wid_habit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="0/0"
+            android:layout_marginTop="2dp"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="3/5 thói quen"
             android:textColor="@color/muc_toi"
             android:textSize="13sp" />
 
@@ -55,14 +60,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="0/0"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="969 / 2920 kcal"
             android:textColor="@color/muc_toi"
             android:textSize="13sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -71,16 +79,17 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:contentDescription="@null"
+            android:scaleType="fitCenter"
             android:src="@drawable/widget_lua" />
 
         <TextView
             android:id="@+id/wid_so"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:text="0"
+            android:includeFontPadding="false"
+            android:text="12"
             android:textColor="@color/muc_toi"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

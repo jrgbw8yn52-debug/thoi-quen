@@ -38,6 +38,9 @@ void main() {
     expect(Chuoi.uocTinh, contains('không thay lời bác sĩ'));
     expect(Chuoi.saiSo, 'sai số ±200–400');
     expect(Chuoi.mocA, 'Mốc Á 18,5 / 23 / 27,5');
+    expect(Chuoi.widNgay(DateTime(2026, 9, 2)), 'Thứ Tư 2/9');
+    expect(Chuoi.widHabit(3, 5), '3/5 thói quen');
+    expect(Chuoi.widKcal(969, 2920), '969 / 2920 kcal');
   });
 
   test('so kg dau phay Viet, khong bia', () {

@@ -957,12 +957,12 @@ class Kho extends ChangeNotifier {
   }
 
   void _dongWid() {
-    final goi = kcalGoiYDoc;
+    final goi = kcalGoiYDoc ?? 0;
     final nap = kcalNapCuaNgay(homNay);
     WidHome.capNhat(
-      ngay: '${homNay.day}/${homNay.month}',
-      habit: '$nTickHom/$mHom',
-      kcal: '$nap/${goi ?? 0}',
+      ngay: Chuoi.widNgay(homNay),
+      habit: Chuoi.widHabit(nTickHom, mHom),
+      kcal: Chuoi.widKcal(nap, goi),
       lua: luaTapHom.so,
     );
   }

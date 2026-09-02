@@ -31,9 +31,9 @@ class HabisWidgetProvider : AppWidgetProvider() {
         fun capNhatMot(context: Context, manager: AppWidgetManager, id: Int) {
             val p = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
             val views = RemoteViews(context.packageName, R.layout.habis_widget)
-            views.setTextViewText(R.id.wid_ngay, p.getString(K_NGAY, "—") ?: "—")
-            views.setTextViewText(R.id.wid_habit, p.getString(K_HABIT, "0/0") ?: "0/0")
-            views.setTextViewText(R.id.wid_kcal, p.getString(K_KCAL, "0") ?: "0")
+            views.setTextViewText(R.id.wid_ngay, p.getString(K_NGAY, "Thứ Hai 1/1") ?: "Thứ Hai 1/1")
+            views.setTextViewText(R.id.wid_habit, p.getString(K_HABIT, "0/0 thói quen") ?: "0/0 thói quen")
+            views.setTextViewText(R.id.wid_kcal, p.getString(K_KCAL, "0 / 0 kcal") ?: "0 / 0 kcal")
             views.setTextViewText(R.id.wid_so, p.getInt(K_LUA, 0).toString())
             val intent = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP

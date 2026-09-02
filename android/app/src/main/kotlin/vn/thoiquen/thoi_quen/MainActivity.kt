@@ -11,9 +11,9 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 if (call.method == "capNhat") {
                     val p = getSharedPreferences(HabisWidgetProvider.PREF, MODE_PRIVATE).edit()
-                    p.putString(HabisWidgetProvider.K_NGAY, call.argument<String>("ngay") ?: "—")
-                    p.putString(HabisWidgetProvider.K_HABIT, call.argument<String>("habit") ?: "0/0")
-                    p.putString(HabisWidgetProvider.K_KCAL, call.argument<String>("kcal") ?: "0")
+                    p.putString(HabisWidgetProvider.K_NGAY, call.argument<String>("ngay") ?: "Thứ Hai 1/1")
+                    p.putString(HabisWidgetProvider.K_HABIT, call.argument<String>("habit") ?: "0/0 thói quen")
+                    p.putString(HabisWidgetProvider.K_KCAL, call.argument<String>("kcal") ?: "0 / 0 kcal")
                     val lua = call.argument<Number>("lua")?.toInt() ?: 0
                     p.putInt(HabisWidgetProvider.K_LUA, lua)
                     p.apply()

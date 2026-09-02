@@ -247,6 +247,14 @@ abstract final class Chuoi {
     return '${thu[d.weekday - 1]}, ${d.day} tháng ${d.month} ${d.year}';
   }
 
+  /// Widget 4×2: «Thứ Tư 2/9» — thứ + d/m, không năm.
+  static String widNgay(DateTime d) =>
+      '${thu[d.weekday - 1]} ${d.day}/${d.month}';
+
+  static String widHabit(int n, int m) => '$n/$m thói quen';
+
+  static String widKcal(int nap, int goi) => '$nap / $goi $kcal';
+
   static String nTrenMHomNay(int n, int m) => '$n/$m hôm nay';
 
   static String homNayNgay(DateTime d) =>
