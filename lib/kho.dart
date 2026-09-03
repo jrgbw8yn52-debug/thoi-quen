@@ -964,6 +964,8 @@ class Kho extends ChangeNotifier {
       habit: Chuoi.widHabit(nTickHom, mHom),
       kcal: Chuoi.widKcal(nap, goi),
       lua: luaTapHom.so,
+      habitNm: Chuoi.nTrenM(nTickHom, mHom),
+      kcalNgan: Chuoi.widKcalNgan(nap),
     );
   }
 

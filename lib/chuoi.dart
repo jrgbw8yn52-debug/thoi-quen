@@ -255,6 +255,8 @@ abstract final class Chuoi {
 
   static String widKcal(int nap, int goi) => '$nap / $goi $kcal';
 
+  static String widKcalNgan(int nap) => '$nap $kcal';
+
   static String nTrenMHomNay(int n, int m) => '$n/$m hôm nay';
 
   static String homNayNgay(DateTime d) =>

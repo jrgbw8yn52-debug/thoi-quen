@@ -87,7 +87,7 @@ class _ManSplash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const ColoredBox(
-      color: Color(0xFF000000),
+      color: Color(0xFF0D0D0D),
       child: SizedBox.expand(
         child: Image(
           image: AssetImage('assets/habis_splash.png'),

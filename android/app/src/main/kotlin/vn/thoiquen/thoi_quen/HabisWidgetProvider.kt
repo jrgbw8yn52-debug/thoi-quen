@@ -19,6 +19,22 @@ class HabisWidgetProvider : AppWidgetProvider() {
         const val K_HABIT = "habit"
         const val K_KCAL = "kcal"
         const val K_LUA = "lua"
+        const val K_HABIT_NM = "habitNm"
+        const val K_KCAL_NGAN = "kcalNgan"
+
+        fun homePi(context: Context, req: Int): PendingIntent {
+            val intent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                action = Intent.ACTION_MAIN
+                addCategory(Intent.CATEGORY_LAUNCHER)
+            }
+            return PendingIntent.getActivity(
+                context,
+                req,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
 
         fun capNhatTatCa(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
@@ -26,6 +42,7 @@ class HabisWidgetProvider : AppWidgetProvider() {
                 ComponentName(context, HabisWidgetProvider::class.java),
             )
             for (id in ids) capNhatMot(context, manager, id)
+            HabisDemWidgetProvider.capNhatTatCa(context)
         }
 
         fun capNhatMot(context: Context, manager: AppWidgetManager, id: Int) {
@@ -35,17 +52,7 @@ class HabisWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.wid_habit, p.getString(K_HABIT, "0/0 thói quen") ?: "0/0 thói quen")
             views.setTextViewText(R.id.wid_kcal, p.getString(K_KCAL, "0 / 0 kcal") ?: "0 / 0 kcal")
             views.setTextViewText(R.id.wid_so, p.getInt(K_LUA, 0).toString())
-            val intent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                action = Intent.ACTION_MAIN
-                addCategory(Intent.CATEGORY_LAUNCHER)
-            }
-            val pi = PendingIntent.getActivity(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
+            val pi = homePi(context, 0)
             views.setOnClickPendingIntent(R.id.wid_root, pi)
             views.setOnClickPendingIntent(R.id.wid_dai, pi)
             manager.updateAppWidget(id, views)

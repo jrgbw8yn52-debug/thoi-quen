@@ -41,6 +41,8 @@ void main() {
     expect(Chuoi.widNgay(DateTime(2026, 9, 2)), 'Thứ Tư 2/9');
     expect(Chuoi.widHabit(3, 5), '3/5 thói quen');
     expect(Chuoi.widKcal(969, 2920), '969 / 2920 kcal');
+    expect(Chuoi.widKcalNgan(2250), '2250 kcal');
+    expect(Chuoi.nTrenM(3, 5), '3/5');
   });
 
   test('so kg dau phay Viet, khong bia', () {

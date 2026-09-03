@@ -57,7 +57,7 @@
                 android:maxLines="1"
                 android:text="Thứ Tư 2/9"
                 android:textColor="@color/muc_toi"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -69,7 +69,8 @@
                 android:maxLines="1"
                 android:text="3/5 thói quen"
                 android:textColor="@color/muc_toi"
-                android:textSize="13sp" />
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/wid_kcal"

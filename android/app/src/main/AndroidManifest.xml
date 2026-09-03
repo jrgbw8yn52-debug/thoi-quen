@@ -40,13 +40,24 @@
         <receiver
             android:name=".HabisWidgetProvider"
             android:exported="true"
-            android:label="Habis">
+            android:label="@string/wid_cam">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/habis_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".HabisDemWidgetProvider"
+            android:exported="true"
+            android:label="@string/wid_dem">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/habis_widget_dem_info" />
         </receiver>
         <meta-data
             android:name="flutterEmbedding"

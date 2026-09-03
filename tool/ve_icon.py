@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-"""Icon 55% lề ≥18% nền #0D0D0D · splash poster chữ nhật #000000 · mark đen widget."""
+"""Icon 55% lề ≥18% nền #0D0D0D · splash mark cam · widget Cam/Đêm."""
 from __future__ import annotations
 
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-BG_ICON = (13, 13, 13, 255)  # #0D0D0D launcher
-BG_SPLASH = (0, 0, 0, 255)  # #000000 splash
-MUC = (13, 13, 13, 255)  # #0D0D0D chữ/mark widget
+BG_ICON = (13, 13, 13, 255)  # #0D0D0D launcher / splash
+BG_SPLASH = (13, 13, 13, 255)  # #0D0D0D
+MUC = (13, 13, 13, 255)  # #0D0D0D chữ/mark widget cam
 CAM = (255, 122, 0, 255)  # #FF7A00
-SRC = Path("/workspace/attachments/F26C7BBE-1827-49BD-8D38-A712108C056A")
+LUA = (255, 176, 0, 255)  # #FFB000
+TRANG = (255, 255, 255, 255)
+SRC = Path("/workspace/attachments/24B6863C-7C0B-408A-9A37-1B231B056E07")
 ROOT = Path("/workspace/thoi_quen")
 ADAPTIVE_INNER = 0.55  # không 66%
 PAD_SQUARE = 0.18  # lề ≥18% mỗi phía
@@ -35,11 +37,11 @@ def extract_mark(src: Image.Image) -> Image.Image:
 
 
 def crush_poster(src: Image.Image) -> Image.Image:
-    """Poster chữ nhật: mark cam, còn lại #000000. Cấm vệt sáng / divider JPEG."""
+    """Mark cam, còn lại #0D0D0D. Không vẽ lại, cấm vệt JPEG."""
     rgba = src.convert("RGBA")
     px = rgba.load()
     w, h = rgba.size
-    out = Image.new("RGB", (w, h), (0, 0, 0))
+    out = Image.new("RGB", (w, h), BG_SPLASH[:3])
     op = out.load()
     for y in range(h):
         for x in range(w):
@@ -92,8 +94,8 @@ def mono_mark(mark: Image.Image, fill: tuple[int, int, int, int] = (255, 255, 25
     return out
 
 
-def contain_on_black(poster: Image.Image, w: int, h: int) -> Image.Image:
-    canvas = Image.new("RGB", (w, h), (0, 0, 0))
+def contain_on_bg(poster: Image.Image, w: int, h: int) -> Image.Image:
+    canvas = Image.new("RGB", (w, h), BG_SPLASH[:3])
     sw, sh = poster.size
     scale = min(w / sw, h / sh)
     nw, nh = max(1, int(round(sw * scale))), max(1, int(round(sh * scale)))
@@ -117,7 +119,7 @@ def save_all():
     splash_mark = fit_square(mark, 512)
     splash_mark.save(assets / "habis_mark.png", "PNG")
     square_on_bg(mark, 1024, pad_ratio=PAD_SQUARE, bg=BG_ICON).save(assets / "habis_icon.png", "PNG")
-    contain_on_black(poster, 1000, 1500).save(assets / "habis_splash.png", "PNG")
+    contain_on_bg(poster, 1000, 1500).save(assets / "habis_splash.png", "PNG")
 
     ios = ROOT / "ios/Runner/Assets.xcassets/AppIcon.appiconset"
     ios.mkdir(parents=True, exist_ok=True)
@@ -172,7 +174,14 @@ def save_all():
     den_h = den.resize((nw, nh), Image.Resampling.LANCZOS)
     den_h.save(drawable / "widget_mark.png", "PNG")
 
-    # Preview 4×2: trên/dưới trong suốt, dải cam 62% bo 20dp, chữ sát lửa.
+    # Mark cam cho widget Đêm — không vẽ lại.
+    ch = 160
+    cw = max(1, int(round(dw * ch / dh)))
+    mark.resize((cw, ch), Image.Resampling.LANCZOS).save(
+        drawable / "widget_mark_cam.png", "PNG"
+    )
+
+    # Preview 4×2 Habis Cam: trên/dưới trong suốt, dải cam 62% bo 20dp.
     pw, ph = 750, 330
     prev = Image.new("RGBA", (pw, ph), (0, 0, 0, 0))
     band_h = int(round(ph * 0.62))
@@ -214,6 +223,31 @@ def save_all():
     draw.text((tx, ty + 88), "2250 / 2920 kcal", fill=MUC[:3], font=font_k)
     prev.save(drawable / "widget_preview.png", "PNG")
 
+    # Preview 2×2 Habis Đêm
+    s = 330
+    dem = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    dd = ImageDraw.Draw(dem)
+    rad = int(round(20 * (s / 110)))
+    dd.rounded_rectangle([0, 0, s - 1, s - 1], radius=rad, fill=BG_ICON)
+    cm = mark.resize((44, 44), Image.Resampling.LANCZOS)
+    dem.paste(cm, (22, 22), cm)
+    try:
+        font_n2 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 64)
+        font_b = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
+    except OSError:
+        font_n2 = font_n
+        font_b = font_s
+    fh = 72
+    fx2, fy2 = s // 2 - 70, s // 2 - 50
+    dd.polygon(
+        [(fx2 + 24, fy2), (fx2 + 6, fy2 + fh - 6), (fx2 + 42, fy2 + fh - 6)],
+        fill=CAM[:3],
+    )
+    dd.text((fx2 + 50, fy2 + 4), "12", fill=TRANG[:3], font=font_n2)
+    dd.text((s // 2 - 30, s - 88), "3/5", fill=LUA[:3], font=font_b)
+    dd.text((s // 2 - 70, s - 52), "2250 kcal", fill=LUA[:3], font=font_b)
+    dem.save(drawable / "widget_preview_dem.png", "PNG")
+
     anydpi = android_res / "mipmap-anydpi-v26"
     anydpi.mkdir(parents=True, exist_ok=True)
     adaptive = """<?xml version="1.0" encoding="utf-8"?>
@@ -241,9 +275,9 @@ def save_all():
 
     launch_dir = ROOT / "ios/Runner/Assets.xcassets/LaunchImage.imageset"
     launch_dir.mkdir(parents=True, exist_ok=True)
-    contain_on_black(poster, 400, 600).save(launch_dir / "LaunchImage.png", "PNG")
-    contain_on_black(poster, 800, 1200).save(launch_dir / "LaunchImage@2x.png", "PNG")
-    contain_on_black(poster, 1200, 1800).save(launch_dir / "LaunchImage@3x.png", "PNG")
+    contain_on_bg(poster, 400, 600).save(launch_dir / "LaunchImage.png", "PNG")
+    contain_on_bg(poster, 800, 1200).save(launch_dir / "LaunchImage@2x.png", "PNG")
+    contain_on_bg(poster, 1200, 1800).save(launch_dir / "LaunchImage@3x.png", "PNG")
 
     print(
         "ok",
