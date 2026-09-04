@@ -1095,6 +1095,7 @@ class Kho extends ChangeNotifier {
                 ? ''
                 : Chuoi.gioNhacChu(h.habit.gioNhac!),
             'phut': h.habit.phutMacDinh,
+            'minutes': h.habit.gioNhac,
           },
       ],
     );

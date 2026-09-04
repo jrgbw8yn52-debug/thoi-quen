@@ -19,11 +19,12 @@ class MainActivity : FlutterActivity() {
                 p.putString(HabisWidgetProvider.K_KCAL, call.argument<String>("kcal") ?: "0 / 0 kcal")
                 p.putString(HabisWidgetProvider.K_HABIT_NM, call.argument<String>("habitNm") ?: "0/0")
                 p.putString(HabisWidgetProvider.K_KCAL_NGAN, call.argument<String>("kcalNgan") ?: "0 kcal")
-                val lua = call.argument<Number>("lua")?.toInt() ?: 0
+                val lua = (call.argument<Number>("lua"))?.toInt() ?: 0
                 p.putInt(HabisWidgetProvider.K_LUA, lua)
-                p.putInt(HabisWidgetProvider.K_N, call.argument<Number>("n")?.toInt() ?: 0)
-                p.putInt(HabisWidgetProvider.K_M, call.argument<Number>("m")?.toInt() ?: 0)
-                HabisWidgetProvider.luuHang(p, call.argument<List<Any>>("hang"))
+                p.putInt(HabisWidgetProvider.K_N, (call.argument<Number>("n"))?.toInt() ?: 0)
+                p.putInt(HabisWidgetProvider.K_M, (call.argument<Number>("m"))?.toInt() ?: 0)
+                val hangRaw = (call.arguments as? Map<*, *>)?.get("hang") as? List<*>
+                HabisWidgetProvider.luuHang(p, hangRaw)
                 p.apply()
                 HabisWidgetProvider.capNhatTatCa(this)
                 result.success(null)

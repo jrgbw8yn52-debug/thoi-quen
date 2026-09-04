@@ -92,6 +92,8 @@ class HabisWidgetProvider : AppWidgetProvider() {
                     o.put("gio", m["gio"] as? String ?: "")
                     val phut = m["phut"]
                     if (phut is Number) o.put("phut", phut.toInt()) else o.put("phut", JSONObject.NULL)
+                    val minutes = m["minutes"]
+                    if (minutes is Number) o.put("minutes", minutes.toInt()) else o.put("minutes", JSONObject.NULL)
                     arr.put(o)
                 }
             }
@@ -102,11 +104,11 @@ class HabisWidgetProvider : AppWidgetProvider() {
             val p = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
             val views = RemoteViews(context.packageName, R.layout.habis_widget)
             views.setTextViewText(R.id.wid_so, p.getInt(K_LUA, 0).toString())
-            val hang = JSONArray(p.getString(K_HANG, "[]") ?: "[]")
+            val hang = docHang(p.getString(K_HANG, "[]"))
             bindO(context, views, 0, hang)
             bindO(context, views, 1, hang)
             bindO(context, views, 2, hang)
-            if (hang.length() == 0) {
+            if (hang.isEmpty()) {
                 views.setViewVisibility(R.id.wid_het, View.VISIBLE)
             } else {
                 views.setViewVisibility(R.id.wid_het, View.GONE)
@@ -122,25 +124,68 @@ class HabisWidgetProvider : AppWidgetProvider() {
         private val tenIds = intArrayOf(R.id.wid_o1_ten, R.id.wid_o2_ten, R.id.wid_o3_ten)
         private val xongIds = intArrayOf(R.id.wid_o1_xong, R.id.wid_o2_xong, R.id.wid_o3_xong)
 
-        private fun bindO(context: Context, views: RemoteViews, i: Int, hang: JSONArray) {
-            if (i >= hang.length()) {
+        private data class HangO(
+            val id: Int,
+            val ten: String,
+            val gio: String,
+            val minutes: Int?,
+            val phut: Int?,
+        )
+
+        private fun soPhut(v: Any?): Int? {
+            if (v == null || v == JSONObject.NULL) return null
+            if (v is Number) return v.toInt()
+            if (v is String) return v.toIntOrNull()
+            return null
+        }
+
+        private fun docHang(raw: String?): List<HangO> {
+            val arr = JSONArray(raw ?: "[]")
+            val ds = ArrayList<HangO>(arr.length())
+            var coMinutes = false
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                val minutes: Int? = if (o.has("minutes")) {
+                    coMinutes = true
+                    if (o.isNull("minutes")) null else soPhut(o.opt("minutes"))
+                } else {
+                    null
+                }
+                val phut: Int? = if (o.isNull("phut")) null else soPhut(o.opt("phut"))
+                ds.add(
+                    HangO(
+                        id = o.optInt("id", 0),
+                        ten = o.optString("ten", ""),
+                        gio = o.optString("gio", ""),
+                        minutes = minutes,
+                        phut = phut,
+                    ),
+                )
+            }
+            if (coMinutes) {
+                ds.sortWith(
+                    compareBy<HangO> { it.minutes ?: Int.MAX_VALUE }.thenBy { it.id },
+                )
+            }
+            return ds
+        }
+
+        private fun bindO(context: Context, views: RemoteViews, i: Int, hang: List<HangO>) {
+            if (i >= hang.size) {
                 views.setViewVisibility(oIds[i], View.GONE)
                 return
             }
-            val o = hang.getJSONObject(i)
-            val hid = o.optInt("id", 0)
-            val gio = o.optString("gio", "")
-            val ten = o.optString("ten", "")
+            val o = hang[i]
             views.setViewVisibility(oIds[i], View.VISIBLE)
-            if (gio.isEmpty()) {
+            if (o.gio.isEmpty()) {
                 views.setViewVisibility(gioIds[i], View.GONE)
             } else {
                 views.setViewVisibility(gioIds[i], View.VISIBLE)
-                views.setTextViewText(gioIds[i], gio)
+                views.setTextViewText(gioIds[i], o.gio)
             }
-            views.setTextViewText(tenIds[i], ten)
-            if (hid > 0) {
-                views.setOnClickPendingIntent(xongIds[i], xongPi(context, hid))
+            views.setTextViewText(tenIds[i], o.ten)
+            if (o.id > 0) {
+                views.setOnClickPendingIntent(xongIds[i], xongPi(context, o.id))
             }
         }
 
@@ -186,16 +231,12 @@ class HabisWidgetProvider : AppWidgetProvider() {
         }
 
         private fun phutCua(context: Context, habitId: Int): Int? {
-            val arr = JSONArray(
+            val hang = docHang(
                 context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
-                    .getString(K_HANG, "[]") ?: "[]",
+                    .getString(K_HANG, "[]"),
             )
-            for (i in 0 until arr.length()) {
-                val o = arr.getJSONObject(i)
-                if (o.optInt("id") == habitId) {
-                    if (o.isNull("phut")) return null
-                    return o.optInt("phut")
-                }
+            for (o in hang) {
+                if (o.id == habitId) return o.phut
             }
             return null
         }
@@ -212,16 +253,15 @@ class HabisWidgetProvider : AppWidgetProvider() {
                     null,
                     SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
                 )
-                if (phut == null) {
-                    db.execSQL(
-                        "INSERT OR IGNORE INTO ticks (habit_id, ngay, phut) VALUES (?, ?, NULL)",
-                        arrayOf(habitId, ngay),
-                    )
-                } else {
-                    db.execSQL(
-                        "INSERT OR IGNORE INTO ticks (habit_id, ngay, phut) VALUES (?, ?, ?)",
-                        arrayOf(habitId, ngay, phut),
-                    )
+                val sql = "INSERT OR IGNORE INTO ticks (habit_id, ngay, phut) VALUES (?, ?, ?)"
+                val stmt = db.compileStatement(sql)
+                try {
+                    stmt.bindLong(1, habitId.toLong())
+                    stmt.bindString(2, ngay)
+                    if (phut == null) stmt.bindNull(3) else stmt.bindLong(3, phut.toLong())
+                    stmt.executeInsert()
+                } finally {
+                    stmt.close()
                 }
             } catch (_: Exception) {
             } finally {
