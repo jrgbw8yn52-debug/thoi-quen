@@ -49,6 +49,8 @@ void main() {
     expect(Chuoi.expThanh(10, 120), '10 / 120');
     expect(Chuoi.tapHomNayQuest, 'Tập hôm nay');
     expect(Chuoi.ghiCanQuest, 'Ghi cân');
+    expect(Chuoi.hetViecHomNay, 'Hết việc hôm nay');
+    expect(Chuoi.xong, 'Xong');
   });
 
   test('so kg dau phay Viet, khong bia', () {

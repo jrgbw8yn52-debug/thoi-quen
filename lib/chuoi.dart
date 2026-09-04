@@ -38,6 +38,7 @@ abstract final class Chuoi {
   static const buocDauMoTa =
       'Gắn tick thói quen. Hiệu lực khi đã tick ít nhất một việc hôm nay.';
   static const luaTang = 'Lửa vừa nối. Đừng để tắt.';
+  static const hetViecHomNay = 'Hết việc hôm nay';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';
   static const xong = 'Xong';

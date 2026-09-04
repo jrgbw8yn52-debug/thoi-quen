@@ -7,12 +7,14 @@ import 'kho.dart';
 import 'mau.dart';
 import 'nhac.dart';
 import 'vo_app.dart';
+import 'wid_home.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final db = AppDatabase();
   final kho = Kho(db);
-  Nhac.khoiTao(bam: kho.moTuNoti);
+  Nhac.khoiTao(bam: kho.moTuNoti, xong: kho.tickTuNoti);
+  WidHome.langNghe(kho.tickWid);
   kho.tai().then((_) => Nhac.xuLyLanMo());
   runApp(ThoiQuenApp(kho: kho));
 }

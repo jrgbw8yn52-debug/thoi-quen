@@ -122,6 +122,15 @@ String _boDau(String s) {
   return b.toString();
 }
 
+int soSanhGioHang(HangHabitView a, HangHabitView b) {
+  final ga = a.habit.gioNhac;
+  final gb = b.habit.gioNhac;
+  if (ga == null && gb != null) return 1;
+  if (ga != null && gb == null) return -1;
+  if (ga != null && gb != null && ga != gb) return ga.compareTo(gb);
+  return a.habit.id.compareTo(b.habit.id);
+}
+
 bool _chuaVi(String ten, String q) {
   final k = q.trim().toLowerCase();
   if (k.isEmpty) return true;
@@ -905,7 +914,69 @@ class Kho extends ChangeNotifier {
     notifyListeners();
     if (lanDau) shellBan.ban();
     await Nhac.dongBo(dsHien);
+    await _heThuongCacTickHomNay();
     _dongWid();
+  }
+
+  /// Hôm nay, chưa tick. Giờ nhắc tăng. Không giờ → cuối.
+  List<HangHabitView> get hangCam {
+    final iso = Ngay.iso(homNay);
+    final ds = [
+      for (final h in dsHien)
+        if (hienO(h, homNay) && !ticksCua(h.id).contains(iso))
+          HangHabitView(habit: h, ticked: false),
+    ];
+    ds.sort(soSanhGioHang);
+    return ds;
+  }
+
+  Future<void> _heThuongCacTickHomNay() async {
+    final iso = Ngay.iso(homNay);
+    for (final h in dsHien) {
+      if (!hienO(h, homNay)) continue;
+      if (!ticksCua(h.id).contains(iso)) continue;
+      await _heThuong(
+        kind: He.kindHabit,
+        refId: h.id,
+        deNghi: He.expTick,
+        ngay: homNay,
+      );
+    }
+  }
+
+  Future<void> tickWid(int id, {DateTime? ngay}) async {
+    final d = Ngay.cat(ngay ?? homNay);
+    if (!Ngay.ghiDuoc(d, homNay)) return;
+    final all = await db.dsTick();
+    ticksIso = {};
+    for (final t in all) {
+      ticksIso.putIfAbsent(t.habitId, () => <String>{}).add(t.ngay);
+    }
+    Habit? h;
+    for (final x in dsHien) {
+      if (x.id == id) {
+        h = x;
+        break;
+      }
+    }
+    if (h == null) {
+      await tai();
+      return;
+    }
+    final iso = Ngay.iso(d);
+    if (ticksCua(id).contains(iso)) {
+      await _heThuong(
+        kind: He.kindHabit,
+        refId: id,
+        deNghi: He.expTick,
+        ngay: d,
+      );
+      _dongBoHangVaTuan();
+      homeBan.ban();
+      _dongWid();
+      return;
+    }
+    await toggleNgay(h, d);
   }
 
   void chonNgay(DateTime d) {
@@ -985,14 +1056,7 @@ class Kho extends ChangeNotifier {
             ticked: ticksCua(h.id).contains(isoSel),
           ),
     ];
-    ds.sort((a, b) {
-      final ga = a.habit.gioNhac;
-      final gb = b.habit.gioNhac;
-      if (ga == null && gb != null) return 1;
-      if (ga != null && gb == null) return -1;
-      if (ga != null && gb != null && ga != gb) return ga.compareTo(gb);
-      return a.habit.id.compareTo(b.habit.id);
-    });
+    ds.sort(soSanhGioHang);
     hang = ds;
   }
 
@@ -1020,6 +1084,19 @@ class Kho extends ChangeNotifier {
       lua: luaTapHom.so,
       habitNm: Chuoi.nTrenM(nTickHom, mHom),
       kcalNgan: Chuoi.widKcalNgan(nap),
+      n: nTickHom,
+      m: mHom,
+      hang: [
+        for (final h in hangCam)
+          {
+            'id': h.habit.id,
+            'ten': h.habit.ten,
+            'gio': h.habit.gioNhac == null
+                ? ''
+                : Chuoi.gioNhacChu(h.habit.gioNhac!),
+            'phut': h.habit.phutMacDinh,
+          },
+      ],
     );
   }
 
@@ -1173,6 +1250,13 @@ class Kho extends ChangeNotifier {
     _dongBoHangVaTuan();
     homeBan.ban();
     tabBan.ban();
+  }
+
+  Future<void> tickTuNoti(String payload) async {
+    moTuNoti(payload);
+    final id = int.tryParse(payload.split('|').first);
+    if (id == null) return;
+    await tickWid(id, ngay: selected);
   }
 
   void chonPhin(int i) {

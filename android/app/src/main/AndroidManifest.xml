@@ -43,6 +43,7 @@
             android:label="@string/wid_cam">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="vn.thoiquen.thoi_quen.WID_XONG" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

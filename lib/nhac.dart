@@ -7,6 +7,11 @@ import 'package:timezone/timezone.dart' as tz;
 import 'db/database.dart';
 import 'thu.dart';
 
+@pragma('vm:entry-point')
+void nhacNen(NotificationResponse r) {
+  // UI isolate xử lý Xong qua onDidReceiveNotificationResponse.
+}
+
 /// Nhắc local: chuông + màn khóa. Không AlarmKit, không server, không full-screen.
 abstract final class Nhac {
   static const kenhId = 'habit_remind';
@@ -16,9 +21,14 @@ abstract final class Nhac {
   static final _p = FlutterLocalNotificationsPlugin();
   static bool _ok = false;
   static void Function(String payload)? onBam;
+  static void Function(String payload)? onXong;
 
-  static Future<void> khoiTao({void Function(String payload)? bam}) async {
+  static Future<void> khoiTao({
+    void Function(String payload)? bam,
+    void Function(String payload)? xong,
+  }) async {
     onBam = bam ?? onBam;
+    onXong = xong ?? onXong;
     try {
       tzdata.initializeTimeZones();
       tz.setLocalLocation(tz.getLocation('Asia/Ho_Chi_Minh'));
@@ -35,6 +45,7 @@ abstract final class Nhac {
       await _p.initialize(
         const InitializationSettings(android: android, iOS: ios),
         onDidReceiveNotificationResponse: _nhanBam,
+        onDidReceiveBackgroundNotificationResponse: nhacNen,
       );
       final a = _p.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>();
@@ -58,15 +69,24 @@ abstract final class Nhac {
   static void _nhanBam(NotificationResponse r) {
     final p = r.payload;
     if (p == null || p.isEmpty) return;
+    if (r.actionId == 'xong') {
+      onXong?.call(p);
+      return;
+    }
     onBam?.call(p);
   }
 
   static Future<void> xuLyLanMo() async {
     try {
       final d = await _p.getNotificationAppLaunchDetails();
-      if (d?.didNotificationLaunchApp == true) {
-        final p = d?.notificationResponse?.payload;
-        if (p != null && p.isNotEmpty) onBam?.call(p);
+      if (d?.didNotificationLaunchApp != true) return;
+      final r = d?.notificationResponse;
+      final p = r?.payload;
+      if (p == null || p.isEmpty) return;
+      if (r?.actionId == 'xong') {
+        onXong?.call(p);
+      } else {
+        onBam?.call(p);
       }
     } catch (_) {}
   }
@@ -122,6 +142,14 @@ abstract final class Nhac {
       icon: '@drawable/ic_nhac',
       color: Color(0xFFFF7A00),
       fullScreenIntent: false,
+      actions: <AndroidNotificationAction>[
+        AndroidNotificationAction(
+          'xong',
+          'Xong',
+          showsUserInterface: true,
+          cancelNotification: true,
+        ),
+      ],
     );
     const ios = DarwinNotificationDetails(
       presentAlert: true,
@@ -134,7 +162,7 @@ abstract final class Nhac {
     const details = NotificationDetails(android: android, iOS: ios);
     final khi = _lanSau(thu, phut);
     final id = h.id * 10 + thu;
-    final payload = '$thu';
+    final payload = '${h.id}|$thu';
     try {
       await _p.zonedSchedule(
         id,
