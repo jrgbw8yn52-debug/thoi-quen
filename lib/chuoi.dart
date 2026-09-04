@@ -15,6 +15,29 @@ abstract final class Chuoi {
   static const tienDo = 'Tiến độ';
   static const caiDat = 'Cài đặt';
   static const taiKhoan = 'Tài khoản';
+  static const he = 'Hệ';
+  static const cap = 'Cấp';
+  static const expNhan = 'EXP';
+  static const sucTam = 'Sức tạm';
+  static const luc = 'Lực';
+  static const ben = 'Bền';
+  static const chiNhan = 'Chí';
+  static const tinh = 'Tĩnh';
+  static const diemChuaCong = 'Điểm chưa cộng';
+  static const questHomNay = 'Việc hôm nay';
+  static const tapHomNayQuest = 'Tập hôm nay';
+  static const ghiCanQuest = 'Ghi cân';
+  static const kyNhan = 'Kỹ';
+  static const dangHieuLuc = 'đang hiệu lực';
+  static const tamYeu = 'tạm yếu';
+  static const manhNhan = 'Mảnh';
+  static const nhipThoVung = 'Nhịp thở vững';
+  static const nhipThoVungMoTa =
+      'Gắn chuỗi tập. Hiệu lực khi đã tập hôm nay.';
+  static const buocDau = 'Bước đầu';
+  static const buocDauMoTa =
+      'Gắn tick thói quen. Hiệu lực khi đã tick ít nhất một việc hôm nay.';
+  static const luaTang = 'Lửa vừa nối. Đừng để tắt.';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';
   static const xong = 'Xong';
@@ -443,4 +466,16 @@ abstract final class Chuoi {
     if (h12 == 0) h12 = 12;
     return '$h12:$m ${chieu ? ch : sa}';
   }
+
+  static String lamQuest(String ten) => 'Làm: $ten';
+
+  static String capSo(int n) => '$cap $n';
+
+  static String expThanh(int hien, int can) => '$hien / $can';
+
+  static String sucTamSo(int n) => '$sucTam $n';
+
+  static String diemChuaCongSo(int n) => '$diemChuaCong $n';
+
+  static String kyDong(bool hieuLuc) => hieuLuc ? dangHieuLuc : tamYeu;
 }

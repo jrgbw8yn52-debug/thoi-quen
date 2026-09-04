@@ -4676,6 +4676,1015 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
   }
 }
 
+class $AuraProfilesTable extends AuraProfiles
+    with TableInfo<$AuraProfilesTable, AuraProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AuraProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<int> level = GeneratedColumn<int>(
+    'level',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _expMeta = const VerificationMeta('exp');
+  @override
+  late final GeneratedColumn<int> exp = GeneratedColumn<int>(
+    'exp',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _unspentMeta = const VerificationMeta(
+    'unspent',
+  );
+  @override
+  late final GeneratedColumn<int> unspent = GeneratedColumn<int>(
+    'unspent',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lucMeta = const VerificationMeta('luc');
+  @override
+  late final GeneratedColumn<int> luc = GeneratedColumn<int>(
+    'luc',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _benMeta = const VerificationMeta('ben');
+  @override
+  late final GeneratedColumn<int> ben = GeneratedColumn<int>(
+    'ben',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _chiMeta = const VerificationMeta('chi');
+  @override
+  late final GeneratedColumn<int> chi = GeneratedColumn<int>(
+    'chi',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _tinhMeta = const VerificationMeta('tinh');
+  @override
+  late final GeneratedColumn<int> tinh = GeneratedColumn<int>(
+    'tinh',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    level,
+    exp,
+    unspent,
+    luc,
+    ben,
+    chi,
+    tinh,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'aura_profile';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AuraProfile> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+        _levelMeta,
+        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
+      );
+    }
+    if (data.containsKey('exp')) {
+      context.handle(
+        _expMeta,
+        exp.isAcceptableOrUnknown(data['exp']!, _expMeta),
+      );
+    }
+    if (data.containsKey('unspent')) {
+      context.handle(
+        _unspentMeta,
+        unspent.isAcceptableOrUnknown(data['unspent']!, _unspentMeta),
+      );
+    }
+    if (data.containsKey('luc')) {
+      context.handle(
+        _lucMeta,
+        luc.isAcceptableOrUnknown(data['luc']!, _lucMeta),
+      );
+    }
+    if (data.containsKey('ben')) {
+      context.handle(
+        _benMeta,
+        ben.isAcceptableOrUnknown(data['ben']!, _benMeta),
+      );
+    }
+    if (data.containsKey('chi')) {
+      context.handle(
+        _chiMeta,
+        chi.isAcceptableOrUnknown(data['chi']!, _chiMeta),
+      );
+    }
+    if (data.containsKey('tinh')) {
+      context.handle(
+        _tinhMeta,
+        tinh.isAcceptableOrUnknown(data['tinh']!, _tinhMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AuraProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AuraProfile(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      level: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}level'],
+      )!,
+      exp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}exp'],
+      )!,
+      unspent: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}unspent'],
+      )!,
+      luc: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}luc'],
+      )!,
+      ben: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ben'],
+      )!,
+      chi: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}chi'],
+      )!,
+      tinh: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tinh'],
+      )!,
+    );
+  }
+
+  @override
+  $AuraProfilesTable createAlias(String alias) {
+    return $AuraProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class AuraProfile extends DataClass implements Insertable<AuraProfile> {
+  final int id;
+  final int level;
+  final int exp;
+  final int unspent;
+  final int luc;
+  final int ben;
+  final int chi;
+  final int tinh;
+  const AuraProfile({
+    required this.id,
+    required this.level,
+    required this.exp,
+    required this.unspent,
+    required this.luc,
+    required this.ben,
+    required this.chi,
+    required this.tinh,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['level'] = Variable<int>(level);
+    map['exp'] = Variable<int>(exp);
+    map['unspent'] = Variable<int>(unspent);
+    map['luc'] = Variable<int>(luc);
+    map['ben'] = Variable<int>(ben);
+    map['chi'] = Variable<int>(chi);
+    map['tinh'] = Variable<int>(tinh);
+    return map;
+  }
+
+  AuraProfilesCompanion toCompanion(bool nullToAbsent) {
+    return AuraProfilesCompanion(
+      id: Value(id),
+      level: Value(level),
+      exp: Value(exp),
+      unspent: Value(unspent),
+      luc: Value(luc),
+      ben: Value(ben),
+      chi: Value(chi),
+      tinh: Value(tinh),
+    );
+  }
+
+  factory AuraProfile.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AuraProfile(
+      id: serializer.fromJson<int>(json['id']),
+      level: serializer.fromJson<int>(json['level']),
+      exp: serializer.fromJson<int>(json['exp']),
+      unspent: serializer.fromJson<int>(json['unspent']),
+      luc: serializer.fromJson<int>(json['luc']),
+      ben: serializer.fromJson<int>(json['ben']),
+      chi: serializer.fromJson<int>(json['chi']),
+      tinh: serializer.fromJson<int>(json['tinh']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'level': serializer.toJson<int>(level),
+      'exp': serializer.toJson<int>(exp),
+      'unspent': serializer.toJson<int>(unspent),
+      'luc': serializer.toJson<int>(luc),
+      'ben': serializer.toJson<int>(ben),
+      'chi': serializer.toJson<int>(chi),
+      'tinh': serializer.toJson<int>(tinh),
+    };
+  }
+
+  AuraProfile copyWith({
+    int? id,
+    int? level,
+    int? exp,
+    int? unspent,
+    int? luc,
+    int? ben,
+    int? chi,
+    int? tinh,
+  }) => AuraProfile(
+    id: id ?? this.id,
+    level: level ?? this.level,
+    exp: exp ?? this.exp,
+    unspent: unspent ?? this.unspent,
+    luc: luc ?? this.luc,
+    ben: ben ?? this.ben,
+    chi: chi ?? this.chi,
+    tinh: tinh ?? this.tinh,
+  );
+  AuraProfile copyWithCompanion(AuraProfilesCompanion data) {
+    return AuraProfile(
+      id: data.id.present ? data.id.value : this.id,
+      level: data.level.present ? data.level.value : this.level,
+      exp: data.exp.present ? data.exp.value : this.exp,
+      unspent: data.unspent.present ? data.unspent.value : this.unspent,
+      luc: data.luc.present ? data.luc.value : this.luc,
+      ben: data.ben.present ? data.ben.value : this.ben,
+      chi: data.chi.present ? data.chi.value : this.chi,
+      tinh: data.tinh.present ? data.tinh.value : this.tinh,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuraProfile(')
+          ..write('id: $id, ')
+          ..write('level: $level, ')
+          ..write('exp: $exp, ')
+          ..write('unspent: $unspent, ')
+          ..write('luc: $luc, ')
+          ..write('ben: $ben, ')
+          ..write('chi: $chi, ')
+          ..write('tinh: $tinh')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, level, exp, unspent, luc, ben, chi, tinh);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AuraProfile &&
+          other.id == this.id &&
+          other.level == this.level &&
+          other.exp == this.exp &&
+          other.unspent == this.unspent &&
+          other.luc == this.luc &&
+          other.ben == this.ben &&
+          other.chi == this.chi &&
+          other.tinh == this.tinh);
+}
+
+class AuraProfilesCompanion extends UpdateCompanion<AuraProfile> {
+  final Value<int> id;
+  final Value<int> level;
+  final Value<int> exp;
+  final Value<int> unspent;
+  final Value<int> luc;
+  final Value<int> ben;
+  final Value<int> chi;
+  final Value<int> tinh;
+  const AuraProfilesCompanion({
+    this.id = const Value.absent(),
+    this.level = const Value.absent(),
+    this.exp = const Value.absent(),
+    this.unspent = const Value.absent(),
+    this.luc = const Value.absent(),
+    this.ben = const Value.absent(),
+    this.chi = const Value.absent(),
+    this.tinh = const Value.absent(),
+  });
+  AuraProfilesCompanion.insert({
+    this.id = const Value.absent(),
+    this.level = const Value.absent(),
+    this.exp = const Value.absent(),
+    this.unspent = const Value.absent(),
+    this.luc = const Value.absent(),
+    this.ben = const Value.absent(),
+    this.chi = const Value.absent(),
+    this.tinh = const Value.absent(),
+  });
+  static Insertable<AuraProfile> custom({
+    Expression<int>? id,
+    Expression<int>? level,
+    Expression<int>? exp,
+    Expression<int>? unspent,
+    Expression<int>? luc,
+    Expression<int>? ben,
+    Expression<int>? chi,
+    Expression<int>? tinh,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (level != null) 'level': level,
+      if (exp != null) 'exp': exp,
+      if (unspent != null) 'unspent': unspent,
+      if (luc != null) 'luc': luc,
+      if (ben != null) 'ben': ben,
+      if (chi != null) 'chi': chi,
+      if (tinh != null) 'tinh': tinh,
+    });
+  }
+
+  AuraProfilesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? level,
+    Value<int>? exp,
+    Value<int>? unspent,
+    Value<int>? luc,
+    Value<int>? ben,
+    Value<int>? chi,
+    Value<int>? tinh,
+  }) {
+    return AuraProfilesCompanion(
+      id: id ?? this.id,
+      level: level ?? this.level,
+      exp: exp ?? this.exp,
+      unspent: unspent ?? this.unspent,
+      luc: luc ?? this.luc,
+      ben: ben ?? this.ben,
+      chi: chi ?? this.chi,
+      tinh: tinh ?? this.tinh,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<int>(level.value);
+    }
+    if (exp.present) {
+      map['exp'] = Variable<int>(exp.value);
+    }
+    if (unspent.present) {
+      map['unspent'] = Variable<int>(unspent.value);
+    }
+    if (luc.present) {
+      map['luc'] = Variable<int>(luc.value);
+    }
+    if (ben.present) {
+      map['ben'] = Variable<int>(ben.value);
+    }
+    if (chi.present) {
+      map['chi'] = Variable<int>(chi.value);
+    }
+    if (tinh.present) {
+      map['tinh'] = Variable<int>(tinh.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuraProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('level: $level, ')
+          ..write('exp: $exp, ')
+          ..write('unspent: $unspent, ')
+          ..write('luc: $luc, ')
+          ..write('ben: $ben, ')
+          ..write('chi: $chi, ')
+          ..write('tinh: $tinh')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AuraQuestLogsTable extends AuraQuestLogs
+    with TableInfo<$AuraQuestLogsTable, AuraQuestLog> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AuraQuestLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _refIdMeta = const VerificationMeta('refId');
+  @override
+  late final GeneratedColumn<int> refId = GeneratedColumn<int>(
+    'ref_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expMeta = const VerificationMeta('exp');
+  @override
+  late final GeneratedColumn<int> exp = GeneratedColumn<int>(
+    'exp',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [ngay, kind, refId, exp];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'aura_quest_log';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AuraQuestLog> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('ref_id')) {
+      context.handle(
+        _refIdMeta,
+        refId.isAcceptableOrUnknown(data['ref_id']!, _refIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_refIdMeta);
+    }
+    if (data.containsKey('exp')) {
+      context.handle(
+        _expMeta,
+        exp.isAcceptableOrUnknown(data['exp']!, _expMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_expMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ngay, kind, refId};
+  @override
+  AuraQuestLog map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AuraQuestLog(
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      refId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ref_id'],
+      )!,
+      exp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}exp'],
+      )!,
+    );
+  }
+
+  @override
+  $AuraQuestLogsTable createAlias(String alias) {
+    return $AuraQuestLogsTable(attachedDatabase, alias);
+  }
+}
+
+class AuraQuestLog extends DataClass implements Insertable<AuraQuestLog> {
+  final String ngay;
+  final String kind;
+  final int refId;
+  final int exp;
+  const AuraQuestLog({
+    required this.ngay,
+    required this.kind,
+    required this.refId,
+    required this.exp,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ngay'] = Variable<String>(ngay);
+    map['kind'] = Variable<String>(kind);
+    map['ref_id'] = Variable<int>(refId);
+    map['exp'] = Variable<int>(exp);
+    return map;
+  }
+
+  AuraQuestLogsCompanion toCompanion(bool nullToAbsent) {
+    return AuraQuestLogsCompanion(
+      ngay: Value(ngay),
+      kind: Value(kind),
+      refId: Value(refId),
+      exp: Value(exp),
+    );
+  }
+
+  factory AuraQuestLog.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AuraQuestLog(
+      ngay: serializer.fromJson<String>(json['ngay']),
+      kind: serializer.fromJson<String>(json['kind']),
+      refId: serializer.fromJson<int>(json['refId']),
+      exp: serializer.fromJson<int>(json['exp']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ngay': serializer.toJson<String>(ngay),
+      'kind': serializer.toJson<String>(kind),
+      'refId': serializer.toJson<int>(refId),
+      'exp': serializer.toJson<int>(exp),
+    };
+  }
+
+  AuraQuestLog copyWith({String? ngay, String? kind, int? refId, int? exp}) =>
+      AuraQuestLog(
+        ngay: ngay ?? this.ngay,
+        kind: kind ?? this.kind,
+        refId: refId ?? this.refId,
+        exp: exp ?? this.exp,
+      );
+  AuraQuestLog copyWithCompanion(AuraQuestLogsCompanion data) {
+    return AuraQuestLog(
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      refId: data.refId.present ? data.refId.value : this.refId,
+      exp: data.exp.present ? data.exp.value : this.exp,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuraQuestLog(')
+          ..write('ngay: $ngay, ')
+          ..write('kind: $kind, ')
+          ..write('refId: $refId, ')
+          ..write('exp: $exp')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ngay, kind, refId, exp);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AuraQuestLog &&
+          other.ngay == this.ngay &&
+          other.kind == this.kind &&
+          other.refId == this.refId &&
+          other.exp == this.exp);
+}
+
+class AuraQuestLogsCompanion extends UpdateCompanion<AuraQuestLog> {
+  final Value<String> ngay;
+  final Value<String> kind;
+  final Value<int> refId;
+  final Value<int> exp;
+  final Value<int> rowid;
+  const AuraQuestLogsCompanion({
+    this.ngay = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.refId = const Value.absent(),
+    this.exp = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AuraQuestLogsCompanion.insert({
+    required String ngay,
+    required String kind,
+    required int refId,
+    required int exp,
+    this.rowid = const Value.absent(),
+  }) : ngay = Value(ngay),
+       kind = Value(kind),
+       refId = Value(refId),
+       exp = Value(exp);
+  static Insertable<AuraQuestLog> custom({
+    Expression<String>? ngay,
+    Expression<String>? kind,
+    Expression<int>? refId,
+    Expression<int>? exp,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ngay != null) 'ngay': ngay,
+      if (kind != null) 'kind': kind,
+      if (refId != null) 'ref_id': refId,
+      if (exp != null) 'exp': exp,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AuraQuestLogsCompanion copyWith({
+    Value<String>? ngay,
+    Value<String>? kind,
+    Value<int>? refId,
+    Value<int>? exp,
+    Value<int>? rowid,
+  }) {
+    return AuraQuestLogsCompanion(
+      ngay: ngay ?? this.ngay,
+      kind: kind ?? this.kind,
+      refId: refId ?? this.refId,
+      exp: exp ?? this.exp,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (refId.present) {
+      map['ref_id'] = Variable<int>(refId.value);
+    }
+    if (exp.present) {
+      map['exp'] = Variable<int>(exp.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuraQuestLogsCompanion(')
+          ..write('ngay: $ngay, ')
+          ..write('kind: $kind, ')
+          ..write('refId: $refId, ')
+          ..write('exp: $exp, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AuraFragmentsTable extends AuraFragments
+    with TableInfo<$AuraFragmentsTable, AuraFragment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AuraFragmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _cauMeta = const VerificationMeta('cau');
+  @override
+  late final GeneratedColumn<String> cau = GeneratedColumn<String>(
+    'cau',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, cau, ngay];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'aura_fragments';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AuraFragment> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('cau')) {
+      context.handle(
+        _cauMeta,
+        cau.isAcceptableOrUnknown(data['cau']!, _cauMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cauMeta);
+    }
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AuraFragment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AuraFragment(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      cau: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cau'],
+      )!,
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+    );
+  }
+
+  @override
+  $AuraFragmentsTable createAlias(String alias) {
+    return $AuraFragmentsTable(attachedDatabase, alias);
+  }
+}
+
+class AuraFragment extends DataClass implements Insertable<AuraFragment> {
+  final int id;
+  final String cau;
+  final String ngay;
+  const AuraFragment({required this.id, required this.cau, required this.ngay});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['cau'] = Variable<String>(cau);
+    map['ngay'] = Variable<String>(ngay);
+    return map;
+  }
+
+  AuraFragmentsCompanion toCompanion(bool nullToAbsent) {
+    return AuraFragmentsCompanion(
+      id: Value(id),
+      cau: Value(cau),
+      ngay: Value(ngay),
+    );
+  }
+
+  factory AuraFragment.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AuraFragment(
+      id: serializer.fromJson<int>(json['id']),
+      cau: serializer.fromJson<String>(json['cau']),
+      ngay: serializer.fromJson<String>(json['ngay']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'cau': serializer.toJson<String>(cau),
+      'ngay': serializer.toJson<String>(ngay),
+    };
+  }
+
+  AuraFragment copyWith({int? id, String? cau, String? ngay}) => AuraFragment(
+    id: id ?? this.id,
+    cau: cau ?? this.cau,
+    ngay: ngay ?? this.ngay,
+  );
+  AuraFragment copyWithCompanion(AuraFragmentsCompanion data) {
+    return AuraFragment(
+      id: data.id.present ? data.id.value : this.id,
+      cau: data.cau.present ? data.cau.value : this.cau,
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuraFragment(')
+          ..write('id: $id, ')
+          ..write('cau: $cau, ')
+          ..write('ngay: $ngay')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, cau, ngay);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AuraFragment &&
+          other.id == this.id &&
+          other.cau == this.cau &&
+          other.ngay == this.ngay);
+}
+
+class AuraFragmentsCompanion extends UpdateCompanion<AuraFragment> {
+  final Value<int> id;
+  final Value<String> cau;
+  final Value<String> ngay;
+  const AuraFragmentsCompanion({
+    this.id = const Value.absent(),
+    this.cau = const Value.absent(),
+    this.ngay = const Value.absent(),
+  });
+  AuraFragmentsCompanion.insert({
+    this.id = const Value.absent(),
+    required String cau,
+    required String ngay,
+  }) : cau = Value(cau),
+       ngay = Value(ngay);
+  static Insertable<AuraFragment> custom({
+    Expression<int>? id,
+    Expression<String>? cau,
+    Expression<String>? ngay,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (cau != null) 'cau': cau,
+      if (ngay != null) 'ngay': ngay,
+    });
+  }
+
+  AuraFragmentsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? cau,
+    Value<String>? ngay,
+  }) {
+    return AuraFragmentsCompanion(
+      id: id ?? this.id,
+      cau: cau ?? this.cau,
+      ngay: ngay ?? this.ngay,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (cau.present) {
+      map['cau'] = Variable<String>(cau.value);
+    }
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuraFragmentsCompanion(')
+          ..write('id: $id, ')
+          ..write('cau: $cau, ')
+          ..write('ngay: $ngay')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4692,6 +5701,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $NapInsTable napIns = $NapInsTable(this);
   late final $FoodsTable foods = $FoodsTable(this);
   late final $FoodLogsTable foodLogs = $FoodLogsTable(this);
+  late final $AuraProfilesTable auraProfiles = $AuraProfilesTable(this);
+  late final $AuraQuestLogsTable auraQuestLogs = $AuraQuestLogsTable(this);
+  late final $AuraFragmentsTable auraFragments = $AuraFragmentsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4710,6 +5722,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     napIns,
     foods,
     foodLogs,
+    auraProfiles,
+    auraQuestLogs,
+    auraFragments,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -7856,6 +8871,584 @@ typedef $$FoodLogsTableProcessedTableManager =
       FoodLog,
       PrefetchHooks Function({bool foodId})
     >;
+typedef $$AuraProfilesTableCreateCompanionBuilder =
+    AuraProfilesCompanion Function({
+      Value<int> id,
+      Value<int> level,
+      Value<int> exp,
+      Value<int> unspent,
+      Value<int> luc,
+      Value<int> ben,
+      Value<int> chi,
+      Value<int> tinh,
+    });
+typedef $$AuraProfilesTableUpdateCompanionBuilder =
+    AuraProfilesCompanion Function({
+      Value<int> id,
+      Value<int> level,
+      Value<int> exp,
+      Value<int> unspent,
+      Value<int> luc,
+      Value<int> ben,
+      Value<int> chi,
+      Value<int> tinh,
+    });
+
+class $$AuraProfilesTableFilterComposer
+    extends Composer<_$AppDatabase, $AuraProfilesTable> {
+  $$AuraProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get exp => $composableBuilder(
+    column: $table.exp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get unspent => $composableBuilder(
+    column: $table.unspent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get luc => $composableBuilder(
+    column: $table.luc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get ben => $composableBuilder(
+    column: $table.ben,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get chi => $composableBuilder(
+    column: $table.chi,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get tinh => $composableBuilder(
+    column: $table.tinh,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AuraProfilesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AuraProfilesTable> {
+  $$AuraProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get exp => $composableBuilder(
+    column: $table.exp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get unspent => $composableBuilder(
+    column: $table.unspent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get luc => $composableBuilder(
+    column: $table.luc,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get ben => $composableBuilder(
+    column: $table.ben,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get chi => $composableBuilder(
+    column: $table.chi,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get tinh => $composableBuilder(
+    column: $table.tinh,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AuraProfilesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AuraProfilesTable> {
+  $$AuraProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<int> get exp =>
+      $composableBuilder(column: $table.exp, builder: (column) => column);
+
+  GeneratedColumn<int> get unspent =>
+      $composableBuilder(column: $table.unspent, builder: (column) => column);
+
+  GeneratedColumn<int> get luc =>
+      $composableBuilder(column: $table.luc, builder: (column) => column);
+
+  GeneratedColumn<int> get ben =>
+      $composableBuilder(column: $table.ben, builder: (column) => column);
+
+  GeneratedColumn<int> get chi =>
+      $composableBuilder(column: $table.chi, builder: (column) => column);
+
+  GeneratedColumn<int> get tinh =>
+      $composableBuilder(column: $table.tinh, builder: (column) => column);
+}
+
+class $$AuraProfilesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AuraProfilesTable,
+          AuraProfile,
+          $$AuraProfilesTableFilterComposer,
+          $$AuraProfilesTableOrderingComposer,
+          $$AuraProfilesTableAnnotationComposer,
+          $$AuraProfilesTableCreateCompanionBuilder,
+          $$AuraProfilesTableUpdateCompanionBuilder,
+          (
+            AuraProfile,
+            BaseReferences<_$AppDatabase, $AuraProfilesTable, AuraProfile>,
+          ),
+          AuraProfile,
+          PrefetchHooks Function()
+        > {
+  $$AuraProfilesTableTableManager(_$AppDatabase db, $AuraProfilesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AuraProfilesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AuraProfilesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AuraProfilesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> level = const Value.absent(),
+                Value<int> exp = const Value.absent(),
+                Value<int> unspent = const Value.absent(),
+                Value<int> luc = const Value.absent(),
+                Value<int> ben = const Value.absent(),
+                Value<int> chi = const Value.absent(),
+                Value<int> tinh = const Value.absent(),
+              }) => AuraProfilesCompanion(
+                id: id,
+                level: level,
+                exp: exp,
+                unspent: unspent,
+                luc: luc,
+                ben: ben,
+                chi: chi,
+                tinh: tinh,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> level = const Value.absent(),
+                Value<int> exp = const Value.absent(),
+                Value<int> unspent = const Value.absent(),
+                Value<int> luc = const Value.absent(),
+                Value<int> ben = const Value.absent(),
+                Value<int> chi = const Value.absent(),
+                Value<int> tinh = const Value.absent(),
+              }) => AuraProfilesCompanion.insert(
+                id: id,
+                level: level,
+                exp: exp,
+                unspent: unspent,
+                luc: luc,
+                ben: ben,
+                chi: chi,
+                tinh: tinh,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AuraProfilesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AuraProfilesTable,
+      AuraProfile,
+      $$AuraProfilesTableFilterComposer,
+      $$AuraProfilesTableOrderingComposer,
+      $$AuraProfilesTableAnnotationComposer,
+      $$AuraProfilesTableCreateCompanionBuilder,
+      $$AuraProfilesTableUpdateCompanionBuilder,
+      (
+        AuraProfile,
+        BaseReferences<_$AppDatabase, $AuraProfilesTable, AuraProfile>,
+      ),
+      AuraProfile,
+      PrefetchHooks Function()
+    >;
+typedef $$AuraQuestLogsTableCreateCompanionBuilder =
+    AuraQuestLogsCompanion Function({
+      required String ngay,
+      required String kind,
+      required int refId,
+      required int exp,
+      Value<int> rowid,
+    });
+typedef $$AuraQuestLogsTableUpdateCompanionBuilder =
+    AuraQuestLogsCompanion Function({
+      Value<String> ngay,
+      Value<String> kind,
+      Value<int> refId,
+      Value<int> exp,
+      Value<int> rowid,
+    });
+
+class $$AuraQuestLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $AuraQuestLogsTable> {
+  $$AuraQuestLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get refId => $composableBuilder(
+    column: $table.refId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get exp => $composableBuilder(
+    column: $table.exp,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AuraQuestLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AuraQuestLogsTable> {
+  $$AuraQuestLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get refId => $composableBuilder(
+    column: $table.refId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get exp => $composableBuilder(
+    column: $table.exp,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AuraQuestLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AuraQuestLogsTable> {
+  $$AuraQuestLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get refId =>
+      $composableBuilder(column: $table.refId, builder: (column) => column);
+
+  GeneratedColumn<int> get exp =>
+      $composableBuilder(column: $table.exp, builder: (column) => column);
+}
+
+class $$AuraQuestLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AuraQuestLogsTable,
+          AuraQuestLog,
+          $$AuraQuestLogsTableFilterComposer,
+          $$AuraQuestLogsTableOrderingComposer,
+          $$AuraQuestLogsTableAnnotationComposer,
+          $$AuraQuestLogsTableCreateCompanionBuilder,
+          $$AuraQuestLogsTableUpdateCompanionBuilder,
+          (
+            AuraQuestLog,
+            BaseReferences<_$AppDatabase, $AuraQuestLogsTable, AuraQuestLog>,
+          ),
+          AuraQuestLog,
+          PrefetchHooks Function()
+        > {
+  $$AuraQuestLogsTableTableManager(_$AppDatabase db, $AuraQuestLogsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AuraQuestLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AuraQuestLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AuraQuestLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> ngay = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<int> refId = const Value.absent(),
+                Value<int> exp = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AuraQuestLogsCompanion(
+                ngay: ngay,
+                kind: kind,
+                refId: refId,
+                exp: exp,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String ngay,
+                required String kind,
+                required int refId,
+                required int exp,
+                Value<int> rowid = const Value.absent(),
+              }) => AuraQuestLogsCompanion.insert(
+                ngay: ngay,
+                kind: kind,
+                refId: refId,
+                exp: exp,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AuraQuestLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AuraQuestLogsTable,
+      AuraQuestLog,
+      $$AuraQuestLogsTableFilterComposer,
+      $$AuraQuestLogsTableOrderingComposer,
+      $$AuraQuestLogsTableAnnotationComposer,
+      $$AuraQuestLogsTableCreateCompanionBuilder,
+      $$AuraQuestLogsTableUpdateCompanionBuilder,
+      (
+        AuraQuestLog,
+        BaseReferences<_$AppDatabase, $AuraQuestLogsTable, AuraQuestLog>,
+      ),
+      AuraQuestLog,
+      PrefetchHooks Function()
+    >;
+typedef $$AuraFragmentsTableCreateCompanionBuilder =
+    AuraFragmentsCompanion Function({
+      Value<int> id,
+      required String cau,
+      required String ngay,
+    });
+typedef $$AuraFragmentsTableUpdateCompanionBuilder =
+    AuraFragmentsCompanion Function({
+      Value<int> id,
+      Value<String> cau,
+      Value<String> ngay,
+    });
+
+class $$AuraFragmentsTableFilterComposer
+    extends Composer<_$AppDatabase, $AuraFragmentsTable> {
+  $$AuraFragmentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cau => $composableBuilder(
+    column: $table.cau,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AuraFragmentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AuraFragmentsTable> {
+  $$AuraFragmentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cau => $composableBuilder(
+    column: $table.cau,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AuraFragmentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AuraFragmentsTable> {
+  $$AuraFragmentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get cau =>
+      $composableBuilder(column: $table.cau, builder: (column) => column);
+
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+}
+
+class $$AuraFragmentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AuraFragmentsTable,
+          AuraFragment,
+          $$AuraFragmentsTableFilterComposer,
+          $$AuraFragmentsTableOrderingComposer,
+          $$AuraFragmentsTableAnnotationComposer,
+          $$AuraFragmentsTableCreateCompanionBuilder,
+          $$AuraFragmentsTableUpdateCompanionBuilder,
+          (
+            AuraFragment,
+            BaseReferences<_$AppDatabase, $AuraFragmentsTable, AuraFragment>,
+          ),
+          AuraFragment,
+          PrefetchHooks Function()
+        > {
+  $$AuraFragmentsTableTableManager(_$AppDatabase db, $AuraFragmentsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AuraFragmentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AuraFragmentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AuraFragmentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> cau = const Value.absent(),
+            Value<String> ngay = const Value.absent(),
+          }) => AuraFragmentsCompanion(id: id, cau: cau, ngay: ngay),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String cau,
+            required String ngay,
+          }) => AuraFragmentsCompanion.insert(id: id, cau: cau, ngay: ngay),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AuraFragmentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AuraFragmentsTable,
+      AuraFragment,
+      $$AuraFragmentsTableFilterComposer,
+      $$AuraFragmentsTableOrderingComposer,
+      $$AuraFragmentsTableAnnotationComposer,
+      $$AuraFragmentsTableCreateCompanionBuilder,
+      $$AuraFragmentsTableUpdateCompanionBuilder,
+      (
+        AuraFragment,
+        BaseReferences<_$AppDatabase, $AuraFragmentsTable, AuraFragment>,
+      ),
+      AuraFragment,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7886,4 +9479,10 @@ class $AppDatabaseManager {
       $$FoodsTableTableManager(_db, _db.foods);
   $$FoodLogsTableTableManager get foodLogs =>
       $$FoodLogsTableTableManager(_db, _db.foodLogs);
+  $$AuraProfilesTableTableManager get auraProfiles =>
+      $$AuraProfilesTableTableManager(_db, _db.auraProfiles);
+  $$AuraQuestLogsTableTableManager get auraQuestLogs =>
+      $$AuraQuestLogsTableTableManager(_db, _db.auraQuestLogs);
+  $$AuraFragmentsTableTableManager get auraFragments =>
+      $$AuraFragmentsTableTableManager(_db, _db.auraFragments);
 }

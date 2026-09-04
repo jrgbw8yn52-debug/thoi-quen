@@ -39,7 +39,8 @@ class ThanhDay extends StatelessWidget {
                 chon: tab == 1,
                 onTap: () => onTab(1),
               ),
-              Expanded(
+              SizedBox(
+                width: 52,
                 child: Center(
                   child: Material(
                     color: Mau.reu,
@@ -48,9 +49,9 @@ class ThanhDay extends StatelessWidget {
                       customBorder: const CircleBorder(),
                       onTap: onCong,
                       child: const SizedBox(
-                        width: 48,
-                        height: 48,
-                        child: Icon(Icons.add, color: Mau.giay, size: 28),
+                        width: 44,
+                        height: 44,
+                        child: Icon(Icons.add, color: Mau.giay, size: 26),
                       ),
                     ),
                   ),
@@ -64,11 +65,19 @@ class ThanhDay extends StatelessWidget {
                 onTap: () => onTab(2),
               ),
               _Muc(
+                key: const Key('tab-he'),
+                icon: Icons.hexagon_outlined,
+                bat: Icons.hexagon,
+                chu: Chuoi.he,
+                chon: tab == 3,
+                onTap: () => onTab(3),
+              ),
+              _Muc(
                 icon: Icons.person_outline,
                 bat: Icons.person,
                 chu: Chuoi.taiKhoan,
-                chon: tab == 3,
-                onTap: () => onTab(3),
+                chon: tab == 4,
+                onTap: () => onTab(4),
               ),
             ],
           ),
@@ -80,6 +89,7 @@ class ThanhDay extends StatelessWidget {
 
 class _Muc extends StatelessWidget {
   const _Muc({
+    super.key,
     required this.icon,
     required this.bat,
     required this.chu,
@@ -101,14 +111,19 @@ class _Muc extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(chon ? bat : icon, color: chon ? Mau.reu : Mau.mo),
+            Icon(chon ? bat : icon, color: chon ? Mau.reu : Mau.mo, size: 22),
             const SizedBox(height: 2),
-            Text(
-              chu,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: chon ? FontWeight.w600 : FontWeight.w500,
-                color: chon ? Mau.muc : Mau.mo,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                chu,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: chon ? FontWeight.w600 : FontWeight.w500,
+                  color: chon ? Mau.muc : Mau.mo,
+                ),
               ),
             ),
           ],

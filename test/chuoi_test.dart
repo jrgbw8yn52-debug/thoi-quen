@@ -43,6 +43,12 @@ void main() {
     expect(Chuoi.widKcal(969, 2920), '969 / 2920 kcal');
     expect(Chuoi.widKcalNgan(2250), '2250 kcal');
     expect(Chuoi.nTrenM(3, 5), '3/5');
+    expect(Chuoi.he, 'Hệ');
+    expect(Chuoi.lamQuest('Dậy 6 giờ'), 'Làm: Dậy 6 giờ');
+    expect(Chuoi.capSo(1), 'Cấp 1');
+    expect(Chuoi.expThanh(10, 120), '10 / 120');
+    expect(Chuoi.tapHomNayQuest, 'Tập hôm nay');
+    expect(Chuoi.ghiCanQuest, 'Ghi cân');
   });
 
   test('so kg dau phay Viet, khong bia', () {

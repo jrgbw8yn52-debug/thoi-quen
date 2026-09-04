@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:file_picker/file_picker.dart';
@@ -9,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 import 'chuoi.dart';
 import 'cong_thuc.dart';
 import 'db/database.dart';
+import 'he.dart';
 import 'khung.dart';
 import 'ngay.dart';
 import 'nhac.dart';
@@ -129,15 +131,17 @@ bool _chuaVi(String ten, String q) {
 }
 
 class Kho extends ChangeNotifier {
-  Kho(this.db, {DateTime? bayGio})
+  Kho(this.db, {DateTime? bayGio, Random? rng})
       : bayGio = bayGio ?? DateTime.now(),
-        homNay = Ngay.cat(bayGio ?? DateTime.now()) {
+        homNay = Ngay.cat(bayGio ?? DateTime.now()),
+        _rng = rng ?? Random() {
     selected = homNay;
   }
 
   final AppDatabase db;
   final DateTime bayGio;
   final DateTime homNay;
+  final Random _rng;
   late DateTime selected;
   int tab = 0;
   int phin = 0;
@@ -147,6 +151,17 @@ class Kho extends ChangeNotifier {
   final BanNho homeBan = BanNho();
   final BanNho lichBan = BanNho();
   final BanNho tienDoBan = BanNho();
+  final BanNho heBan = BanNho();
+
+  HeTrangThai he = HeTrangThai.goc;
+  List<HeQuest> heQuest = const [];
+  List<HeManh> heManh = const [];
+  String? heKhichLe;
+  String? heMoment;
+  String? heLuaCau;
+  int heFlash = 0;
+  bool heVienCam = false;
+  String? _lenCapCuoi;
 
   List<HangHabitView> hang = const [];
   List<Habit> dsHien = const [];
@@ -448,6 +463,31 @@ class Kho extends ChangeNotifier {
   LuaTap get luaTapHom {
     return CongThuc.luaTap([for (final t in dsTap) t.ngay], homNay);
   }
+
+  bool get kyNhipThoLuc => luaTapHom.sang;
+
+  bool get kyBuocDauLuc => nTickHom >= 1;
+
+  bool get coKyHieuLuc => kyNhipThoLuc || kyBuocDauLuc;
+
+  int get sucTam => He.sucTam(
+        luc: he.luc,
+        ben: he.ben,
+        coKy: coKyHieuLuc,
+      );
+
+  List<HeKy> get heKy => [
+        HeKy(
+          ten: Chuoi.nhipThoVung,
+          moTa: Chuoi.nhipThoVungMoTa,
+          hieuLuc: kyNhipThoLuc,
+        ),
+        HeKy(
+          ten: Chuoi.buocDau,
+          moTa: Chuoi.buocDauMoTa,
+          hieuLuc: kyBuocDauLuc,
+        ),
+      ];
 
   List<double> get netSang {
     final o = <double>[];
@@ -855,11 +895,13 @@ class Kho extends ChangeNotifier {
     dsChiSo = await db.dsChiSo();
     dsMocBanDau = await db.dsMoc(AppDatabase.loaiBanDau);
     dsMocDich = await db.dsMoc(AppDatabase.loaiDich);
+    await _taiHe();
     final lanDau = dangTai;
     dangTai = false;
     homeBan.ban();
     lichBan.ban();
     tienDoBan.ban();
+    heBan.ban();
     notifyListeners();
     if (lanDau) shellBan.ban();
     await Nhac.dongBo(dsHien);
@@ -909,8 +951,19 @@ class Kho extends ChangeNotifier {
     _dongWid();
 
     final khoa = '${habit.id}-$iso';
-    final viec = (_ghiTick[khoa] ?? Future.value()).then((_) {
-      return db.toggleTick(habit, ngay);
+    final viec = (_ghiTick[khoa] ?? Future.value()).then((_) async {
+      await db.toggleTick(habit, ngay);
+      if (bat) {
+        await _heThuong(
+          kind: He.kindHabit,
+          refId: habit.id,
+          deNghi: He.expTick,
+          ngay: ngay,
+        );
+      } else {
+        _xayQuest();
+        heBan.ban();
+      }
     });
     _ghiTick[khoa] = viec;
     return viec;
@@ -919,6 +972,7 @@ class Kho extends ChangeNotifier {
   void _dongBoHangVaTuan() {
     _xepHang();
     _veTuan();
+    _xayQuest();
   }
 
   void _xepHang() {
@@ -999,6 +1053,12 @@ class Kho extends ChangeNotifier {
         final ds = await db.dsHabit();
         final h = ds.firstWhere((x) => x.id == id);
         await db.ghiTick(h, goc);
+        await _heThuong(
+          kind: He.kindHabit,
+          refId: id,
+          deNghi: He.expTick,
+          ngay: goc,
+        );
       }
       await tai();
       return id != null;
@@ -1076,7 +1136,9 @@ class Kho extends ChangeNotifier {
 
   void moTienDo() => chonTab(2);
 
-  void moCaiDat() => chonTab(3);
+  void moHe() => chonTab(3);
+
+  void moCaiDat() => chonTab(4);
 
   void moLich() => chonTab(1);
 
@@ -1090,6 +1152,9 @@ class Kho extends ChangeNotifier {
     } else if (i == 2) {
       tienDoBan.ban();
     } else if (i == 3) {
+      _xayQuest();
+      heBan.ban();
+    } else if (i == 4) {
       notifyListeners();
     }
     tabBan.ban();
@@ -1120,6 +1185,12 @@ class Kho extends ChangeNotifier {
     if (!Ngay.ghiDuoc(d, homNay)) return false;
     if (kg <= 0 || kg > 400) return false;
     await db.ghiCan(d, kg);
+    await _heThuong(
+      kind: He.kindCan,
+      refId: 0,
+      deNghi: He.expCan,
+      ngay: d,
+    );
     await tai();
     return true;
   }
@@ -1130,6 +1201,12 @@ class Kho extends ChangeNotifier {
     final kg = So.parseKg(raw);
     if (kg == null) return false;
     await db.ghiCan(d, kg);
+    await _heThuong(
+      kind: He.kindCan,
+      refId: 0,
+      deNghi: He.expCan,
+      ngay: d,
+    );
     await tai();
     return true;
   }
@@ -1151,14 +1228,45 @@ class Kho extends ChangeNotifier {
   Future<bool> ghiNhieuTap(Iterable<(String loai, int phut)> ds, {DateTime? ngay}) async {
     final d = Ngay.cat(ngay ?? selected);
     if (!Ngay.ghiDuoc(d, homNay)) return false;
+    final luaTruoc = CongThuc.luaTap([for (final t in dsTap) t.ngay], homNay);
     var ok = false;
+    final phien = <(int id, String loai, int phut)>[];
     for (final x in ds) {
       if (CongThuc.metCua(x.$1) == null) continue;
       if (x.$2 < 1 || x.$2 > 300) continue;
-      await db.ghiTap(d, x.$1, x.$2);
+      final id = await db.ghiTap(d, x.$1, x.$2);
+      phien.add((id, x.$1, x.$2));
       ok = true;
     }
     if (!ok) return false;
+    for (final x in phien) {
+      final kcal = CongThuc.kcalTap(
+        met: CongThuc.metCua(x.$2),
+        kg: canMoi?.kg,
+        phut: x.$3,
+      );
+      await _heThuong(
+        kind: He.kindTap,
+        refId: x.$1,
+        deNghi: He.expTap((kcal ?? 0).round()),
+        ngay: d,
+      );
+    }
+    final isoMoi = [
+      for (final t in dsTap) t.ngay,
+      Ngay.iso(d),
+    ];
+    final luaMoi = CongThuc.luaTap(isoMoi, homNay);
+    if (luaMoi.so > luaTruoc.so && Ngay.cungNgay(d, homNay)) {
+      await db.themQuestLog(
+        ngay: Ngay.iso(d),
+        kind: He.kindLua,
+        refId: 0,
+        exp: 0,
+      );
+      heVienCam = true;
+      heLuaCau = Chuoi.luaTang;
+    }
     await tai();
     return true;
   }
@@ -1596,6 +1704,168 @@ class Kho extends ChangeNotifier {
   Future<void> xoaDuLieu() async {
     await db.xoaHet();
     selected = homNay;
+    heKhichLe = null;
+    heMoment = null;
+    heLuaCau = null;
+    heFlash = 0;
+    heVienCam = false;
     await tai();
+  }
+
+  void tatMoment() {
+    if (heMoment == null) return;
+    heMoment = null;
+    heBan.ban();
+  }
+
+  Future<bool> congChiSo(String ma) async {
+    if (he.unspent <= 0) return false;
+    var luc = he.luc;
+    var ben = he.ben;
+    var chi = he.chi;
+    var tinh = he.tinh;
+    switch (ma) {
+      case 'luc':
+        luc++;
+      case 'ben':
+        ben++;
+      case 'chi':
+        chi++;
+      case 'tinh':
+        tinh++;
+      default:
+        return false;
+    }
+    he = he.copyWith(
+      unspent: he.unspent - 1,
+      luc: luc,
+      ben: ben,
+      chi: chi,
+      tinh: tinh,
+    );
+    await db.ghiAura(
+      level: he.level,
+      exp: he.exp,
+      unspent: he.unspent,
+      luc: he.luc,
+      ben: he.ben,
+      chi: he.chi,
+      tinh: he.tinh,
+    );
+    heBan.ban();
+    return true;
+  }
+
+  Future<void> _taiHe() async {
+    final p = await db.docAura();
+    he = HeTrangThai(
+      level: p.level,
+      exp: p.exp,
+      unspent: p.unspent,
+      luc: p.luc,
+      ben: p.ben,
+      chi: p.chi,
+      tinh: p.tinh,
+    );
+    heManh = [
+      for (final m in await db.dsManh()) HeManh(cau: m.cau, ngay: m.ngay),
+    ];
+    heVienCam = await db.coKindNgay(Ngay.iso(homNay), He.kindLua);
+    _xayQuest();
+  }
+
+  void _xayQuest() {
+    final iso = Ngay.iso(homNay);
+    heQuest = [
+      for (final h in dsHien)
+        if (hienO(h, homNay))
+          HeQuest(
+            kind: He.kindHabit,
+            refId: h.id,
+            ten: Chuoi.lamQuest(h.ten),
+            xong: ticksCua(h.id).contains(iso),
+          ),
+      HeQuest(
+        kind: He.kindTap,
+        refId: 0,
+        ten: Chuoi.tapHomNayQuest,
+        xong: tapNgay(homNay).isNotEmpty,
+      ),
+      HeQuest(
+        kind: He.kindCan,
+        refId: 0,
+        ten: Chuoi.ghiCanQuest,
+        xong: canCua(homNay) != null,
+      ),
+    ];
+  }
+
+  Future<int> _heThuong({
+    required String kind,
+    required int refId,
+    required int deNghi,
+    required DateTime ngay,
+  }) async {
+    if (!Ngay.ghiDuoc(ngay, homNay)) return 0;
+    final iso = Ngay.iso(ngay);
+    final daNap = await db.expHomNay(iso);
+    var con = He.napNgay - daNap;
+    if (con < 0) con = 0;
+    final cho = deNghi < 0 ? 0 : (deNghi > con ? con : deNghi);
+    final moi = await db.themQuestLog(
+      ngay: iso,
+      kind: kind,
+      refId: refId,
+      exp: cho,
+    );
+    if (!moi) {
+      _xayQuest();
+      heBan.ban();
+      return 0;
+    }
+    var len = false;
+    if (cho > 0) {
+      final kq = He.lenCap(
+        level: he.level,
+        exp: he.exp + cho,
+        unspent: he.unspent,
+      );
+      len = kq.lan > 0;
+      he = he.copyWith(level: kq.level, exp: kq.exp, unspent: kq.unspent);
+      await db.ghiAura(
+        level: he.level,
+        exp: he.exp,
+        unspent: he.unspent,
+        luc: he.luc,
+        ben: he.ben,
+        chi: he.chi,
+        tinh: he.tinh,
+      );
+    }
+    if (Ngay.cungNgay(ngay, homNay)) {
+      heKhichLe = He.xoay(He.cauKhichLe, heKhichLe, _rng);
+      heFlash++;
+      if (len) {
+        heMoment = He.xoay(He.cauLenCap, _lenCapCuoi, _rng);
+        _lenCapCuoi = heMoment;
+      }
+      _xayQuest();
+      await _heManhNeu();
+    }
+    heBan.ban();
+    return cho;
+  }
+
+  Future<void> _heManhNeu() async {
+    final iso = Ngay.iso(homNay);
+    if (await db.coManhNgay(iso)) return;
+    final n = heQuest.where((q) => q.xong).length;
+    if (n < 2) return;
+    if (_rng.nextInt(100) >= 30) return;
+    final cau = He.xoay(He.manhPool, null, _rng);
+    await db.themManh(cau, iso);
+    heManh = [
+      for (final m in await db.dsManh()) HeManh(cau: m.cau, ngay: m.ngay),
+    ];
   }
 }
