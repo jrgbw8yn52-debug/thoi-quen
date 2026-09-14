@@ -34,24 +34,19 @@ void main() {
     expect(ten.contains('nap_ins'), isTrue);
     expect(ten.contains('foods'), isTrue);
     expect(ten.contains('food_log'), isTrue);
-    expect(ten.contains('aura_profile'), isTrue);
-    expect(ten.contains('aura_quest_log'), isTrue);
-    expect(ten.contains('aura_fragments'), isTrue);
+    expect(ten.contains('aura_profile'), isFalse);
+    expect(ten.contains('aura_quest_log'), isFalse);
+    expect(ten.contains('aura_fragments'), isFalse);
 
     final p = await db.docProfile();
     expect(p.id, 1);
     expect(p.activity, 1.2);
     expect(p.targetKg, isNull);
     expect(await db.canMoiNhat(), isNull);
-    final a = await db.docAura();
-    expect(a.id, 1);
-    expect(a.level, 1);
-    expect(a.exp, 0);
-    expect(a.unspent, 0);
   });
 
-  test('schemaVersion = 14', () {
-    expect(db.schemaVersion, 14);
+  test('schemaVersion = 15', () {
+    expect(db.schemaVersion, 15);
   });
 
   test('ticks UNIQUE (habit_id, ngay)', () async {

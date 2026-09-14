@@ -10,6 +10,7 @@ import 'package:thoi_quen/man/them_habit.dart';
 import 'package:thoi_quen/mau.dart';
 import 'package:thoi_quen/ngay.dart';
 import 'package:thoi_quen/vo_app.dart';
+import 'package:thoi_quen/widget/thanh_day.dart';
 
 Widget _app(Kho kho) {
   return MaterialApp(
@@ -89,6 +90,42 @@ void main() {
     await tester.tap(find.text(Chuoi.day6Gio));
     await tester.pumpAndSettle();
     expect(find.textContaining('1/1'), findsOneWidget);
+  });
+
+  testWidgets('bar 5 o: Hom nay Lich + Tien do Tai khoan, khong He', (tester) async {
+    tester.view.physicalSize = const Size(390, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    var tab = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: Mau.theme(),
+        home: Scaffold(
+          bottomNavigationBar: ThanhDay(
+            tab: tab,
+            onTab: (i) => tab = i,
+            onCong: () {},
+          ),
+        ),
+      ),
+    );
+    expect(find.text(Chuoi.homNay), findsOneWidget);
+    expect(find.text(Chuoi.lich), findsOneWidget);
+    expect(find.text(Chuoi.tienDo), findsOneWidget);
+    expect(find.text(Chuoi.taiKhoan), findsOneWidget);
+    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.byKey(const Key('tab-hom-nay')), findsOneWidget);
+    expect(find.byKey(const Key('tab-lich')), findsOneWidget);
+    expect(find.byKey(const Key('tab-tien-do')), findsOneWidget);
+    expect(find.byKey(const Key('tab-tai-khoan')), findsOneWidget);
+    expect(find.byKey(const Key('tab-he')), findsNothing);
+    expect(find.text('Hệ'), findsNothing);
+    expect(find.text('Focus'), findsNothing);
+    expect(find.text('Dungeon'), findsNothing);
+    await tester.tap(find.byKey(const Key('tab-tien-do')));
+    expect(tab, 2);
+    await tester.tap(find.byKey(const Key('tab-tai-khoan')));
+    expect(tab, 3);
   });
 
   testWidgets('chip tap lien tiep khong nhan ban ten', (tester) async {

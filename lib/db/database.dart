@@ -184,45 +184,6 @@ class FoodLogs extends Table {
   TextColumn get khung => text().withDefault(const Constant('sang'))();
 }
 
-class AuraProfiles extends Table {
-  @override
-  String get tableName => 'aura_profile';
-
-  IntColumn get id => integer()();
-  IntColumn get level => integer().withDefault(const Constant(1))();
-  IntColumn get exp => integer().withDefault(const Constant(0))();
-  IntColumn get unspent => integer().withDefault(const Constant(0))();
-  IntColumn get luc => integer().withDefault(const Constant(0))();
-  IntColumn get ben => integer().withDefault(const Constant(0))();
-  IntColumn get chi => integer().withDefault(const Constant(0))();
-  IntColumn get tinh => integer().withDefault(const Constant(0))();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-class AuraQuestLogs extends Table {
-  @override
-  String get tableName => 'aura_quest_log';
-
-  TextColumn get ngay => text()();
-  TextColumn get kind => text()();
-  IntColumn get refId => integer()();
-  IntColumn get exp => integer()();
-
-  @override
-  Set<Column> get primaryKey => {ngay, kind, refId};
-}
-
-class AuraFragments extends Table {
-  @override
-  String get tableName => 'aura_fragments';
-
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get cau => text()();
-  TextColumn get ngay => text()();
-}
-
 @DriftDatabase(tables: [
   Habits,
   Ticks,
@@ -237,9 +198,6 @@ class AuraFragments extends Table {
   NapIns,
   Foods,
   FoodLogs,
-  AuraProfiles,
-  AuraQuestLogs,
-  AuraFragments,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
@@ -249,7 +207,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -271,7 +229,6 @@ class AppDatabase extends _$AppDatabase {
               nhipKg: const Value(0.5),
             ),
           );
-          await _damBaoAura();
         },
         onUpgrade: (m, from, to) async {
           if (from < 2) {
@@ -344,11 +301,12 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
               await m.addColumn(foodLogs, foodLogs.khung);
             }
           }
-          if (from < 14) {
-            await m.createTable(auraProfiles);
-            await m.createTable(auraQuestLogs);
-            await m.createTable(auraFragments);
-            await _damBaoAura();
+          if (from < 15) {
+            await customStatement('DROP TABLE IF EXISTS aura_dungeon');
+            await customStatement('DROP TABLE IF EXISTS aura_skills');
+            await customStatement('DROP TABLE IF EXISTS aura_fragments');
+            await customStatement('DROP TABLE IF EXISTS aura_quest_log');
+            await customStatement('DROP TABLE IF EXISTS aura_profile');
           }
         },
         beforeOpen: (details) async {
@@ -821,112 +779,6 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     return (select(moIns)..orderBy([(e) => OrderingTerm.desc(e.ngay)])).get();
   }
 
-  Future<void> _damBaoAura() async {
-    final p = await customSelect('SELECT id FROM aura_profile WHERE id = 1').get();
-    if (p.isEmpty) {
-      await into(auraProfiles).insert(
-        AuraProfilesCompanion.insert(id: const Value(1)),
-      );
-    }
-  }
-
-  Future<AuraProfile> docAura() async {
-    await _damBaoAura();
-    return (select(auraProfiles)..where((p) => p.id.equals(1))).getSingle();
-  }
-
-  Future<void> ghiAura({
-    required int level,
-    required int exp,
-    required int unspent,
-    required int luc,
-    required int ben,
-    required int chi,
-    required int tinh,
-  }) async {
-    await (update(auraProfiles)..where((p) => p.id.equals(1))).write(
-      AuraProfilesCompanion(
-        level: Value(level),
-        exp: Value(exp),
-        unspent: Value(unspent),
-        luc: Value(luc),
-        ben: Value(ben),
-        chi: Value(chi),
-        tinh: Value(tinh),
-      ),
-    );
-  }
-
-  /// true nếu ghi mới. unique (ngay, kind, ref_id) chặn nhập trùng.
-  Future<bool> themQuestLog({
-    required String ngay,
-    required String kind,
-    required int refId,
-    required int exp,
-  }) async {
-    final cu = await (select(auraQuestLogs)
-          ..where(
-            (t) =>
-                t.ngay.equals(ngay) &
-                t.kind.equals(kind) &
-                t.refId.equals(refId),
-          ))
-        .getSingleOrNull();
-    if (cu != null) return false;
-    await into(auraQuestLogs).insert(
-      AuraQuestLogsCompanion.insert(
-        ngay: ngay,
-        kind: kind,
-        refId: refId,
-        exp: exp,
-      ),
-      mode: InsertMode.insertOrIgnore,
-    );
-    return true;
-  }
-
-  Future<int> expHomNay(String iso) async {
-    final rows =
-        await (select(auraQuestLogs)..where((t) => t.ngay.equals(iso))).get();
-    var s = 0;
-    for (final r in rows) {
-      s += r.exp;
-    }
-    return s;
-  }
-
-  Future<List<AuraQuestLog>> dsQuestLog(String iso) {
-    return (select(auraQuestLogs)..where((t) => t.ngay.equals(iso))).get();
-  }
-
-  Future<bool> coKindNgay(String iso, String kind) async {
-    final r = await (select(auraQuestLogs)
-          ..where((t) => t.ngay.equals(iso) & t.kind.equals(kind))
-          ..limit(1))
-        .get();
-    return r.isNotEmpty;
-  }
-
-  Future<bool> coManhNgay(String iso) async {
-    final r = await (select(auraFragments)
-          ..where((t) => t.ngay.equals(iso))
-          ..limit(1))
-        .get();
-    return r.isNotEmpty;
-  }
-
-  Future<void> themManh(String cau, String ngay) async {
-    await into(auraFragments).insert(
-      AuraFragmentsCompanion.insert(cau: cau, ngay: ngay),
-    );
-  }
-
-  Future<List<AuraFragment>> dsManh() {
-    return (select(auraFragments)
-          ..orderBy([(t) => OrderingTerm.desc(t.id)]))
-        .get();
-  }
-
   Future<void> suaProfile({
     Value<String?> sex = const Value.absent(),
     Value<double?> heightCm = const Value.absent(),
@@ -1000,9 +852,6 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     'nap_ins',
     'foods',
     'food_log',
-    'aura_profile',
-    'aura_quest_log',
-    'aura_fragments',
   ];
 
   static const _bangXoa = <String>[
@@ -1019,9 +868,6 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     'tap_ins',
     'chi_so',
     'profile',
-    'aura_quest_log',
-    'aura_fragments',
-    'aura_profile',
   ];
 
   Future<String> duongBanSao() async {
@@ -1090,7 +936,6 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         'moc_can',
         'foods',
         'food_log',
-        'aura_fragments',
       ]) {
         try {
           await customStatement(
@@ -1109,7 +954,6 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
           ),
         );
       }
-      await _damBaoAura();
       await gopTenTrung();
     } finally {
       await customStatement('DETACH DATABASE src');
@@ -1138,8 +982,6 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await delete(napIns).go();
     await delete(foodLogs).go();
     await delete(foods).go();
-    await delete(auraQuestLogs).go();
-    await delete(auraFragments).go();
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       const ProfilesCompanion(
         sex: Value(null),
@@ -1155,17 +997,6 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         startNguc: Value(null),
         startBapTay: Value(null),
         startDoNgay: Value(null),
-      ),
-    );
-    await (update(auraProfiles)..where((p) => p.id.equals(1))).write(
-      const AuraProfilesCompanion(
-        level: Value(1),
-        exp: Value(0),
-        unspent: Value(0),
-        luc: Value(0),
-        ben: Value(0),
-        chi: Value(0),
-        tinh: Value(0),
       ),
     );
   }
