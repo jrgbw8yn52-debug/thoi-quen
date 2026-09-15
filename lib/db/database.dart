@@ -194,6 +194,7 @@ class FocusTasks extends Table {
   IntColumn get gioPhut => integer()();
   IntColumn get durationMin => integer().nullable()();
   BoolColumn get done => boolean().withDefault(const Constant(false))();
+  TextColumn get ghiChu => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 }
 
@@ -234,7 +235,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -340,6 +341,9 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
           }
           if (from < 17) {
             await m.createTable(focusHabitOverrides);
+          }
+          if (from < 18) {
+            await m.addColumn(focusTasks, focusTasks.ghiChu);
           }
         },
         beforeOpen: (details) async {
@@ -1022,16 +1026,19 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     required DateTime ngay,
     required int gioPhut,
     int? durationMin,
+    String? ghiChu,
     required DateTime createdAt,
   }) async {
     final ten = Ten.sach(title);
     if (ten.isEmpty) return 0;
+    final chu = ghiChu == null ? null : Ten.sach(ghiChu);
     return into(focusTasks).insert(
       FocusTasksCompanion.insert(
         title: ten,
         ngay: Ngay.iso(ngay),
         gioPhut: gioPhut,
         durationMin: Value(durationMin),
+        ghiChu: Value(chu == null || chu.isEmpty ? null : chu),
         createdAt: createdAt,
       ),
     );
@@ -1043,15 +1050,18 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     required DateTime ngay,
     required int gioPhut,
     int? durationMin,
+    String? ghiChu,
   }) async {
     final ten = Ten.sach(title);
     if (ten.isEmpty) return false;
+    final chu = ghiChu == null ? null : Ten.sach(ghiChu);
     final n = await (update(focusTasks)..where((t) => t.id.equals(id))).write(
       FocusTasksCompanion(
         title: Value(ten),
         ngay: Value(Ngay.iso(ngay)),
         gioPhut: Value(gioPhut),
         durationMin: Value(durationMin),
+        ghiChu: Value(chu == null || chu.isEmpty ? null : chu),
       ),
     );
     return n > 0;

@@ -56,6 +56,12 @@ void main() {
     expect(Chuoi.danhDauXong, 'Đánh dấu việc xong?');
     expect(Chuoi.thongKe, 'Thống kê');
     expect(Chuoi.xong, 'Xong');
+    expect(Chuoi.ghiChu, 'Ghi chú');
+    expect(Chuoi.focusHomNay, 'Focus hôm nay');
+    expect(Chuoi.phinNgay, 'Ngày');
+    expect(Chuoi.damGoiNap(140, 90), 'Đạm 90 / 140g');
+    expect(Chuoi.damGoiNap(null, 90), 'Đạm 90 / —');
+    expect(Chuoi.ngayMaiDong(8 * 60, 'Party'), 'Ngày mai · 8:00 SA Party');
     expect(
       Chuoi.tdeeGoiY(2000, 1700, thamHut: 15),
       'TDEE 2000 · Gợi ý 1700 · −15% TDEE',

@@ -25,6 +25,7 @@ class ManThemFocus extends StatefulWidget {
 class _ManThemFocusState extends State<ManThemFocus> {
   late final TextEditingController _ten;
   late final TextEditingController _tu;
+  late final TextEditingController _chu;
   late DateTime _ngay;
   late int _gio;
   int? _luongChon;
@@ -37,6 +38,7 @@ class _ManThemFocusState extends State<ManThemFocus> {
     super.initState();
     final v = widget.viec;
     _ten = TextEditingController(text: v?.title ?? '');
+    _chu = TextEditingController(text: v?.ghiChu ?? '');
     _ngay = v == null ? widget.kho.homNay : Ngay.parse(v.ngay);
     _gio = v?.gioPhut ?? 8 * 60;
     final d = v?.durationMin;
@@ -54,6 +56,7 @@ class _ManThemFocusState extends State<ManThemFocus> {
   void dispose() {
     _ten.dispose();
     _tu.dispose();
+    _chu.dispose();
     super.dispose();
   }
 
@@ -76,6 +79,7 @@ class _ManThemFocusState extends State<ManThemFocus> {
     await Nhac.xinQuyen();
     if (!mounted) return;
     final duration = _duration();
+    final chu = _chu.text;
     final bool ok;
     if (_sua) {
       ok = await widget.kho.suaFocus(
@@ -84,6 +88,7 @@ class _ManThemFocusState extends State<ManThemFocus> {
         ngay: _ngay,
         gioPhut: _gio,
         durationMin: duration,
+        ghiChu: chu,
       );
     } else {
       final id = await widget.kho.themFocus(
@@ -91,6 +96,7 @@ class _ManThemFocusState extends State<ManThemFocus> {
         ngay: _ngay,
         gioPhut: _gio,
         durationMin: duration,
+        ghiChu: chu,
       );
       ok = id > 0;
     }
@@ -191,99 +197,113 @@ class _ManThemFocusState extends State<ManThemFocus> {
                   color: Mau.muc,
                 ),
               ),
-              const SizedBox(height: 20),
-              OTen(
-                key: const Key('ten-focus'),
-                controller: _ten,
-                autofocus: !_sua,
-                hint: Chuoi.tenViec,
-              ),
-              const SizedBox(height: 16),
-              InkWell(
-                key: const Key('ngay-focus'),
-                onTap: _moNgay,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.event, color: Mau.mo, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          Chuoi.dongNgay(_ngay),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 16, color: Mau.muc),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              InkWell(
-                key: const Key('gio-focus'),
-                onTap: _moGio,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.schedule, color: Mau.mo, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          Chuoi.gioNhacChu(_gio),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 16, color: Mau.muc),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                Chuoi.thoiLuong,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Mau.mo,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final n in _luong)
-                    _Chip(
-                      chu: '$n',
-                      bat: !_tuDat && _luongChon == n,
-                      onTap: () => setState(() {
-                        _tuDat = false;
-                        _luongChon = n;
-                      }),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView(
+                  children: [
+                    OTen(
+                      key: const Key('ten-focus'),
+                      controller: _ten,
+                      autofocus: !_sua,
+                      hint: Chuoi.tenViec,
                     ),
-                  _Chip(
-                    chu: Chuoi.tuDat,
-                    bat: _tuDat,
-                    onTap: () => setState(() {
-                      _tuDat = true;
-                      _luongChon = null;
-                    }),
-                  ),
-                ],
-              ),
-              if (_tuDat) ...[
-                const SizedBox(height: 12),
-                TextField(
-                  key: const Key('luong-tu'),
-                  controller: _tu,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(hintText: Chuoi.phut),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      key: const Key('ngay-focus'),
+                      onTap: _moNgay,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.event, color: Mau.mo, size: 20),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                Chuoi.dongNgay(_ngay),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 16, color: Mau.muc),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      key: const Key('gio-focus'),
+                      onTap: _moGio,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.schedule, color: Mau.mo, size: 20),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                Chuoi.gioNhacChu(_gio),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 16, color: Mau.muc),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      Chuoi.thoiLuong,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Mau.mo,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final n in _luong)
+                          _Chip(
+                            chu: '$n',
+                            bat: !_tuDat && _luongChon == n,
+                            onTap: () => setState(() {
+                              _tuDat = false;
+                              _luongChon = n;
+                            }),
+                          ),
+                        _Chip(
+                          chu: Chuoi.tuDat,
+                          bat: _tuDat,
+                          onTap: () => setState(() {
+                            _tuDat = true;
+                            _luongChon = null;
+                          }),
+                        ),
+                      ],
+                    ),
+                    if (_tuDat) ...[
+                      const SizedBox(height: 12),
+                      TextField(
+                        key: const Key('luong-tu'),
+                        controller: _tu,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(hintText: Chuoi.phut),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    OTen(
+                      key: const Key('ghi-chu-focus'),
+                      controller: _chu,
+                      hint: Chuoi.ghiChu,
+                      minLines: 2,
+                      maxLines: 5,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
-              ],
-              const Spacer(),
+              ),
               Row(
                 children: [
                   TextButton(

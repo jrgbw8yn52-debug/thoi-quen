@@ -91,16 +91,20 @@ abstract final class Ngay {
   }
 
   /// Cuối kỳ inclusive theo lịch thật (tháng 28–31).
-  /// 0 tuần = tu+6; 1 tháng = ngày cuối tháng; 2 = cuối tháng+5; 3 = cuối tháng+11.
+  /// 0 ngày; 1 tuần = tu+6; 2 tháng = cuối tháng; 3 = cuối tháng+5; 4 = cuối tháng+11.
   static DateTime cuoiKy(DateTime tu, int phin) {
     final a = cat(tu);
     switch (phin) {
+      case 0:
+        return a;
       case 1:
-        return DateTime(a.year, a.month, soNgayThang(a.year, a.month));
+        return a.add(const Duration(days: 6));
       case 2:
+        return DateTime(a.year, a.month, soNgayThang(a.year, a.month));
+      case 3:
         final c = congThang(dauThang(a), 5);
         return DateTime(c.year, c.month, soNgayThang(c.year, c.month));
-      case 3:
+      case 4:
         final c = congThang(dauThang(a), 11);
         return DateTime(c.year, c.month, soNgayThang(c.year, c.month));
       default:
@@ -111,11 +115,15 @@ abstract final class Ngay {
   static DateTime dauKyHomNay(DateTime hom, int phin) {
     final h = cat(hom);
     switch (phin) {
+      case 0:
+        return h;
       case 1:
-        return dauThang(h);
+        return thuHai(h);
       case 2:
-        return dauThang(congThang(h, -5));
+        return dauThang(h);
       case 3:
+        return dauThang(congThang(h, -5));
+      case 4:
         return DateTime(h.year, 1, 1);
       default:
         return thuHai(h);
@@ -123,16 +131,16 @@ abstract final class Ngay {
   }
 
   static DateTime snapTu(DateTime d, int phin) {
-    if (phin == 0) return cat(d);
+    if (phin <= 1) return cat(d);
     return dauThang(d);
   }
 
-  /// Mốc trục: tuần = ngày; tháng = thứ Hai tuần; 6 tháng/năm = mùng 1.
+  /// Mốc trục: ngày/tuần = ngày; tháng = thứ Hai tuần; 6 tháng/năm = mùng 1.
   static List<DateTime> mocKy(DateTime tu, DateTime den, int phin) {
     final a = cat(tu);
     final b = cat(den);
-    if (phin == 0) return cacNgayKhoang(a, b);
-    if (phin == 1) {
+    if (phin <= 1) return cacNgayKhoang(a, b);
+    if (phin == 2) {
       var t = thuHai(a);
       final out = <DateTime>[];
       while (!t.isAfter(b)) {
@@ -159,11 +167,11 @@ abstract final class Ngay {
     final a0 = cat(tu);
     final b0 = cat(den);
     final m = cat(moc);
-    if (phin == 0) {
+    if (phin <= 1) {
       final x = m.isBefore(a0) ? a0 : (m.isAfter(b0) ? b0 : m);
       return (x, x);
     }
-    if (phin == 1) {
+    if (phin == 2) {
       final a = m.isBefore(a0) ? a0 : m;
       final cuoi = m.add(const Duration(days: 6));
       return (a, cuoi.isAfter(b0) ? b0 : cuoi);

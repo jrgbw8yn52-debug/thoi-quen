@@ -222,6 +222,9 @@ abstract final class Chuoi {
   static const pctHabitNhan = '% habit';
   static const goiYNhan = 'Gợi ý';
   static const ghiCanNut = 'Ghi cân';
+  static const ghiChu = 'Ghi chú';
+  static const focusHomNay = 'Focus hôm nay';
+  static const ngayMai = 'Ngày mai';
   static const baoCao = 'Báo cáo';
   static const hoanThanhTheoThu = 'Hoàn thành theo thứ';
   static const hoanThanhTheoNgay = 'Hoàn thành theo ngày';
@@ -377,8 +380,8 @@ abstract final class Chuoi {
   }
 
   static String damGoiNap(int? goi, int nap) {
-    if (goi == null) return 'Đạm — / ${nap}g';
-    return 'Đạm $goi / ${nap}g';
+    if (goi == null) return 'Đạm $nap / —';
+    return 'Đạm $nap / ${goi}g';
   }
 
   static String theKyPct(int p) => '$pctHabitNhan $p%';
@@ -562,4 +565,13 @@ abstract final class Chuoi {
   }
 
   static String luongPhut(int n) => '$n $phut';
+
+  static String conNNgay(int n) => 'còn $n ngày';
+
+  /// «T7 19/9 Party · còn n ngày»
+  static String widFocusTuongLai(DateTime d, String ten, int n) =>
+      '${thuNgan[d.weekday - 1]} ${d.day}/${d.month} $ten · ${conNNgay(n)}';
+
+  static String ngayMaiDong(int gioPhut, String ten) =>
+      '$ngayMai · ${gioNhacChu(gioPhut)} $ten';
 }

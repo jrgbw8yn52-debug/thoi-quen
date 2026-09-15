@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/wid_v_root"
+    android:id="@+id/wid_l_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
@@ -14,7 +14,7 @@
         android:background="@android:color/transparent" />
 
     <LinearLayout
-        android:id="@+id/wid_v_dai"
+        android:id="@+id/wid_l_dai"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="62"
@@ -25,7 +25,7 @@
         android:paddingEnd="8dp">
 
         <ImageView
-            android:id="@+id/wid_v_mark"
+            android:id="@+id/wid_l_mark"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginTop="6dp"
@@ -44,42 +44,169 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/wid_v_meta"
+                android:id="@+id/wid_l_meta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:includeFontPadding="false"
                 android:maxLines="1"
-                android:paddingBottom="2dp"
-                android:text="Thứ Tư 2/9 · 3/5"
+                android:text="Thứ Tư 2/9 · 3/5 · 0 kcal"
                 android:textColor="@color/muc_toi"
                 android:textSize="11sp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:paddingTop="1dp"
+                android:text="@string/focus_nhan"
+                android:textColor="@color/muc_toi"
+                android:textSize="9sp"
+                android:textStyle="bold" />
+
             <LinearLayout
-                android:id="@+id/wid_o1"
+                android:id="@+id/wid_f1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:minHeight="20dp"
-                android:orientation="horizontal"
-                android:paddingTop="1dp"
-                android:paddingBottom="1dp">
+                android:minHeight="18dp"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/wid_o1_gio"
+                    android:id="@+id/wid_f1_gio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
+                    android:layout_marginEnd="4dp"
                     android:includeFontPadding="false"
                     android:maxLines="1"
-                    android:text="6:00 SA"
+                    android:text="8:00 SA"
+                    android:textColor="@color/muc_toi"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/wid_f1_ten"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="Viết bài"
                     android:textColor="@color/muc_toi"
                     android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/wid_o1_ten"
+                    android:id="@+id/wid_f1_xong"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/wid_nut_xong"
+                    android:includeFontPadding="false"
+                    android:paddingStart="6dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="6dp"
+                    android:paddingBottom="1dp"
+                    android:text="@string/xong"
+                    android:textColor="@color/cam"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/wid_f2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="18dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/wid_f2_gio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text=""
+                    android:textColor="@color/muc_toi"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/wid_f2_ten"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="T7 19/9 Party · còn 2 ngày"
+                    android:textColor="@color/muc_toi"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/wid_f2_xong"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/wid_nut_xong"
+                    android:includeFontPadding="false"
+                    android:paddingStart="6dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="6dp"
+                    android:paddingBottom="1dp"
+                    android:text="@string/xong"
+                    android:textColor="@color/cam"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/wid_het_f"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@string/het_focus"
+                android:textColor="@color/muc_toi"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:paddingTop="2dp"
+                android:text="@string/viec_nhan"
+                android:textColor="@color/muc_toi"
+                android:textSize="9sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/wid_h1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="18dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/wid_h1_gio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="6:00 SA"
+                    android:textColor="@color/muc_toi"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/wid_h1_ten"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -88,49 +215,47 @@
                     android:maxLines="1"
                     android:text="Dậy sớm"
                     android:textColor="@color/muc_toi"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/wid_o1_xong"
+                    android:id="@+id/wid_h1_xong"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/wid_nut_xong"
                     android:includeFontPadding="false"
-                    android:paddingStart="8dp"
-                    android:paddingTop="2dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="2dp"
+                    android:paddingStart="6dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="6dp"
+                    android:paddingBottom="1dp"
                     android:text="@string/xong"
                     android:textColor="@color/cam"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/wid_o2"
+                android:id="@+id/wid_h2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:minHeight="20dp"
-                android:orientation="horizontal"
-                android:paddingTop="1dp"
-                android:paddingBottom="1dp">
+                android:minHeight="18dp"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/wid_o2_gio"
+                    android:id="@+id/wid_h2_gio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
+                    android:layout_marginEnd="4dp"
                     android:includeFontPadding="false"
                     android:maxLines="1"
                     android:text="8:00 SA"
                     android:textColor="@color/muc_toi"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/wid_o2_ten"
+                    android:id="@+id/wid_h2_ten"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -139,86 +264,34 @@
                     android:maxLines="1"
                     android:text="Tập"
                     android:textColor="@color/muc_toi"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/wid_o2_xong"
+                    android:id="@+id/wid_h2_xong"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/wid_nut_xong"
                     android:includeFontPadding="false"
-                    android:paddingStart="8dp"
-                    android:paddingTop="2dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="2dp"
+                    android:paddingStart="6dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="6dp"
+                    android:paddingBottom="1dp"
                     android:text="@string/xong"
                     android:textColor="@color/cam"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/wid_o3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:minHeight="20dp"
-                android:orientation="horizontal"
-                android:paddingTop="1dp"
-                android:paddingBottom="1dp">
-
-                <TextView
-                    android:id="@+id/wid_o3_gio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="12:00 CH"
-                    android:textColor="@color/muc_toi"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/wid_o3_ten"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="Ăn trưa"
-                    android:textColor="@color/muc_toi"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/wid_o3_xong"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/wid_nut_xong"
-                    android:includeFontPadding="false"
-                    android:paddingStart="8dp"
-                    android:paddingTop="2dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="2dp"
-                    android:text="@string/xong"
-                    android:textColor="@color/cam"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <TextView
-                android:id="@+id/wid_het"
+                android:id="@+id/wid_het_v"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:includeFontPadding="false"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:text="@string/het_viec"
                 android:textColor="@color/muc_toi"
-                android:textSize="15sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
         </LinearLayout>
@@ -231,21 +304,21 @@
             android:paddingStart="4dp">
 
             <ImageView
-                android:id="@+id/wid_v_lua"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:id="@+id/wid_l_lua"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:contentDescription="@null"
                 android:scaleType="fitCenter"
                 android:src="@drawable/widget_lua" />
 
             <TextView
-                android:id="@+id/wid_v_so"
+                android:id="@+id/wid_l_so"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
                 android:text="12"
                 android:textColor="@color/muc_toi"
-                android:textSize="22sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>

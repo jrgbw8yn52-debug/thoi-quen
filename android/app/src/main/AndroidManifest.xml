@@ -60,28 +60,16 @@
                 android:resource="@xml/habis_widget_dem_info" />
         </receiver>
         <receiver
-            android:name=".HabisViecWidgetProvider"
+            android:name=".HabisLichWidgetProvider"
             android:exported="true"
-            android:label="@string/wid_viec">
+            android:label="@string/wid_lich">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="vn.thoiquen.thoi_quen.WID_XONG" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/habis_widget_viec_info" />
-        </receiver>
-        <receiver
-            android:name=".HabisFocusWidgetProvider"
-            android:exported="true"
-            android:label="@string/wid_focus">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="vn.thoiquen.thoi_quen.WID_XONG" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/habis_widget_focus_info" />
+                android:resource="@xml/habis_widget_lich_info" />
         </receiver>
         <meta-data
             android:name="flutterEmbedding"

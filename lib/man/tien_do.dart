@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../chuoi.dart';
-import '../cong_thuc.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
@@ -58,6 +57,52 @@ class _ManTienDoState extends State<ManTienDo> {
     });
   }
 
+  DateTime _luiTu(DateTime tu, int phin) {
+    switch (phin) {
+      case 0:
+        return tu.subtract(const Duration(days: 1));
+      case 1:
+        return tu.subtract(const Duration(days: 7));
+      case 2:
+        return Ngay.congThang(tu, -1);
+      case 3:
+        return Ngay.congThang(tu, -6);
+      default:
+        return Ngay.congThang(tu, -12);
+    }
+  }
+
+  DateTime _toiTu(DateTime tu, int phin) {
+    switch (phin) {
+      case 0:
+        return tu.add(const Duration(days: 1));
+      case 1:
+        return tu.add(const Duration(days: 7));
+      case 2:
+        return Ngay.congThang(tu, 1);
+      case 3:
+        return Ngay.congThang(tu, 6);
+      default:
+        return Ngay.congThang(tu, 12);
+    }
+  }
+
+  void _luiKy() {
+    setState(() {
+      _veHom = false;
+      _tu = Ngay.snapTu(_luiTu(_tu, _phin), _phin);
+    });
+  }
+
+  void _toiKy() {
+    final n = Ngay.snapTu(_toiTu(_tu, _phin), _phin);
+    if (n.isAfter(kho.homNay)) return;
+    setState(() {
+      _veHom = false;
+      _tu = n;
+    });
+  }
+
   Future<void> _chonTu() async {
     final d = await moChonNgay(context: context, goc: _tu);
     if (d == null) return;
@@ -72,17 +117,6 @@ class _ManTienDoState extends State<ManTienDo> {
       _veHom = true;
       _tu = Ngay.dauKyHomNay(kho.homNay, _phin);
     });
-  }
-
-  Color _mauNap(int nap, int? goi) {
-    final n = CongThuc.nhanNap(nap, goi);
-    return switch (n) {
-      NhanNap.vuot => Mau.canhBao,
-      NhanNap.dung => Mau.reu,
-      NhanNap.hoiThap => Mau.mo,
-      NhanNap.quaThap => Mau.muc,
-      null => Mau.mo,
-    };
   }
 
   @override
@@ -143,35 +177,46 @@ class _ManTienDoState extends State<ManTienDo> {
                 children: [
                   _Phin(
                     key: const Key('phin-habit-0'),
-                    chu: Chuoi.tuanNhan,
+                    chu: Chuoi.phinNgay,
                     bat: _phin == 0,
                     onTap: () => _doiPhin(0),
                   ),
                   _Phin(
                     key: const Key('phin-habit-1'),
-                    chu: Chuoi.thangNhan,
+                    chu: Chuoi.tuanNhan,
                     bat: _phin == 1,
                     onTap: () => _doiPhin(1),
                   ),
                   _Phin(
                     key: const Key('phin-habit-2'),
-                    chu: Chuoi.sauThang,
+                    chu: Chuoi.thangNhan,
                     bat: _phin == 2,
                     onTap: () => _doiPhin(2),
                   ),
                   _Phin(
                     key: const Key('phin-habit-3'),
-                    chu: Chuoi.namNhan,
+                    chu: Chuoi.sauThang,
                     bat: _phin == 3,
                     onTap: () => _doiPhin(3),
+                  ),
+                  _Phin(
+                    key: const Key('phin-habit-4'),
+                    chu: Chuoi.namNhan,
+                    bat: _phin == 4,
+                    onTap: () => _doiPhin(4),
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
               child: Row(
                 children: [
+                  IconButton(
+                    key: const Key('phin-lui'),
+                    onPressed: _luiKy,
+                    icon: const Icon(Icons.chevron_left),
+                  ),
                   Expanded(
                     child: InkWell(
                       key: const Key('tu-ngay'),
@@ -183,23 +228,31 @@ class _ManTienDoState extends State<ManTienDo> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              '${Chuoi.tuNgay} ${_tu.day}/${_tu.month}/${_tu.year}',
+                              _phin == 0
+                                  ? Chuoi.khoangNgay(_tu, _den)
+                                  : '${Chuoi.tuNgay} ${_tu.day}/${_tu.month}/${_tu.year}',
                               style: const TextStyle(
                                 fontSize: 15,
                                 color: Mau.muc,
                               ),
                             ),
-                            Text(
-                              Chuoi.denNgay(_den),
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Mau.mo,
+                            if (_phin != 0)
+                              Text(
+                                Chuoi.denNgay(_den),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Mau.mo,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),
                     ),
+                  ),
+                  IconButton(
+                    key: const Key('phin-toi'),
+                    onPressed: _toiKy,
+                    icon: const Icon(Icons.chevron_right),
                   ),
                   TextButton(
                     key: const Key('nut-hom-nay-ky'),
@@ -220,7 +273,6 @@ class _ManTienDoState extends State<ManTienDo> {
                     goi: goi,
                     tieu: tieuHom,
                     can: canHom == null ? null : So.kg(canHom.kg),
-                    mauNap: _mauNap(napHom, goi),
                   ),
                   const SizedBox(height: 10),
                   Wrap(
@@ -231,8 +283,14 @@ class _ManTienDoState extends State<ManTienDo> {
                       _The(
                         chu: Chuoi.goiYKcalPct(goi, kho.phanTramTdeeDoc),
                       ),
-                      _The(chu: Chuoi.damGoiNap(damGoi, damNap)),
                     ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      Chuoi.damGoiNap(damGoi, damNap),
+                      style: const TextStyle(fontSize: 14, color: Mau.muc),
+                    ),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 8),
@@ -299,7 +357,7 @@ class _ManTienDoState extends State<ManTienDo> {
                   const SizedBox(height: 20),
                   _TieuChart(
                     ten: Chuoi.thoiQuen,
-                    so: Chuoi.phanTram(ky.phanTram),
+                    so: Chuoi.nTrenM(ky.nTick, ky.mHabit),
                     tu: ky.tu,
                     den: ky.den,
                   ),
@@ -422,7 +480,6 @@ class _HangHomNay extends StatelessWidget {
     required this.goi,
     required this.tieu,
     required this.can,
-    required this.mauNap,
   });
 
   final int n;
@@ -431,48 +488,27 @@ class _HangHomNay extends StatelessWidget {
   final int? goi;
   final int tieu;
   final String? can;
-  final Color mauNap;
 
   @override
   Widget build(BuildContext context) {
     final napChu = goi == null ? '$nap kcal' : '$nap / $goi kcal';
     return Container(
       key: const Key('hang-hom-nay-tk'),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Mau.beMat,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Mau.vien),
       ),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 6,
-        children: [
-          Text(
-            Chuoi.nTrenM(n, m),
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Mau.muc,
-            ),
-          ),
-          Text(
-            napChu,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: mauNap,
-            ),
-          ),
-          Text(
-            '$tieu kcal',
-            style: const TextStyle(fontSize: 15, color: Mau.muc),
-          ),
-          Text(
-            can == null ? '— kg' : '$can kg',
-            style: const TextStyle(fontSize: 15, color: Mau.muc),
-          ),
-        ],
+      child: Text(
+        '${Chuoi.nTrenM(n, m)} · $napChu · $tieu kcal · ${can ?? '—'} kg',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Mau.muc,
+        ),
       ),
     );
   }
@@ -515,7 +551,7 @@ class _BieuHabit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: const Key('duong-thong-ke'),
-      height: phin == 0 ? 88 : 72,
+      height: phin <= 1 ? 88 : 72,
       padding: const EdgeInsets.fromLTRB(6, 8, 6, 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -530,7 +566,7 @@ class _BieuHabit extends StatelessWidget {
               children: [
                 for (final c in cot)
                   Expanded(
-                    child: phin == 0
+                    child: phin <= 1
                         ? _CotTuan(
                             cot: ChamTuan(
                               ngay: c.ngay,
@@ -544,9 +580,9 @@ class _BieuHabit extends StatelessWidget {
                           )
                         : _CotThangNho(
                             cot: c,
-                            soCot: phin >= 2,
+                            soCot: phin >= 3,
                             onTap: () => onTap(
-                              phin == 1
+                              phin == 2
                                   ? c.ngay
                                   : DateTime(
                                       c.ngay.year,

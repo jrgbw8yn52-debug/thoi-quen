@@ -643,7 +643,8 @@ void main() {
     expect(find.text(Chuoi.thoiQuen), findsWidgets);
     expect(find.textContaining('đã tick'), findsNothing);
     expect(find.textContaining('Hoàn thành'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('phin-habit-1')));
+    expect(find.text(Chuoi.phinNgay), findsWidgets);
+    await tester.tap(find.byKey(const Key('phin-habit-2')));
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.thangNhan), findsWidgets);
     expect(find.text(Chuoi.canNang), findsWidgets);

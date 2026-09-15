@@ -45,6 +45,7 @@ class HabisWidgetProvider : AppWidgetProvider() {
             val gio: String,
             val minutes: Int?,
             val phut: Int?,
+            val choXong: Boolean = true,
         )
 
         fun homePi(context: Context, req: Int): PendingIntent {
@@ -84,8 +85,7 @@ class HabisWidgetProvider : AppWidgetProvider() {
             )
             for (id in ids) capNhatMot(context, manager, id)
             HabisDemWidgetProvider.capNhatTatCa(context)
-            HabisViecWidgetProvider.capNhatTatCa(context)
-            HabisFocusWidgetProvider.capNhatTatCa(context)
+            HabisLichWidgetProvider.capNhatTatCa(context)
         }
 
         fun luuDs(p: android.content.SharedPreferences.Editor, key: String, hang: List<*>?) {
@@ -101,6 +101,8 @@ class HabisWidgetProvider : AppWidgetProvider() {
                     if (phut is Number) o.put("phut", phut.toInt()) else o.put("phut", JSONObject.NULL)
                     val minutes = m["minutes"]
                     if (minutes is Number) o.put("minutes", minutes.toInt()) else o.put("minutes", JSONObject.NULL)
+                    val cho = m["choXong"]
+                    o.put("choXong", if (cho is Boolean) cho else true)
                     arr.put(o)
                 }
             }
@@ -128,10 +130,32 @@ class HabisWidgetProvider : AppWidgetProvider() {
             manager.updateAppWidget(id, views)
         }
 
+        fun tabPi(context: Context, tab: Int, req: Int): PendingIntent {
+            val intent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+                action = Intent.ACTION_MAIN
+                addCategory(Intent.CATEGORY_LAUNCHER)
+                putExtra(MainActivity.EXTRA_TAB, tab)
+            }
+            return PendingIntent.getActivity(
+                context,
+                req,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
+
         fun metaChu(p: android.content.SharedPreferences): String {
             val ngay = p.getString(K_NGAY, "") ?: ""
             val nm = p.getString(K_HABIT_NM, "0/0") ?: "0/0"
-            return if (ngay.isEmpty()) nm else "$ngay · $nm"
+            val kcal = p.getString(K_KCAL, "") ?: ""
+            val ds = ArrayList<String>(3)
+            if (ngay.isNotEmpty()) ds.add(ngay)
+            if (nm.isNotEmpty()) ds.add(nm)
+            if (kcal.isNotEmpty()) ds.add(kcal)
+            return ds.joinToString(" · ")
         }
 
         private fun soPhut(v: Any?): Int? {
@@ -154,6 +178,7 @@ class HabisWidgetProvider : AppWidgetProvider() {
                     null
                 }
                 val phut: Int? = if (o.isNull("phut")) null else soPhut(o.opt("phut"))
+                val choXong = if (o.has("choXong")) o.optBoolean("choXong", true) else true
                 ds.add(
                     HangO(
                         id = o.optInt("id", 0),
@@ -161,6 +186,7 @@ class HabisWidgetProvider : AppWidgetProvider() {
                         gio = o.optString("gio", ""),
                         minutes = minutes,
                         phut = phut,
+                        choXong = choXong,
                     ),
                 )
             }
@@ -197,8 +223,19 @@ class HabisWidgetProvider : AppWidgetProvider() {
                 views.setTextViewText(gioIds[i], o.gio)
             }
             views.setTextViewText(tenIds[i], o.ten)
-            if (o.id > 0) {
-                views.setOnClickPendingIntent(xongIds[i], xongPi(context, o.id, loai, cls))
+            if (o.choXong) {
+                views.setViewVisibility(xongIds[i], View.VISIBLE)
+                if (o.id > 0) {
+                    views.setOnClickPendingIntent(xongIds[i], xongPi(context, o.id, loai, cls))
+                }
+            } else {
+                views.setViewVisibility(xongIds[i], View.GONE)
+                if (o.id > 0) {
+                    views.setOnClickPendingIntent(
+                        oIds[i],
+                        tabPi(context, 2, 400_000 + o.id),
+                    )
+                }
             }
         }
 

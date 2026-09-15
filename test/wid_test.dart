@@ -104,8 +104,10 @@ void main() {
       gioPhut: 9 * 60,
       durationMin: 30,
     );
-    // 13h: Sáng đã quá hạn. Chiều+Tối hôm nay → không lấy Mai.
-    expect(kho.hangFocus.map((t) => t.title).toList(), ['Chiều', 'Tối']);
+    // 13h: Sáng quá hạn. 1 hôm nay (Chiều) + 1 tương lai (Mai).
+    expect(kho.hangFocus.map((t) => t.title).toList(), ['Chiều', 'Mai']);
+    expect(kho.focusHomNay.map((t) => t.title).toList(), ['Sáng', 'Chiều', 'Tối']);
+    expect(kho.focusNgayMai?.title, 'Mai');
 
     await kho.tickFocus(kho.hangFocus.first.id, chiBat: true);
     expect(kho.hangFocus.map((t) => t.title).toList(), ['Tối', 'Mai']);
@@ -115,5 +117,9 @@ void main() {
     await kho2.tai();
     expect(kho2.hangFocus.map((t) => t.title).toList(), ['Mai']);
     expect(Chuoi.hetFocus, 'Hết focus');
+    expect(
+      Chuoi.widFocusTuongLai(DateTime(2026, 9, 19), 'Party', 2),
+      'T7 19/9 Party · còn 2 ngày',
+    );
   });
 }

@@ -1,5 +1,6 @@
 package vn.thoiquen.thoi_quen
 
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import io.flutter.embedding.android.FlutterActivity
@@ -34,11 +35,46 @@ class MainActivity : FlutterActivity() {
                 result.notImplemented()
             }
         }
+        pendingTab?.let { guiTabSo(it) }
+        pendingTab = null
+        guiTab(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        guiTab(intent)
+    }
+
+    private fun guiTab(intent: Intent?) {
+        val tab = intent?.getIntExtra(EXTRA_TAB, -1) ?: -1
+        if (tab < 0) return
+        intent?.removeExtra(EXTRA_TAB)
+        guiTabSo(tab)
+    }
+
+    private fun guiTabSo(tab: Int) {
+        val ch = kenh
+        if (ch == null) {
+            pendingTab = tab
+            return
+        }
+        Handler(Looper.getMainLooper()).post {
+            try {
+                ch.invokeMethod("moTab", tab)
+            } catch (_: Exception) {
+            }
+        }
     }
 
     companion object {
+        const val EXTRA_TAB = "moTab"
+
         @JvmStatic
         var kenh: MethodChannel? = null
+
+        @JvmStatic
+        var pendingTab: Int? = null
 
         @JvmStatic
         fun baoTick(id: Int): Boolean {

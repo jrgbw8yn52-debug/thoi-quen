@@ -166,4 +166,33 @@ void main() {
     expect(kho.dsFocus.any((t) => t.title == 'Tập tối'), isTrue);
     expect(find.text('Tập tối'), findsOneWidget);
   });
+
+  test('ghiChu lưu, list 1 dòng, không vào n/m habit', () async {
+    final id = await kho.themFocus(
+      title: 'Họp',
+      ngay: kho.homNay,
+      gioPhut: 16 * 60,
+      durationMin: 30,
+      ghiChu: '  mang  laptop  ',
+    );
+    expect(id, greaterThan(0));
+    expect(kho.dsFocus.single.ghiChu, 'mang laptop');
+    expect(kho.nTickHom, 0);
+    expect(kho.mHom, 0);
+    expect(kho.coFocusNgay(kho.homNay), isTrue);
+    await kho.suaFocus(
+      id: id,
+      title: 'Họp',
+      ngay: kho.homNay,
+      gioPhut: 16 * 60,
+      durationMin: 30,
+      ghiChu: '',
+    );
+    expect(kho.dsFocus.single.ghiChu, isNull);
+  });
+
+  test('moTuNoti Focus về tab 2', () {
+    kho.moTuNoti('f|12');
+    expect(kho.tab, 2);
+  });
 }

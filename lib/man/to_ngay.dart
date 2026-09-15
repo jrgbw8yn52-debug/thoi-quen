@@ -86,12 +86,13 @@ class _ToNgayState extends State<ToNgay> {
     final kho = widget.kho;
     final ngay = widget.ngay;
     return ListenableBuilder(
-      listenable: Listenable.merge([kho, kho.homeBan]),
+      listenable: Listenable.merge([kho, kho.homeBan, kho.focusBan]),
       builder: (context, _) {
         final ds = kho.tapNgay(ngay);
         final tong = kho.kcalTapCuaNgay(ngay);
         final logs = kho.logNgay(ngay);
         final nap = kho.kcalNapCuaNgay(ngay);
+        final focus = kho.focusCuaNgay(ngay);
         return SafeArea(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -118,6 +119,26 @@ class _ToNgayState extends State<ToNgay> {
                   ngay: ngay,
                 ),
                 const SizedBox(height: 16),
+                KhoiGap(
+                  key: const Key('khoi-focus-ngay'),
+                  tieuDe: Chuoi.focus,
+                  phu: '${focus.length}',
+                  mo: focus.isNotEmpty,
+                  children: [
+                    if (focus.isEmpty)
+                      const Text('—', style: TextStyle(color: Mau.mo))
+                    else
+                      for (final t in focus)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: _HangFocusTo(
+                            viec: t,
+                            tre: kho.quaHanFocus(t),
+                          ),
+                        ),
+                  ],
+                ),
+                const SizedBox(height: 10),
                 KhoiGap(
                   key: const Key('khoi-thoi-quen'),
                   tieuDe: Chuoi.thoiQuen,
@@ -318,6 +339,63 @@ class _ToNgayState extends State<ToNgay> {
           ),
         );
       },
+    );
+  }
+}
+
+class _HangFocusTo extends StatelessWidget {
+  const _HangFocusTo({required this.viec, required this.tre});
+
+  final FocusTask viec;
+  final bool tre;
+
+  @override
+  Widget build(BuildContext context) {
+    final chu = viec.ghiChu;
+    return Material(
+      color: Mau.giay,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    viec.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Mau.muc,
+                      decoration: (tre || viec.done)
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,
+                    ),
+                  ),
+                  if (chu != null && chu.isNotEmpty)
+                    Text(
+                      chu,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12, color: Mau.mo),
+                    ),
+                  if (tre)
+                    const Text(
+                      Chuoi.chuaLam,
+                      style: TextStyle(fontSize: 12, color: Mau.canhBao),
+                    ),
+                ],
+              ),
+            ),
+            Text(
+              Chuoi.gioNhacChu(viec.gioPhut),
+              style: const TextStyle(fontSize: 13, color: Mau.mo),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

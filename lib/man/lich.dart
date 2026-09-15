@@ -269,6 +269,7 @@ class _LuoiThang extends StatelessWidget {
                 final hom = Ngay.cungNgay(d, kho.homNay);
                 final xem = Ngay.cungNgay(d, kho.selected);
                 final lua = kho.phutTapCuaNgay(d) > 0;
+                final cam = kho.coFocusNgay(d);
                 return InkWell(
                   key: Key('lua-ngay-${Ngay.iso(d)}'),
                   onTap: () {
@@ -299,13 +300,30 @@ class _LuoiThang extends StatelessWidget {
                         ),
                         SizedBox(
                           height: 14,
-                          child: lua
-                              ? const Icon(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (lua)
+                                const Icon(
                                   Icons.local_fire_department,
                                   size: 12,
                                   color: Mau.lua,
-                                )
-                              : null,
+                                ),
+                              if (cam)
+                                Padding(
+                                  padding: EdgeInsets.only(left: lua ? 2 : 0),
+                                  child: Container(
+                                    key: Key('cam-focus-${Ngay.iso(d)}'),
+                                    width: 6,
+                                    height: 6,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Mau.reu,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

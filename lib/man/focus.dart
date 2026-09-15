@@ -296,6 +296,16 @@ class _HangFocus extends StatelessWidget {
                                 : TextDecoration.none,
                           ),
                         ),
+                        if (viec.ghiChu != null && viec.ghiChu!.isNotEmpty)
+                          Text(
+                            viec.ghiChu!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Mau.mo,
+                            ),
+                          ),
                         if (tre)
                           const Text(
                             Chuoi.chuaLam,

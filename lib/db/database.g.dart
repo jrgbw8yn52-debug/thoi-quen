@@ -4748,6 +4748,15 @@ class $FocusTasksTable extends FocusTasks
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _ghiChuMeta = const VerificationMeta('ghiChu');
+  @override
+  late final GeneratedColumn<String> ghiChu = GeneratedColumn<String>(
+    'ghi_chu',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -4767,6 +4776,7 @@ class $FocusTasksTable extends FocusTasks
     gioPhut,
     durationMin,
     done,
+    ghiChu,
     createdAt,
   ];
   @override
@@ -4823,6 +4833,12 @@ class $FocusTasksTable extends FocusTasks
         done.isAcceptableOrUnknown(data['done']!, _doneMeta),
       );
     }
+    if (data.containsKey('ghi_chu')) {
+      context.handle(
+        _ghiChuMeta,
+        ghiChu.isAcceptableOrUnknown(data['ghi_chu']!, _ghiChuMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -4864,6 +4880,10 @@ class $FocusTasksTable extends FocusTasks
         DriftSqlType.bool,
         data['${effectivePrefix}done'],
       )!,
+      ghiChu: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ghi_chu'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -4884,6 +4904,7 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
   final int gioPhut;
   final int? durationMin;
   final bool done;
+  final String? ghiChu;
   final DateTime createdAt;
   const FocusTask({
     required this.id,
@@ -4892,6 +4913,7 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
     required this.gioPhut,
     this.durationMin,
     required this.done,
+    this.ghiChu,
     required this.createdAt,
   });
   @override
@@ -4905,6 +4927,9 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
       map['duration_min'] = Variable<int>(durationMin);
     }
     map['done'] = Variable<bool>(done);
+    if (!nullToAbsent || ghiChu != null) {
+      map['ghi_chu'] = Variable<String>(ghiChu);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -4919,6 +4944,9 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
           ? const Value.absent()
           : Value(durationMin),
       done: Value(done),
+      ghiChu: ghiChu == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ghiChu),
       createdAt: Value(createdAt),
     );
   }
@@ -4935,6 +4963,7 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
       gioPhut: serializer.fromJson<int>(json['gioPhut']),
       durationMin: serializer.fromJson<int?>(json['durationMin']),
       done: serializer.fromJson<bool>(json['done']),
+      ghiChu: serializer.fromJson<String?>(json['ghiChu']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -4948,6 +4977,7 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
       'gioPhut': serializer.toJson<int>(gioPhut),
       'durationMin': serializer.toJson<int?>(durationMin),
       'done': serializer.toJson<bool>(done),
+      'ghiChu': serializer.toJson<String?>(ghiChu),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -4959,6 +4989,7 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
     int? gioPhut,
     Value<int?> durationMin = const Value.absent(),
     bool? done,
+    Value<String?> ghiChu = const Value.absent(),
     DateTime? createdAt,
   }) => FocusTask(
     id: id ?? this.id,
@@ -4967,6 +4998,7 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
     gioPhut: gioPhut ?? this.gioPhut,
     durationMin: durationMin.present ? durationMin.value : this.durationMin,
     done: done ?? this.done,
+    ghiChu: ghiChu.present ? ghiChu.value : this.ghiChu,
     createdAt: createdAt ?? this.createdAt,
   );
   FocusTask copyWithCompanion(FocusTasksCompanion data) {
@@ -4979,6 +5011,7 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
           ? data.durationMin.value
           : this.durationMin,
       done: data.done.present ? data.done.value : this.done,
+      ghiChu: data.ghiChu.present ? data.ghiChu.value : this.ghiChu,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -4992,14 +5025,23 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
           ..write('gioPhut: $gioPhut, ')
           ..write('durationMin: $durationMin, ')
           ..write('done: $done, ')
+          ..write('ghiChu: $ghiChu, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, title, ngay, gioPhut, durationMin, done, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    ngay,
+    gioPhut,
+    durationMin,
+    done,
+    ghiChu,
+    createdAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5010,6 +5052,7 @@ class FocusTask extends DataClass implements Insertable<FocusTask> {
           other.gioPhut == this.gioPhut &&
           other.durationMin == this.durationMin &&
           other.done == this.done &&
+          other.ghiChu == this.ghiChu &&
           other.createdAt == this.createdAt);
 }
 
@@ -5020,6 +5063,7 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
   final Value<int> gioPhut;
   final Value<int?> durationMin;
   final Value<bool> done;
+  final Value<String?> ghiChu;
   final Value<DateTime> createdAt;
   const FocusTasksCompanion({
     this.id = const Value.absent(),
@@ -5028,6 +5072,7 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
     this.gioPhut = const Value.absent(),
     this.durationMin = const Value.absent(),
     this.done = const Value.absent(),
+    this.ghiChu = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   FocusTasksCompanion.insert({
@@ -5037,6 +5082,7 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
     required int gioPhut,
     this.durationMin = const Value.absent(),
     this.done = const Value.absent(),
+    this.ghiChu = const Value.absent(),
     required DateTime createdAt,
   }) : title = Value(title),
        ngay = Value(ngay),
@@ -5049,6 +5095,7 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
     Expression<int>? gioPhut,
     Expression<int>? durationMin,
     Expression<bool>? done,
+    Expression<String>? ghiChu,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -5058,6 +5105,7 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
       if (gioPhut != null) 'gio_phut': gioPhut,
       if (durationMin != null) 'duration_min': durationMin,
       if (done != null) 'done': done,
+      if (ghiChu != null) 'ghi_chu': ghiChu,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -5069,6 +5117,7 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
     Value<int>? gioPhut,
     Value<int?>? durationMin,
     Value<bool>? done,
+    Value<String?>? ghiChu,
     Value<DateTime>? createdAt,
   }) {
     return FocusTasksCompanion(
@@ -5078,6 +5127,7 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
       gioPhut: gioPhut ?? this.gioPhut,
       durationMin: durationMin ?? this.durationMin,
       done: done ?? this.done,
+      ghiChu: ghiChu ?? this.ghiChu,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -5103,6 +5153,9 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
     if (done.present) {
       map['done'] = Variable<bool>(done.value);
     }
+    if (ghiChu.present) {
+      map['ghi_chu'] = Variable<String>(ghiChu.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -5118,6 +5171,7 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
           ..write('gioPhut: $gioPhut, ')
           ..write('durationMin: $durationMin, ')
           ..write('done: $done, ')
+          ..write('ghiChu: $ghiChu, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -8664,6 +8718,7 @@ typedef $$FocusTasksTableCreateCompanionBuilder = FocusTasksCompanion Function({
   required int gioPhut,
   Value<int?> durationMin,
   Value<bool> done,
+  Value<String?> ghiChu,
   required DateTime createdAt,
 });
 typedef $$FocusTasksTableUpdateCompanionBuilder = FocusTasksCompanion Function({
@@ -8673,6 +8728,7 @@ typedef $$FocusTasksTableUpdateCompanionBuilder = FocusTasksCompanion Function({
   Value<int> gioPhut,
   Value<int?> durationMin,
   Value<bool> done,
+  Value<String?> ghiChu,
   Value<DateTime> createdAt,
 });
 
@@ -8712,6 +8768,11 @@ class $$FocusTasksTableFilterComposer
 
   ColumnFilters<bool> get done => $composableBuilder(
     column: $table.done,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ghiChu => $composableBuilder(
+    column: $table.ghiChu,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8760,6 +8821,11 @@ class $$FocusTasksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get ghiChu => $composableBuilder(
+    column: $table.ghiChu,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -8794,6 +8860,9 @@ class $$FocusTasksTableAnnotationComposer
 
   GeneratedColumn<bool> get done =>
       $composableBuilder(column: $table.done, builder: (column) => column);
+
+  GeneratedColumn<String> get ghiChu =>
+      $composableBuilder(column: $table.ghiChu, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -8836,6 +8905,7 @@ class $$FocusTasksTableTableManager
                 Value<int> gioPhut = const Value.absent(),
                 Value<int?> durationMin = const Value.absent(),
                 Value<bool> done = const Value.absent(),
+                Value<String?> ghiChu = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => FocusTasksCompanion(
                 id: id,
@@ -8844,6 +8914,7 @@ class $$FocusTasksTableTableManager
                 gioPhut: gioPhut,
                 durationMin: durationMin,
                 done: done,
+                ghiChu: ghiChu,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -8854,6 +8925,7 @@ class $$FocusTasksTableTableManager
                 required int gioPhut,
                 Value<int?> durationMin = const Value.absent(),
                 Value<bool> done = const Value.absent(),
+                Value<String?> ghiChu = const Value.absent(),
                 required DateTime createdAt,
               }) => FocusTasksCompanion.insert(
                 id: id,
@@ -8862,6 +8934,7 @@ class $$FocusTasksTableTableManager
                 gioPhut: gioPhut,
                 durationMin: durationMin,
                 done: done,
+                ghiChu: ghiChu,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

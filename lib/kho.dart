@@ -832,9 +832,9 @@ class Kho extends ChangeNotifier {
             ngay: m,
             tick: r.$1,
             tong: r.$2,
-            dangXem: phin == 0
+            dangXem: phin <= 1
                 ? Ngay.cungNgay(m, selected)
-                : (phin == 1
+                : (phin == 2
                     ? Ngay.cungNgay(Ngay.thuHai(selected), m)
                     : Ngay.cungThang(m, selected)),
             tuongLai: Ngay.sau(m, homNay),
@@ -864,7 +864,7 @@ class Kho extends ChangeNotifier {
   List<(DateTime, double)> diemCanKy(int phin, DateTime tu) {
     final a = Ngay.cat(tu);
     final b = Ngay.cuoiKy(a, phin);
-    if (phin == 0) {
+    if (phin <= 1) {
       return [
         for (final c in dsCan)
           if (!Ngay.parse(c.ngay).isBefore(a) &&
@@ -1101,31 +1101,63 @@ class Kho extends ChangeNotifier {
     return ds;
   }
 
-  /// Focus còn hạn: hôm nay trước, rồi tối đa 1 tương lai. Đã xong / Chưa làm không hiện.
+  /// Focus còn hạn: 1 hôm nay + 1 tương lai gần nhất. Đã xong / Chưa làm không hiện.
   List<FocusTask> get hangFocus {
+    final ds = <FocusTask>[];
+    final hom = focusHomNayConHan;
+    if (hom.isNotEmpty) ds.add(hom.first);
+    final mai = focusGanNhatTuongLai;
+    if (mai != null) ds.add(mai);
+    return ds;
+  }
+
+  /// Mọi Focus hôm nay (kể cả xong / quá hạn) — lộ diện Home.
+  List<FocusTask> get focusHomNay {
     final hom = Ngay.iso(homNay);
-    final homNayDs = <FocusTask>[];
-    final tuongLai = <FocusTask>[];
-    for (final t in dsFocus) {
-      if (t.done || quaHanFocus(t)) continue;
-      if (t.ngay == hom) {
-        homNayDs.add(t);
-      } else if (t.ngay.compareTo(hom) > 0) {
-        tuongLai.add(t);
-      }
-    }
-    homNayDs.sort((a, b) => a.gioPhut.compareTo(b.gioPhut));
-    tuongLai.sort((a, b) {
+    final ds = [for (final t in dsFocus) if (t.ngay == hom) t];
+    ds.sort((a, b) => a.gioPhut.compareTo(b.gioPhut));
+    return ds;
+  }
+
+  List<FocusTask> get focusHomNayConHan => [
+        for (final t in focusHomNay)
+          if (!t.done && !quaHanFocus(t)) t,
+      ];
+
+  FocusTask? get focusNgayMai {
+    final mai = Ngay.iso(homNay.add(const Duration(days: 1)));
+    final ds = [
+      for (final t in dsFocus)
+        if (t.ngay == mai && !t.done) t,
+    ];
+    ds.sort((a, b) => a.gioPhut.compareTo(b.gioPhut));
+    return ds.isEmpty ? null : ds.first;
+  }
+
+  FocusTask? get focusGanNhatTuongLai {
+    final hom = Ngay.iso(homNay);
+    final ds = [
+      for (final t in dsFocus)
+        if (!t.done && !quaHanFocus(t) && t.ngay.compareTo(hom) > 0) t,
+    ];
+    ds.sort((a, b) {
       final c = a.ngay.compareTo(b.ngay);
       return c != 0 ? c : a.gioPhut.compareTo(b.gioPhut);
     });
-    final ds = <FocusTask>[
-      ...homNayDs.take(WidHome.maxFocus),
-    ];
-    if (ds.length < WidHome.maxFocus && tuongLai.isNotEmpty) {
-      ds.add(tuongLai.first);
+    return ds.isEmpty ? null : ds.first;
+  }
+
+  List<FocusTask> focusCuaNgay(DateTime d) {
+    final iso = Ngay.iso(d);
+    return [for (final t in dsFocus) if (t.ngay == iso) t];
+  }
+
+  bool coFocusNgay(DateTime d) {
+    final iso = Ngay.iso(d);
+    for (final t in dsFocus) {
+      if (t.ngay == iso) return true;
     }
-    return ds;
+    return false;
   }
 
   Future<void> tickWidFocus(int id) => tickFocus(id, chiBat: true);
@@ -1245,7 +1277,8 @@ class Kho extends ChangeNotifier {
   void _dongWid() {
     final goi = kcalGoiYDoc;
     final nap = kcalNapCuaNgay(homNay);
-    final hom = Ngay.iso(homNay);
+    final homF = focusHomNayConHan;
+    final maiF = focusGanNhatTuongLai;
     WidHome.capNhat(
       ngay: Chuoi.widNgay(homNay),
       habit: Chuoi.widHabit(nTickHom, mHom),
@@ -1265,16 +1298,27 @@ class Kho extends ChangeNotifier {
                 : Chuoi.gioNhacChu(h.habit.gioNhac!),
             'phut': h.habit.phutMacDinh,
             'minutes': h.habit.gioNhac,
+            'choXong': true,
           },
       ],
       focus: [
-        for (final t in hangFocus)
+        if (homF.isNotEmpty)
           {
-            'id': t.id,
-            'ten': t.title,
-            'gio': t.ngay == hom
-                ? Chuoi.gioNhacChu(t.gioPhut)
-                : Chuoi.widNgayThu(Ngay.parse(t.ngay)),
+            'id': homF.first.id,
+            'ten': homF.first.title,
+            'gio': Chuoi.gioNhacChu(homF.first.gioPhut),
+            'choXong': true,
+          },
+        if (maiF != null)
+          {
+            'id': maiF.id,
+            'ten': Chuoi.widFocusTuongLai(
+              Ngay.parse(maiF.ngay),
+              maiF.title,
+              Ngay.parse(maiF.ngay).difference(homNay).inDays,
+            ),
+            'gio': '',
+            'choXong': false,
           },
       ],
     );
@@ -1528,6 +1572,8 @@ class Kho extends ChangeNotifier {
     dsFocus = await db.dsFocus();
     await nhaOverrideQuaHan();
     focusBan.ban();
+    homeBan.ban();
+    lichBan.ban();
     await _dongNhac();
     _dongWid();
   }
@@ -1545,6 +1591,7 @@ class Kho extends ChangeNotifier {
     required DateTime ngay,
     required int gioPhut,
     int? durationMin,
+    String? ghiChu,
   }) async {
     if (!Ngay.ghiDuoc(ngay, homNay)) return 0;
     final id = await db.themFocus(
@@ -1552,6 +1599,7 @@ class Kho extends ChangeNotifier {
       ngay: ngay,
       gioPhut: gioPhut,
       durationMin: durationMin,
+      ghiChu: ghiChu,
       createdAt: bayGio,
     );
     if (id > 0) await _taiFocus();
@@ -1564,6 +1612,7 @@ class Kho extends ChangeNotifier {
     required DateTime ngay,
     required int gioPhut,
     int? durationMin,
+    String? ghiChu,
   }) async {
     if (!Ngay.ghiDuoc(ngay, homNay)) return false;
     FocusTask? cu;
@@ -1579,6 +1628,7 @@ class Kho extends ChangeNotifier {
       ngay: ngay,
       gioPhut: gioPhut,
       durationMin: durationMin,
+      ghiChu: ghiChu,
     );
     if (ok) {
       if (cu != null) await nhaOverrideCua(cu);
@@ -1638,7 +1688,7 @@ class Kho extends ChangeNotifier {
   void moTuNoti(String payload) {
     final fid = Nhac.idFocusTu(payload);
     if (fid != null) {
-      tab = 3;
+      tab = 2;
       tabBan.ban();
       return;
     }
@@ -1658,7 +1708,7 @@ class Kho extends ChangeNotifier {
   Future<void> tickTuNoti(String payload) async {
     final fid = Nhac.idFocusTu(payload);
     if (fid != null) {
-      tab = 3;
+      tab = 2;
       tabBan.ban();
       await tickFocus(fid, chiBat: true);
       return;

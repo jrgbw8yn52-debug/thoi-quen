@@ -8,7 +8,7 @@ import android.content.Intent
 import android.view.View
 import android.widget.RemoteViews
 
-class HabisFocusWidgetProvider : AppWidgetProvider() {
+class HabisLichWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == HabisWidgetProvider.ACTION_XONG) {
             val id = intent.getIntExtra(HabisWidgetProvider.EXTRA_ID, -1)
@@ -37,17 +37,17 @@ class HabisFocusWidgetProvider : AppWidgetProvider() {
         fun capNhatTatCa(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(
-                ComponentName(context, HabisFocusWidgetProvider::class.java),
+                ComponentName(context, HabisLichWidgetProvider::class.java),
             )
             for (id in ids) capNhatMot(context, manager, id)
         }
 
         fun capNhatMot(context: Context, manager: AppWidgetManager, id: Int) {
             val p = context.getSharedPreferences(HabisWidgetProvider.PREF, Context.MODE_PRIVATE)
-            val views = RemoteViews(context.packageName, R.layout.habis_widget_focus)
-            views.setTextViewText(R.id.wid_f_so, p.getInt(HabisWidgetProvider.K_LUA, 0).toString())
-            views.setTextViewText(R.id.wid_f_meta, HabisWidgetProvider.metaChu(p))
-            val cls = HabisFocusWidgetProvider::class.java
+            val views = RemoteViews(context.packageName, R.layout.habis_widget_lich)
+            views.setTextViewText(R.id.wid_l_so, p.getInt(HabisWidgetProvider.K_LUA, 0).toString())
+            views.setTextViewText(R.id.wid_l_meta, HabisWidgetProvider.metaChu(p))
+            val cls = HabisLichWidgetProvider::class.java
             val focus = HabisWidgetProvider.docHang(p.getString(HabisWidgetProvider.K_FOCUS, "[]"))
             HabisWidgetProvider.bindO(
                 context, views, 0, focus, fO, fGio, fTen, fXong,
@@ -77,8 +77,8 @@ class HabisFocusWidgetProvider : AppWidgetProvider() {
                 views.setViewVisibility(R.id.wid_het_v, View.GONE)
             }
             val pi = HabisWidgetProvider.homePi(context, 3)
-            views.setOnClickPendingIntent(R.id.wid_f_root, pi)
-            views.setOnClickPendingIntent(R.id.wid_f_dai, pi)
+            views.setOnClickPendingIntent(R.id.wid_l_root, pi)
+            views.setOnClickPendingIntent(R.id.wid_l_dai, pi)
             manager.updateAppWidget(id, views)
         }
     }
