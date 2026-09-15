@@ -56,25 +56,39 @@ class _ManTienDoState extends State<ManTienDo> {
             3 => goi * 30,
             _ => goi,
           };
-    return SafeArea(
-      bottom: false,
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-        children: [
-          const Text(
-            Chuoi.tienDo,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.4,
-              color: Mau.muc,
+    return Scaffold(
+      backgroundColor: Mau.giay,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(12, 8, 20, 32),
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  key: const Key('thong-ke-lui'),
+                  onPressed: () => Navigator.maybePop(context),
+                  icon: const Icon(Icons.arrow_back),
+                ),
+                const Expanded(
+                  child: Text(
+                    Chuoi.thongKe,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: Mau.muc,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            kho.dongNgay,
-            style: const TextStyle(fontSize: 15, color: Mau.mo),
-          ),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Text(
+                kho.dongNgay,
+                style: const TextStyle(fontSize: 15, color: Mau.mo),
+              ),
+            ),
           if (kho.khoaGhi)
             const Padding(
               padding: EdgeInsets.only(top: 4),
@@ -338,6 +352,7 @@ class _ManTienDoState extends State<ManTienDo> {
           const SizedBox(height: 8),
           _CotKcalHang(diem: tieu),
         ],
+        ),
       ),
     );
   }

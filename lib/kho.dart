@@ -1131,8 +1131,6 @@ class Kho extends ChangeNotifier {
 
   Future<void> xoaHabit(int id) => anKhoiDs(id);
 
-  void moTienDo() => chonTab(2);
-
   void moCaiDat() => chonTab(3);
 
   void moLich() => chonTab(1);
@@ -1144,8 +1142,6 @@ class Kho extends ChangeNotifier {
       _dongBoHangVaTuan();
       homeBan.ban();
       lichBan.ban();
-    } else if (i == 2) {
-      tienDoBan.ban();
     } else if (i == 3) {
       notifyListeners();
     }

@@ -6,7 +6,7 @@ import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
 import '../widget/the_ngay.dart';
-import 'thoi_khoa.dart';
+import 'tien_do.dart';
 import 'to_ngay.dart';
 
 class ManLich extends StatefulWidget {
@@ -73,9 +73,10 @@ class _ManLichState extends State<ManLich> {
     return [for (var i = y - 2; i <= y + 4; i++) i];
   }
 
-  void _moThoiKhoa() {
+  void _moThongKe() {
+    kho.tienDoBan.ban();
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => ManThoiKhoa(kho: kho)),
+      MaterialPageRoute<void>(builder: (_) => ManTienDo(kho: kho)),
     );
   }
 
@@ -150,7 +151,8 @@ class _ManLichState extends State<ManLich> {
                         icon: const Icon(Icons.today, color: Mau.reu),
                       ),
                     InkWell(
-                      onTap: _moThoiKhoa,
+                      key: const Key('nut-thong-ke'),
+                      onTap: _moThongKe,
                       child: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
                         child: Text(

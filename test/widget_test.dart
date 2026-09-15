@@ -5,6 +5,7 @@ import 'package:thoi_quen/chuoi.dart';
 import 'package:thoi_quen/cong_thuc.dart';
 import 'package:thoi_quen/db/database.dart';
 import 'package:thoi_quen/kho.dart';
+import 'package:thoi_quen/man/focus.dart';
 import 'package:thoi_quen/man/mot_habit.dart';
 import 'package:thoi_quen/man/them_habit.dart';
 import 'package:thoi_quen/mau.dart';
@@ -17,6 +18,13 @@ Widget _app(Kho kho) {
     theme: Mau.theme(),
     home: VoApp(kho: kho),
   );
+}
+
+Future<void> _moThongKe(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key('tab-lich')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key('nut-thong-ke')));
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -92,7 +100,7 @@ void main() {
     expect(find.textContaining('1/1'), findsOneWidget);
   });
 
-  testWidgets('bar 5 o: Hom nay Lich + Tien do Tai khoan, khong He', (tester) async {
+  testWidgets('bar 5 o: Hom nay Lich + Focus Tai khoan, khong Tien do', (tester) async {
     tester.view.physicalSize = const Size(390, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -111,21 +119,45 @@ void main() {
     );
     expect(find.text(Chuoi.homNay), findsOneWidget);
     expect(find.text(Chuoi.lich), findsOneWidget);
-    expect(find.text(Chuoi.tienDo), findsOneWidget);
+    expect(find.text(Chuoi.focus), findsOneWidget);
     expect(find.text(Chuoi.taiKhoan), findsOneWidget);
     expect(find.byIcon(Icons.add), findsOneWidget);
     expect(find.byKey(const Key('tab-hom-nay')), findsOneWidget);
     expect(find.byKey(const Key('tab-lich')), findsOneWidget);
-    expect(find.byKey(const Key('tab-tien-do')), findsOneWidget);
+    expect(find.byKey(const Key('tab-focus')), findsOneWidget);
     expect(find.byKey(const Key('tab-tai-khoan')), findsOneWidget);
+    expect(find.byKey(const Key('tab-tien-do')), findsNothing);
     expect(find.byKey(const Key('tab-he')), findsNothing);
+    expect(find.text(Chuoi.tienDo), findsNothing);
     expect(find.text('Hệ'), findsNothing);
-    expect(find.text('Focus'), findsNothing);
     expect(find.text('Dungeon'), findsNothing);
-    await tester.tap(find.byKey(const Key('tab-tien-do')));
+    await tester.tap(find.byKey(const Key('tab-focus')));
     expect(tab, 2);
     await tester.tap(find.byKey(const Key('tab-tai-khoan')));
     expect(tab, 3);
+  });
+
+  testWidgets('tab Focus placeholder chu Focus, chua form', (tester) async {
+    tester.view.physicalSize = const Size(390, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: Mau.theme(),
+        home: Scaffold(
+          body: ManFocus(kho: kho),
+          bottomNavigationBar: ThanhDay(
+            tab: 2,
+            onTab: (_) {},
+            onCong: () {},
+          ),
+        ),
+      ),
+    );
+    expect(find.byKey(const Key('man-focus')), findsOneWidget);
+    expect(find.text(Chuoi.focus), findsWidgets);
+    expect(find.text(Chuoi.luu), findsNothing);
+    expect(find.text(Chuoi.themThoiQuen), findsNothing);
   });
 
   testWidgets('chip tap lien tiep khong nhan ban ten', (tester) async {
@@ -170,8 +202,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(kho.canMoi, isNotNull);
-    await tester.tap(find.text(Chuoi.tienDo));
-    await tester.pumpAndSettle();
+    await _moThongKe(tester);
     expect(find.text(Chuoi.banDau), findsOneWidget);
     expect(find.text(Chuoi.hienTai), findsOneWidget);
     expect(find.text('Ghi thêm cân để thấy đường'), findsNothing);
@@ -344,14 +375,15 @@ void main() {
     await kho.themPreset(ten: Chuoi.day6Gio);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(Chuoi.tienDo));
-    await tester.pumpAndSettle();
+    await _moThongKe(tester);
     await tester.tap(find.byKey(const Key('phin-habit-1')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('T2').first);
     await tester.pumpAndSettle();
     await tester.pumpAndSettle();
     expect(kho.selected, DateTime(2026, 8, 24));
+    await tester.tap(find.byKey(const Key('thong-ke-lui')));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.homNay));
     await tester.pumpAndSettle();
     expect(find.text('Thứ Hai, 24 tháng 8 2026'), findsOneWidget);
@@ -540,8 +572,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(kho.canMoi!.kg, closeTo(126.5, 0.01));
     expect(kho.dsCan.length, 1);
-    await tester.tap(find.text(Chuoi.tienDo));
-    await tester.pumpAndSettle();
+    await _moThongKe(tester);
     expect(find.byKey(const Key('duong-can')), findsOneWidget);
   });
 
@@ -610,8 +641,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(Chuoi.tienDo));
-    await tester.pumpAndSettle();
+    await _moThongKe(tester);
     expect(find.text(Chuoi.tieuVongNgay), findsOneWidget);
     expect(find.textContaining('đã tick'), findsOneWidget);
     await tester.tap(find.byKey(const Key('phin-habit-1')));
@@ -808,8 +838,7 @@ void main() {
     await kho.ghiCanKg(100);
     expect(kho.hienTaiKg, '100');
     expect(kho.bmiTheoCan.last.$2, isNot(bmi1));
-    await tester.tap(find.text(Chuoi.tienDo));
-    await tester.pumpAndSettle();
+    await _moThongKe(tester);
     expect(find.text(Chuoi.xemBaoCao), findsNothing);
     expect(find.byKey(const Key('duong-bmi')), findsOneWidget);
     expect(find.byKey(const Key('duong-nap')), findsOneWidget);

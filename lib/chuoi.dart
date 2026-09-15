@@ -15,6 +15,7 @@ abstract final class Chuoi {
   static const tienDo = 'Tiến độ';
   static const caiDat = 'Cài đặt';
   static const taiKhoan = 'Tài khoản';
+  static const focus = 'Focus';
   static const hetViecHomNay = 'Hết việc hôm nay';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';

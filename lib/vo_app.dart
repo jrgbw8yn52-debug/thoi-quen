@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 
 import 'kho.dart';
 import 'man/cai_dat.dart';
+import 'man/focus.dart';
 import 'man/hom_nay.dart';
 import 'man/lich.dart';
 import 'man/luoi_ghi.dart';
-import 'man/tien_do.dart';
 import 'mau.dart';
 import 'widget/thanh_day.dart';
 
@@ -37,7 +37,7 @@ class VoApp extends StatelessWidget {
   }
 }
 
-/// Giữ instance tab. Tick Home không rebuild Lịch / Tiến độ.
+/// Giữ instance tab. Tick Home không rebuild Lịch / Focus.
 class _ThanMay extends StatefulWidget {
   const _ThanMay({required this.kho});
 
@@ -58,7 +58,7 @@ class _ThanMayState extends State<_ThanMay> {
     _man = [
       ManHomNay(kho: kho),
       ManLich(kho: kho),
-      ManTienDo(kho: kho),
+      ManFocus(kho: kho),
       ManTaiKhoan(kho: kho),
     ];
     kho.tabBan.addListener(_veTab);
