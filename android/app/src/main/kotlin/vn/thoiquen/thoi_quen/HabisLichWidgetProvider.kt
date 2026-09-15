@@ -46,7 +46,7 @@ class HabisLichWidgetProvider : AppWidgetProvider() {
             val p = context.getSharedPreferences(HabisWidgetProvider.PREF, Context.MODE_PRIVATE)
             val views = RemoteViews(context.packageName, R.layout.habis_widget_lich)
             views.setTextViewText(R.id.wid_l_so, p.getInt(HabisWidgetProvider.K_LUA, 0).toString())
-            views.setTextViewText(R.id.wid_l_meta, HabisWidgetProvider.metaChu(p))
+            ganMeta(views, p)
             val cls = HabisLichWidgetProvider::class.java
             val focus = HabisWidgetProvider.docHang(p.getString(HabisWidgetProvider.K_FOCUS, "[]"))
             HabisWidgetProvider.bindO(
@@ -81,5 +81,25 @@ class HabisLichWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.wid_l_dai, pi)
             manager.updateAppWidget(id, views)
         }
+
+        /// Ngày · n/m bên trái (được cắt). a/b kcal wrap, không cắt giữa số.
+        internal fun ganMeta(views: RemoteViews, p: android.content.SharedPreferences) {
+            val ngay = p.getString(HabisWidgetProvider.K_NGAY, "") ?: ""
+            val nm = p.getString(HabisWidgetProvider.K_HABIT_NM, "0/0") ?: "0/0"
+            views.setTextViewText(
+                R.id.wid_l_meta,
+                if (ngay.isEmpty()) nm else "$ngay · $nm",
+            )
+            val kcal = gonKcal(p.getString(HabisWidgetProvider.K_KCAL, "") ?: "")
+            if (kcal.isEmpty()) {
+                views.setViewVisibility(R.id.wid_l_kcal, View.GONE)
+            } else {
+                views.setViewVisibility(R.id.wid_l_kcal, View.VISIBLE)
+                views.setTextViewText(R.id.wid_l_kcal, " · $kcal")
+            }
+        }
+
+        /** «2425 / 2600 kcal» → «2425/2600 kcal» — số không bị cắt giữa. */
+        internal fun gonKcal(raw: String): String = raw.replace(" / ", "/").trim()
     }
 }
