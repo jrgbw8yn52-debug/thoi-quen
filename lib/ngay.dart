@@ -90,6 +90,89 @@ abstract final class Ngay {
     }
   }
 
+  /// Cuối kỳ inclusive theo lịch thật (tháng 28–31).
+  /// 0 tuần = tu+6; 1 tháng = ngày cuối tháng; 2 = cuối tháng+5; 3 = cuối tháng+11.
+  static DateTime cuoiKy(DateTime tu, int phin) {
+    final a = cat(tu);
+    switch (phin) {
+      case 1:
+        return DateTime(a.year, a.month, soNgayThang(a.year, a.month));
+      case 2:
+        final c = congThang(dauThang(a), 5);
+        return DateTime(c.year, c.month, soNgayThang(c.year, c.month));
+      case 3:
+        final c = congThang(dauThang(a), 11);
+        return DateTime(c.year, c.month, soNgayThang(c.year, c.month));
+      default:
+        return a.add(const Duration(days: 6));
+    }
+  }
+
+  static DateTime dauKyHomNay(DateTime hom, int phin) {
+    final h = cat(hom);
+    switch (phin) {
+      case 1:
+        return dauThang(h);
+      case 2:
+        return dauThang(congThang(h, -5));
+      case 3:
+        return DateTime(h.year, 1, 1);
+      default:
+        return thuHai(h);
+    }
+  }
+
+  static DateTime snapTu(DateTime d, int phin) {
+    if (phin == 0) return cat(d);
+    return dauThang(d);
+  }
+
+  /// Mốc trục: tuần = ngày; tháng = thứ Hai tuần; 6 tháng/năm = mùng 1.
+  static List<DateTime> mocKy(DateTime tu, DateTime den, int phin) {
+    final a = cat(tu);
+    final b = cat(den);
+    if (phin == 0) return cacNgayKhoang(a, b);
+    if (phin == 1) {
+      var t = thuHai(a);
+      final out = <DateTime>[];
+      while (!t.isAfter(b)) {
+        out.add(t);
+        t = t.add(const Duration(days: 7));
+      }
+      return out;
+    }
+    var m = dauThang(a);
+    final out = <DateTime>[];
+    while (!m.isAfter(b)) {
+      out.add(m);
+      m = congThang(m, 1);
+    }
+    return out;
+  }
+
+  static (DateTime, DateTime) bienMoc(
+    DateTime moc,
+    int phin,
+    DateTime tu,
+    DateTime den,
+  ) {
+    final a0 = cat(tu);
+    final b0 = cat(den);
+    final m = cat(moc);
+    if (phin == 0) {
+      final x = m.isBefore(a0) ? a0 : (m.isAfter(b0) ? b0 : m);
+      return (x, x);
+    }
+    if (phin == 1) {
+      final a = m.isBefore(a0) ? a0 : m;
+      final cuoi = m.add(const Duration(days: 6));
+      return (a, cuoi.isAfter(b0) ? b0 : cuoi);
+    }
+    final a = m.isBefore(a0) ? a0 : m;
+    final last = DateTime(m.year, m.month, soNgayThang(m.year, m.month));
+    return (a, last.isAfter(b0) ? b0 : last);
+  }
+
   static List<DateTime> cacNgayKhoang(DateTime a, DateTime b) {
     final out = <DateTime>[];
     var d = cat(a);

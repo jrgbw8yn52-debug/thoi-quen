@@ -101,6 +101,35 @@ class CotThang {
   double get phan => tong == 0 ? 0 : tick / tong;
 }
 
+class BangKy {
+  const BangKy({
+    required this.tu,
+    required this.den,
+    required this.nTick,
+    required this.mHabit,
+    required this.tbNap,
+    required this.tbDot,
+    required this.deltaCan,
+    required this.thieuCanKy,
+    required this.thieuTap3,
+  });
+
+  final DateTime tu;
+  final DateTime den;
+  final int nTick;
+  final int mHabit;
+  final int? tbNap;
+  final int? tbDot;
+  final double? deltaCan;
+  final bool thieuCanKy;
+  final bool thieuTap3;
+
+  int get phanTram {
+    if (mHabit == 0) return 0;
+    return ((nTick / mHabit) * 100).round();
+  }
+}
+
 class ChuaTick {
   const ChuaTick({required this.ten, required this.so});
 
@@ -724,6 +753,149 @@ class Kho extends ChangeNotifier {
     final a = Ngay.cat(tu ?? homNay);
     final b = Ngay.cuoiKhoang(a, phin);
     return _tickKhoang(a, b);
+  }
+
+  DateTime _clipDen(DateTime den) => den.isAfter(homNay) ? homNay : den;
+
+  bool _coNapNgay(DateTime d) =>
+      logNgay(d).isNotEmpty || napCua(d) != null;
+
+  BangKy bangKy(int phin, DateTime tu) {
+    final a = Ngay.cat(tu);
+    final b = Ngay.cuoiKy(a, phin);
+    final nm = _tickKhoang(a, b);
+    var nap = 0.0;
+    var nNap = 0;
+    var dot = 0.0;
+    var nDot = 0;
+    var d = a;
+    final end = Ngay.cat(b);
+    while (!d.isAfter(end)) {
+      if (!Ngay.sau(d, homNay)) {
+        if (_coNapNgay(d)) {
+          nap += kcalNapCuaNgay(d);
+          nNap++;
+        }
+        if (tapNgay(d).isNotEmpty) {
+          dot += kcalTapCuaNgay(d);
+          nDot++;
+        }
+      }
+      d = d.add(const Duration(days: 1));
+    }
+    final trong = <WeighIn>[
+      for (final c in dsCan)
+        if (!Ngay.parse(c.ngay).isBefore(a) &&
+            !Ngay.parse(c.ngay).isAfter(b) &&
+            !Ngay.sau(Ngay.parse(c.ngay), homNay))
+          c,
+    ]..sort((x, y) => x.ngay.compareTo(y.ngay));
+    double? delta;
+    if (trong.length >= 2) {
+      delta = trong.last.kg - trong.first.kg;
+    }
+    return BangKy(
+      tu: a,
+      den: b,
+      nTick: nm.$1,
+      mHabit: nm.$2,
+      tbNap: nNap == 0 ? null : (nap / nNap).round(),
+      tbDot: nDot == 0 ? null : (dot / nDot).round(),
+      deltaCan: delta,
+      thieuCanKy: trong.isEmpty,
+      thieuTap3: _thieuTap3(a, b),
+    );
+  }
+
+  bool _thieuTap3(DateTime tu, DateTime den) {
+    final end = _clipDen(den);
+    if (end.isBefore(tu)) return false;
+    var n = 0;
+    var d = end;
+    while (!d.isBefore(tu) && n < 3) {
+      if (tapNgay(d).isNotEmpty) return false;
+      n++;
+      d = d.subtract(const Duration(days: 1));
+    }
+    return n >= 3;
+  }
+
+  List<CotThang> cotHabitKy(int phin, DateTime tu) {
+    final a = Ngay.cat(tu);
+    final b = Ngay.cuoiKy(a, phin);
+    return [
+      for (final m in Ngay.mocKy(a, b, phin))
+        () {
+          final bien = Ngay.bienMoc(m, phin, a, b);
+          final r = _tickKhoang(bien.$1, bien.$2);
+          return CotThang(
+            ngay: m,
+            tick: r.$1,
+            tong: r.$2,
+            dangXem: phin == 0
+                ? Ngay.cungNgay(m, selected)
+                : (phin == 1
+                    ? Ngay.cungNgay(Ngay.thuHai(selected), m)
+                    : Ngay.cungThang(m, selected)),
+            tuongLai: Ngay.sau(m, homNay),
+          );
+        }(),
+    ];
+  }
+
+  List<(DateTime, int)> diemKcalKy(
+    int phin,
+    DateTime tu,
+    int Function(DateTime) cua,
+  ) {
+    final a = Ngay.cat(tu);
+    final b = Ngay.cuoiKy(a, phin);
+    return [
+      for (final m in Ngay.mocKy(a, b, phin))
+        () {
+          final bien = Ngay.bienMoc(m, phin, a, b);
+          final clip = bien.$2.isAfter(homNay) ? homNay : bien.$2;
+          if (clip.isBefore(bien.$1)) return (m, 0);
+          return (m, _kcalKhoangFn(bien.$1, clip, cua));
+        }(),
+    ];
+  }
+
+  List<(DateTime, double)> diemCanKy(int phin, DateTime tu) {
+    final a = Ngay.cat(tu);
+    final b = Ngay.cuoiKy(a, phin);
+    if (phin == 0) {
+      return [
+        for (final c in dsCan)
+          if (!Ngay.parse(c.ngay).isBefore(a) &&
+              !Ngay.parse(c.ngay).isAfter(b) &&
+              !Ngay.sau(Ngay.parse(c.ngay), homNay))
+            (Ngay.parse(c.ngay), c.kg),
+      ]..sort((x, y) => x.$1.compareTo(y.$1));
+    }
+    final out = <(DateTime, double)>[];
+    for (final m in Ngay.mocKy(a, b, phin)) {
+      final bien = Ngay.bienMoc(m, phin, a, b);
+      WeighIn? chon;
+      for (final c in dsCan) {
+        final d = Ngay.parse(c.ngay);
+        if (d.isBefore(bien.$1) || d.isAfter(bien.$2) || Ngay.sau(d, homNay)) {
+          continue;
+        }
+        if (chon == null || d.isAfter(Ngay.parse(chon.ngay))) chon = c;
+      }
+      if (chon != null) out.add((m, chon.kg));
+    }
+    return out;
+  }
+
+  List<(DateTime, double)> diemBmiKy(int phin, DateTime tu) {
+    final out = <(DateTime, double)>[];
+    for (final d in diemCanKy(phin, tu)) {
+      final b = CongThuc.bmi(d.$2, heightCm);
+      if (b != null) out.add((d.$1, b));
+    }
+    return out;
   }
 
   List<ChuaTick> chuaTick({required int phin, DateTime? tu}) {

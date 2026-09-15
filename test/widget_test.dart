@@ -376,8 +376,6 @@ void main() {
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
     await _moThongKe(tester);
-    await tester.tap(find.byKey(const Key('phin-habit-1')));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('T2').first);
     await tester.pumpAndSettle();
     await tester.pumpAndSettle();
@@ -642,12 +640,12 @@ void main() {
     await tester.pumpWidget(_app(kho));
     await tester.pumpAndSettle();
     await _moThongKe(tester);
-    expect(find.text(Chuoi.tieuVongNgay), findsOneWidget);
-    expect(find.textContaining('đã tick'), findsOneWidget);
+    expect(find.text(Chuoi.thoiQuen), findsWidgets);
+    expect(find.textContaining('đã tick'), findsNothing);
+    expect(find.textContaining('Hoàn thành'), findsOneWidget);
     await tester.tap(find.byKey(const Key('phin-habit-1')));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.tieuVongTuan), findsOneWidget);
-    expect(find.text(Chuoi.hoanThanhTheoThu), findsOneWidget);
+    expect(find.text(Chuoi.thangNhan), findsWidgets);
     expect(find.text(Chuoi.canNang), findsWidgets);
   });
 

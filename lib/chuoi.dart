@@ -216,6 +216,12 @@ abstract final class Chuoi {
   static const doi = 'Đổi';
   static const phinNgay = 'Ngày';
   static const namNhan = 'Năm';
+  static const tbNapNhan = 'TB nạp';
+  static const tbDotNhan = 'TB đốt';
+  static const deltaCanNhan = 'Δ cân';
+  static const pctHabitNhan = '% habit';
+  static const goiYNhan = 'Gợi ý';
+  static const ghiCanNut = 'Ghi cân';
   static const baoCao = 'Báo cáo';
   static const hoanThanhTheoThu = 'Hoàn thành theo thứ';
   static const hoanThanhTheoNgay = 'Hoàn thành theo ngày';
@@ -348,6 +354,43 @@ abstract final class Chuoi {
   static String nTrenM(int n, int m) => '$n/$m';
 
   static String daTick(int n, int m) => '$n/$m đã tick';
+
+  static String khoangNgay(DateTime a, DateTime b) {
+    if (a.year == b.year && a.month == b.month && a.day == b.day) {
+      return '${a.day}/${a.month}';
+    }
+    if (a.year == b.year) {
+      return '${a.day}/${a.month}–${b.day}/${b.month}';
+    }
+    return '${a.day}/${a.month}/${a.year}–${b.day}/${b.month}/${b.year}';
+  }
+
+  static String tieuChart(String ten, String so, DateTime a, DateTime b) =>
+      '$ten $so · ${khoangNgay(a, b)}';
+
+  static String conXKg(String? n) => n == null ? 'Còn — kg' : 'Còn $n kg';
+
+  static String goiYKcalPct(int? kcal, int? pct) {
+    if (kcal == null) return '$goiYNhan —';
+    if (pct == null) return '$goiYNhan $kcal kcal';
+    return '$goiYNhan $kcal kcal · $pct% TDEE';
+  }
+
+  static String damGoiNap(int? goi, int nap) {
+    if (goi == null) return 'Đạm — / ${nap}g';
+    return 'Đạm $goi / ${nap}g';
+  }
+
+  static String theKyPct(int p) => '$pctHabitNhan $p%';
+
+  static String theTbNap(int? v) =>
+      v == null ? '$tbNapNhan —' : '$tbNapNhan $v kcal';
+
+  static String theTbDot(int? v) =>
+      v == null ? '$tbDotNhan —' : '$tbDotNhan $v kcal';
+
+  static String theDeltaCan(String? n) =>
+      n == null ? '$deltaCanNhan —' : '$deltaCanNhan $n kg';
 
   static String tieuVong(int phin) {
     switch (phin) {
