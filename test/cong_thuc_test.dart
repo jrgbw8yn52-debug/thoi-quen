@@ -72,9 +72,55 @@ void main() {
     expect(CongThuc.nhipDong(null, 70, 0.5), isNull);
   });
 
-  test('kcal goi y TDEE tru nhip, lam tron 10', () {
-    expect(CongThuc.kcalGoiY(tdee: 2000, nhip: 0.5, kg: 72, target: 70), 1450);
-    expect(CongThuc.kcalGoiY(tdee: null, nhip: 0.5), isNull);
+  test('kcal goi y giam theo BMI, duy tri/tang = TDEE, san nam/nu', () {
+    expect(CongThuc.kcalGoiY(tdee: null), isNull);
+    expect(
+      CongThuc.kcalGoiY(tdee: 2000, kg: 70, target: 70, bmi: 24, sex: 'nam'),
+      2000,
+    );
+    expect(
+      CongThuc.kcalGoiY(tdee: 2000, kg: 60, target: 70, bmi: 20, sex: 'nam'),
+      2000,
+    );
+    expect(
+      CongThuc.kcalGoiY(tdee: 2000, kg: 62, target: 58, bmi: 22, sex: 'nu'),
+      1800,
+    );
+    expect(
+      CongThuc.kcalGoiY(tdee: 2000, kg: 70, target: 65, bmi: 24, sex: 'nam'),
+      1700,
+    );
+    expect(
+      CongThuc.kcalGoiY(tdee: 2000, kg: 80, target: 70, bmi: 28, sex: 'nam'),
+      1600,
+    );
+    expect(
+      CongThuc.kcalGoiY(tdee: 2000, kg: 95, target: 85, bmi: 33, sex: 'nam'),
+      1500,
+    );
+    expect(
+      CongThuc.kcalGoiY(tdee: 2000, kg: 90, target: 70, bmi: 24, sex: 'nu'),
+      1600,
+    );
+    expect(
+      CongThuc.kcalGoiY(tdee: 2000, kg: 100, target: 80, bmi: 33, sex: 'nam'),
+      1500,
+    );
+    expect(
+      CongThuc.kcalGoiY(tdee: 1400, kg: 90, target: 70, bmi: 33, sex: 'nu'),
+      1200,
+    );
+    expect(
+      CongThuc.kcalGoiY(tdee: 1800, kg: 100, target: 80, bmi: 33, sex: 'nam'),
+      1500,
+    );
+    expect(CongThuc.heSoGiamCan(bmi: 22, kg: 62, target: 58), 0.90);
+    expect(CongThuc.heSoGiamCan(bmi: 24, kg: 70, target: 65), 0.85);
+    expect(CongThuc.heSoGiamCan(bmi: 28, kg: 80, target: 70), 0.80);
+    expect(CongThuc.heSoGiamCan(bmi: 33, kg: 95, target: 85), 0.75);
+    expect(CongThuc.heSoGiamCan(bmi: 24, kg: 90, target: 70), 0.80);
+    expect(CongThuc.heSoGiamCan(bmi: 33, kg: 100, target: 80), 0.75);
+    expect(CongThuc.phanTramTdee(1700, 2000), 85);
   });
 
   test('he so dau phay Viet', () {

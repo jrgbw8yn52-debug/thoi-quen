@@ -5,6 +5,10 @@ abstract final class CongThuc {
   static const mocA185 = 18.5;
   static const mocA23 = 23.0;
   static const mocA275 = 27.5;
+  static const mocA325 = 32.5;
+  static const sanKcalNam = 1500;
+  static const sanKcalNu = 1200;
+  static const hsGiamToiThieu = 0.75;
 
   static const heSo = [1.2, 1.375, 1.55, 1.725, 1.9];
   static const metDiBo = 3.5;
@@ -86,17 +90,45 @@ abstract final class CongThuc {
 
   static int? kcalGoiY({
     required double? tdee,
-    required double nhip,
     double? kg,
     double? target,
+    double? bmi,
+    String? sex,
   }) {
     if (tdee == null) return null;
-    final delta = nhip * 7700 / 7;
-    var v = tdee - delta;
-    if (kg != null && target != null && target - kg > 0.05) {
-      v = tdee + delta;
+    if (kg == null || target == null || bmi == null || kg - target <= 0.05) {
+      return tdee.round();
     }
-    return (v / 10).round() * 10;
+    final hs = heSoGiamCan(bmi: bmi, kg: kg, target: target);
+    var v = tdee * hs;
+    final san = sex == 'nam' ? sanKcalNam : sanKcalNu;
+    if (v < san) v = san.toDouble();
+    return v.round();
+  }
+
+  /// Hệ số nạp khi giảm cân. Thâm hụt thêm 5% nếu (cân − đích) ≥ 15 kg, nắp 25%.
+  static double heSoGiamCan({
+    required double bmi,
+    required double kg,
+    required double target,
+  }) {
+    var hs = bmi < mocA23
+        ? 0.90
+        : bmi < mocA275
+            ? 0.85
+            : bmi < mocA325
+                ? 0.80
+                : 0.75;
+    if (kg - target >= 15) {
+      hs = hs <= 0.75 ? 0.75 : hs - 0.05;
+      hs = (hs * 100).round() / 100;
+    }
+    return hs;
+  }
+
+  static int? phanTramTdee(int? goi, double? tdee) {
+    if (goi == null || tdee == null || tdee <= 0) return null;
+    return ((goi / tdee) * 100).round();
   }
 
   static int? tuoi(String? dobIso, DateTime homNay) {

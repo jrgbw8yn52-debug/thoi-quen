@@ -182,6 +182,7 @@ class _ManGhiNapState extends State<ManGhiNap> {
                 VongKcalNgay(
                   nap: nap,
                   goi: goi,
+                  tdee: tdee,
                   tieu: tieu,
                   dam: mac.dam,
                   bot: mac.bot,

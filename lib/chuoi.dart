@@ -389,9 +389,17 @@ abstract final class Chuoi {
   static String soVoiBanDauDong(double delta, int soNgay) =>
       '$soVoiBanDau: ${doiCm(delta, soNgay)}';
 
-  static String goiYTdee(int goi, int tdee) => 'Gợi ý $goi kcal · TDEE $tdee';
+  static String goiYTdee(int goi, int tdee) {
+    final p = ((goi / tdee) * 100).round();
+    return 'Gợi ý $goi kcal · TDEE $tdee · $p%';
+  }
 
-  static String tdeeGoiY(int tdee, int goi) => 'TDEE $tdee · Gợi ý $goi';
+  static String tdeeGoiY(int tdee, int goi) {
+    final p = ((goi / tdee) * 100).round();
+    return 'TDEE $tdee · Gợi ý $goi · $p%';
+  }
+
+  static String phanTramTdee(int p) => '$p% TDEE';
 
   static String docNKcal(int n) => 'Đọc $n kcal';
 

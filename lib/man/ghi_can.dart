@@ -75,9 +75,10 @@ class _ManGhiCanState extends State<ManGhiCan> {
     final mo = CongThuc.moDeurenberg(bmi: bmi, tuoi: tuoi, sex: kho.sex);
     final goi = CongThuc.kcalGoiY(
       tdee: tdee,
-      nhip: kho.nhipKg,
       kg: kg,
       target: kho.targetKg,
+      bmi: bmi,
+      sex: kho.sex,
     );
     return Scaffold(
       backgroundColor: Mau.giay,
@@ -172,7 +173,14 @@ class _ManGhiCanState extends State<ManGhiCan> {
               ),
               _HangSo(nhan: Chuoi.bmr, giaTri: '${bmr.round()}'),
               _HangSo(nhan: Chuoi.tdee, giaTri: '${tdee.round()}', phu: Chuoi.saiSo),
-              if (goi != null) _HangSo(nhan: Chuoi.kcalGoiY, giaTri: '$goi'),
+              if (goi != null)
+                _HangSo(
+                  nhan: Chuoi.kcalGoiY,
+                  giaTri: '$goi',
+                  phu: Chuoi.phanTramTdee(
+                    CongThuc.phanTramTdee(goi, tdee) ?? 0,
+                  ),
+                ),
             ] else
               Text(
                 kg == null ? Chuoi.themCan : Chuoi.thieuDuLieu,

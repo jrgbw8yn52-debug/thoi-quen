@@ -17,6 +17,7 @@ class VongKcalNgay extends StatelessWidget {
     required this.bot,
     required this.beo,
     this.tieu = 0,
+    this.tdee,
   });
 
   final int nap;
@@ -25,6 +26,7 @@ class VongKcalNgay extends StatelessWidget {
   final double bot;
   final double beo;
   final int tieu;
+  final double? tdee;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +87,14 @@ class VongKcalNgay extends StatelessWidget {
           Row(
             children: [
               _So3(nhan: Chuoi.nap, gia: '$nap', key: const Key('so-nap')),
-              _So3(nhan: Chuoi.goiY, gia: goi == null ? '—' : '$goi', key: const Key('so-goi')),
+              _So3(
+                nhan: Chuoi.goiY,
+                gia: goi == null ? '—' : '$goi',
+                phu: CongThuc.phanTramTdee(goi, tdee) == null
+                    ? null
+                    : Chuoi.phanTramTdee(CongThuc.phanTramTdee(goi, tdee)!),
+                key: const Key('so-goi'),
+              ),
               _So3(nhan: Chuoi.tieuThu, gia: '$tieu', key: const Key('so-tieu')),
             ],
           ),
@@ -188,10 +197,11 @@ class ThanhMacro extends StatelessWidget {
 }
 
 class _So3 extends StatelessWidget {
-  const _So3({super.key, required this.nhan, required this.gia});
+  const _So3({super.key, required this.nhan, required this.gia, this.phu});
 
   final String nhan;
   final String gia;
+  final String? phu;
 
   @override
   Widget build(BuildContext context) {
@@ -208,6 +218,14 @@ class _So3 extends StatelessWidget {
               color: Mau.muc,
             ),
           ),
+          if (phu != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                phu!,
+                style: const TextStyle(fontSize: 11, color: Mau.mo),
+              ),
+            ),
         ],
       ),
     );

@@ -340,10 +340,14 @@ class Kho extends ChangeNotifier {
 
   int? get kcalGoiYDoc => CongThuc.kcalGoiY(
         tdee: tdeeDoc,
-        nhip: nhipKg,
         kg: canMoi?.kg,
         target: targetKg,
+        bmi: bmiDoc,
+        sex: sex,
       );
+
+  int? get phanTramTdeeDoc =>
+      CongThuc.phanTramTdee(kcalGoiYDoc, tdeeDoc);
 
   String? get daDoiDoc {
     if (dsCan.length < 2) return null;
