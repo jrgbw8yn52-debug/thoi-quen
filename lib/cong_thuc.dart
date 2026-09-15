@@ -32,10 +32,15 @@ abstract final class CongThuc {
   static const loaiNhayDay = 'nhay_day';
   static const loaiGianCo = 'gian_co';
 
-  /// Macro chuẩn từ kcal gợi ý: đạm 30% · bột 40% · béo 30%.
+  /// Protein g/kg_ref. Phần kcal còn: bột 55% · béo 45%.
   static const tyLeDam = 0.30;
   static const tyLeBot = 0.40;
   static const tyLeBeo = 0.30;
+  static const tyLeBotCon = 0.55;
+  static const tyLeBeoCon = 0.45;
+  static const sanProtein = 80;
+  static const tranProtein = 200;
+  static const bmiKgRef = 22.0;
 
   static const mon = [
     (loai: loaiDiBo, met: metDiBo),
@@ -129,6 +134,65 @@ abstract final class CongThuc {
   static int? phanTramTdee(int? goi, double? tdee) {
     if (goi == null || tdee == null || tdee <= 0) return null;
     return ((goi / tdee) * 100).round();
+  }
+
+  static int? phanTramThamHut(int? goi, double? tdee) {
+    if (goi == null || tdee == null || tdee <= 0) return null;
+    final p = ((1 - goi / tdee) * 100).round();
+    return p < 0 ? 0 : p;
+  }
+
+  static MucTieuCan mucTieuCan({double? kg, double? target}) {
+    if (kg == null || target == null) return MucTieuCan.duyTri;
+    if (kg - target > 0.05) return MucTieuCan.giam;
+    if (target - kg > 0.05) return MucTieuCan.tang;
+    return MucTieuCan.duyTri;
+  }
+
+  static double? kgRef({
+    required MucTieuCan muc,
+    double? kg,
+    double? target,
+    double? cm,
+  }) {
+    if (muc == MucTieuCan.giam) {
+      if (target != null && target > 0) return target;
+      if (cm != null && cm > 0) {
+        final m = cm / 100.0;
+        return bmiKgRef * m * m;
+      }
+      return null;
+    }
+    if (kg == null || kg <= 0) return null;
+    return kg;
+  }
+
+  static double heSoProtein({required MucTieuCan muc, double? bmi}) {
+    switch (muc) {
+      case MucTieuCan.duyTri:
+        return 1.6;
+      case MucTieuCan.tang:
+        return 1.8;
+      case MucTieuCan.giam:
+        if (bmi == null || bmi < mocA23) return 1.8;
+        if (bmi < mocA325) return 2.0;
+        return 2.2;
+    }
+  }
+
+  static int? proteinG({
+    double? kg,
+    double? target,
+    double? bmi,
+    double? cm,
+  }) {
+    final muc = mucTieuCan(kg: kg, target: target);
+    final ref = kgRef(muc: muc, kg: kg, target: target, cm: cm);
+    if (ref == null) return null;
+    var g = (heSoProtein(muc: muc, bmi: bmi) * ref).round();
+    if (g < sanProtein) g = sanProtein;
+    if (g > tranProtein) g = tranProtein;
+    return g;
   }
 
   static int? tuoi(String? dobIso, DateTime homNay) {
@@ -355,12 +419,23 @@ abstract final class CongThuc {
     );
   }
 
-  /// Hạn macro (g) từ kcal gợi ý, tỷ lệ 30/40/30.
-  static ({double dam, double bot, double beo}) hanMacro(int kcal) {
+  /// Hạn macro: protein theo BMI × kg_ref; phần kcal còn C 55% / F 45%.
+  static ({double dam, double bot, double beo})? hanMacro({
+    required int? kcal,
+    double? kg,
+    double? target,
+    double? bmi,
+    double? cm,
+  }) {
+    if (kcal == null) return null;
+    final p = proteinG(kg: kg, target: target, bmi: bmi, cm: cm);
+    if (p == null) return null;
+    var con = kcal - p * 4;
+    if (con < 0) con = 0;
     return (
-      dam: motSo(kcal * tyLeDam / 4),
-      bot: motSo(kcal * tyLeBot / 4),
-      beo: motSo(kcal * tyLeBeo / 9),
+      dam: p.toDouble(),
+      bot: motSo(con * tyLeBotCon / 4),
+      beo: motSo(con * tyLeBeoCon / 9),
     );
   }
 
@@ -392,6 +467,8 @@ class LuaTap {
 }
 
 enum NhanNap { vuot, dung, hoiThap, quaThap }
+
+enum MucTieuCan { giam, duyTri, tang }
 
 class DocMon {
   const DocMon({this.ten, this.gram, this.kcal, this.dam, this.bot, this.beo});

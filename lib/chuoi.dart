@@ -389,17 +389,28 @@ abstract final class Chuoi {
   static String soVoiBanDauDong(double delta, int soNgay) =>
       '$soVoiBanDau: ${doiCm(delta, soNgay)}';
 
-  static String goiYTdee(int goi, int tdee) {
-    final p = ((goi / tdee) * 100).round();
-    return 'Gợi ý $goi kcal · TDEE $tdee · $p%';
+  static String goiYTdee(int goi, int tdee, {int? thamHut}) {
+    final dong = thamHut == null ? '' : ' · ${thamHutTdee(thamHut)}';
+    return 'Gợi ý $goi kcal · TDEE $tdee$dong';
   }
 
-  static String tdeeGoiY(int tdee, int goi) {
-    final p = ((goi / tdee) * 100).round();
-    return 'TDEE $tdee · Gợi ý $goi · $p%';
+  static String tdeeGoiY(
+    int tdee,
+    int goi, {
+    int? thamHut,
+    ({double dam, double bot, double beo})? pcf,
+  }) {
+    final dongHut = thamHut == null ? '' : ' · ${thamHutTdee(thamHut)}';
+    final dongPcf = pcf == null ? '' : ' · ${pcfChu(pcf.dam, pcf.bot, pcf.beo)}';
+    return 'TDEE $tdee · Gợi ý $goi$dongHut$dongPcf';
   }
 
   static String phanTramTdee(int p) => '$p% TDEE';
+
+  static String thamHutTdee(int p) => '−$p% TDEE';
+
+  static String pcfChu(double p, double c, double f) =>
+      'P ${So.kg(p)} · C ${So.kg(c)} · F ${So.kg(f)}';
 
   static String docNKcal(int n) => 'Đọc $n kcal';
 

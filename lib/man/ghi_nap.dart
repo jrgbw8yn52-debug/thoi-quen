@@ -135,7 +135,12 @@ class _ManGhiNapState extends State<ManGhiNap> {
                 const SizedBox(height: 12),
                 if (goi != null && tdee != null)
                   Text(
-                    Chuoi.tdeeGoiY(tdee.round(), goi),
+                    Chuoi.tdeeGoiY(
+                      tdee.round(),
+                      goi,
+                      thamHut: kho.phanTramThamHutDoc,
+                      pcf: kho.hanMacroDoc,
+                    ),
                     style: const TextStyle(fontSize: 15, color: Mau.mo),
                   ),
                 const SizedBox(height: 16),
@@ -182,8 +187,9 @@ class _ManGhiNapState extends State<ManGhiNap> {
                 VongKcalNgay(
                   nap: nap,
                   goi: goi,
-                  tdee: tdee,
                   tieu: tieu,
+                  han: kho.hanMacroDoc,
+                  thamHut: kho.phanTramThamHutDoc,
                   dam: mac.dam,
                   bot: mac.bot,
                   beo: mac.beo,

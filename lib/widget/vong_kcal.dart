@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../chuoi.dart';
-import '../cong_thuc.dart';
 import '../mau.dart';
 import '../so.dart';
 
@@ -17,7 +16,8 @@ class VongKcalNgay extends StatelessWidget {
     required this.bot,
     required this.beo,
     this.tieu = 0,
-    this.tdee,
+    this.han,
+    this.thamHut,
   });
 
   final int nap;
@@ -26,11 +26,12 @@ class VongKcalNgay extends StatelessWidget {
   final double bot;
   final double beo;
   final int tieu;
-  final double? tdee;
+  final ({double dam, double bot, double beo})? han;
+  final int? thamHut;
 
   @override
   Widget build(BuildContext context) {
-    final han = goi == null ? null : CongThuc.hanMacro(goi!);
+    final han = this.han;
     final con = goi == null ? null : goi! - nap;
     final vuot = con != null && con < 0;
     final mauSo = vuot ? Mau.canhBao : Mau.reu;
@@ -90,14 +91,20 @@ class VongKcalNgay extends StatelessWidget {
               _So3(
                 nhan: Chuoi.goiY,
                 gia: goi == null ? '—' : '$goi',
-                phu: CongThuc.phanTramTdee(goi, tdee) == null
-                    ? null
-                    : Chuoi.phanTramTdee(CongThuc.phanTramTdee(goi, tdee)!),
+                phu: thamHut == null ? null : Chuoi.thamHutTdee(thamHut!),
                 key: const Key('so-goi'),
               ),
               _So3(nhan: Chuoi.tieuThu, gia: '$tieu', key: const Key('so-tieu')),
             ],
           ),
+          if (han != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              Chuoi.pcfChu(han.dam, han.bot, han.beo),
+              key: const Key('goi-pcf'),
+              style: const TextStyle(fontSize: 13, color: Mau.mo),
+            ),
+          ],
           const SizedBox(height: 20),
           ThanhMacro(
             key: const Key('thanh-dam'),

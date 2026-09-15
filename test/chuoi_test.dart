@@ -54,8 +54,12 @@ void main() {
     expect(Chuoi.danhDauXong, 'Đánh dấu việc xong?');
     expect(Chuoi.thongKe, 'Thống kê');
     expect(Chuoi.xong, 'Xong');
-    expect(Chuoi.tdeeGoiY(2000, 1700), 'TDEE 2000 · Gợi ý 1700 · 85%');
-    expect(Chuoi.phanTramTdee(85), '85% TDEE');
+    expect(
+      Chuoi.tdeeGoiY(2000, 1700, thamHut: 15),
+      'TDEE 2000 · Gợi ý 1700 · −15% TDEE',
+    );
+    expect(Chuoi.thamHutTdee(15), '−15% TDEE');
+    expect(Chuoi.pcfChu(140, 176.2, 64), 'P 140 · C 176,2 · F 64');
   });
 
   test('so kg dau phay Viet, khong bia', () {

@@ -349,6 +349,17 @@ class Kho extends ChangeNotifier {
   int? get phanTramTdeeDoc =>
       CongThuc.phanTramTdee(kcalGoiYDoc, tdeeDoc);
 
+  int? get phanTramThamHutDoc =>
+      CongThuc.phanTramThamHut(kcalGoiYDoc, tdeeDoc);
+
+  ({double dam, double bot, double beo})? get hanMacroDoc => CongThuc.hanMacro(
+        kcal: kcalGoiYDoc,
+        kg: canMoi?.kg,
+        target: targetKg,
+        bmi: bmiDoc,
+        cm: heightCm,
+      );
+
   String? get daDoiDoc {
     if (dsCan.length < 2) return null;
     return Chuoi.daDoi(So.kg(dsCan.first.kg - dsCan.last.kg));

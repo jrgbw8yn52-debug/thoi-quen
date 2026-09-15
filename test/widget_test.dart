@@ -994,7 +994,15 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text(Chuoi.nhatKy));
     await tester.pumpAndSettle();
-    expect(find.text(Chuoi.tdeeGoiY(tdee!.round(), goi!)), findsOneWidget);
+    expect(
+      find.text(Chuoi.tdeeGoiY(
+        tdee!.round(),
+        goi!,
+        thamHut: kho.phanTramThamHutDoc,
+        pcf: kho.hanMacroDoc,
+      )),
+      findsOneWidget,
+    );
     await kho.luuMon(ten: 'A', kcal: goi + 200, vaoNgay: true);
     await tester.pumpAndSettle();
     expect(find.text(Chuoi.vuotChiTieu), findsOneWidget);

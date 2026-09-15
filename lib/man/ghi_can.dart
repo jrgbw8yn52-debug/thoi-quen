@@ -80,6 +80,14 @@ class _ManGhiCanState extends State<ManGhiCan> {
       bmi: bmi,
       sex: kho.sex,
     );
+    final han = CongThuc.hanMacro(
+      kcal: goi,
+      kg: kg,
+      target: kho.targetKg,
+      bmi: bmi,
+      cm: kho.heightCm,
+    );
+    final hut = CongThuc.phanTramThamHut(goi, tdee);
     return Scaffold(
       backgroundColor: Mau.giay,
       body: SafeArea(
@@ -177,9 +185,13 @@ class _ManGhiCanState extends State<ManGhiCan> {
                 _HangSo(
                   nhan: Chuoi.kcalGoiY,
                   giaTri: '$goi',
-                  phu: Chuoi.phanTramTdee(
-                    CongThuc.phanTramTdee(goi, tdee) ?? 0,
-                  ),
+                  phu: () {
+                    final ds = <String>[
+                      if (hut != null) Chuoi.thamHutTdee(hut),
+                      if (han != null) Chuoi.pcfChu(han.dam, han.bot, han.beo),
+                    ];
+                    return ds.isEmpty ? null : ds.join(' · ');
+                  }(),
                 ),
             ] else
               Text(

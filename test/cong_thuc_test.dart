@@ -121,6 +121,66 @@ void main() {
     expect(CongThuc.heSoGiamCan(bmi: 24, kg: 90, target: 70), 0.80);
     expect(CongThuc.heSoGiamCan(bmi: 33, kg: 100, target: 80), 0.75);
     expect(CongThuc.phanTramTdee(1700, 2000), 85);
+    expect(CongThuc.phanTramThamHut(1700, 2000), 15);
+  });
+
+  test('protein goi y theo BMI, kg_ref, san 80 tran 200, C55 F45', () {
+    expect(
+      CongThuc.proteinG(kg: 70, target: 70, bmi: 24, cm: 170),
+      112,
+    );
+    expect(
+      CongThuc.proteinG(kg: 60, target: 70, bmi: 20, cm: 170),
+      108,
+    );
+    expect(
+      CongThuc.proteinG(kg: 62, target: 58, bmi: 22, cm: 170),
+      104,
+    );
+    expect(
+      CongThuc.proteinG(kg: 70, target: 65, bmi: 24, cm: 170),
+      130,
+    );
+    expect(
+      CongThuc.proteinG(kg: 80, target: 70, bmi: 28, cm: 170),
+      140,
+    );
+    expect(
+      CongThuc.proteinG(kg: 95, target: 85, bmi: 33, cm: 170),
+      187,
+    );
+    expect(
+      CongThuc.proteinG(kg: 90, target: null, bmi: 33, cm: 170),
+      144,
+    );
+    expect(
+      CongThuc.kgRef(muc: MucTieuCan.giam, kg: 90, target: null, cm: 170),
+      closeTo(22 * 1.7 * 1.7, 0.05),
+    );
+    expect(
+      CongThuc.proteinG(kg: 45, target: 45, bmi: 18, cm: 160),
+      80,
+    );
+    expect(
+      CongThuc.proteinG(kg: 120, target: 130, bmi: 33, cm: 180),
+      200,
+    );
+    expect(CongThuc.heSoProtein(muc: MucTieuCan.duyTri, bmi: 24), 1.6);
+    expect(CongThuc.heSoProtein(muc: MucTieuCan.tang, bmi: 20), 1.8);
+    expect(CongThuc.heSoProtein(muc: MucTieuCan.giam, bmi: 22), 1.8);
+    expect(CongThuc.heSoProtein(muc: MucTieuCan.giam, bmi: 24), 2.0);
+    expect(CongThuc.heSoProtein(muc: MucTieuCan.giam, bmi: 28), 2.0);
+    expect(CongThuc.heSoProtein(muc: MucTieuCan.giam, bmi: 33), 2.2);
+    final h = CongThuc.hanMacro(
+      kcal: 1700,
+      kg: 70,
+      target: 65,
+      bmi: 24,
+      cm: 170,
+    )!;
+    expect(h.dam, 130);
+    expect(h.bot, 162.3);
+    expect(h.beo, closeTo((1700 - 130 * 4) * 0.45 / 9, 0.06));
   });
 
   test('he so dau phay Viet', () {
@@ -210,11 +270,17 @@ BEO: 28
     expect(khoi.beo, 14);
   });
 
-  test('han macro 30/40/30 tu kcal goi y', () {
-    final h = CongThuc.hanMacro(2000);
-    expect(h.dam, 150);
-    expect(h.bot, 200);
-    expect(h.beo, closeTo(66.7, 0.05));
+  test('han macro protein roi C55 F45', () {
+    final h = CongThuc.hanMacro(
+      kcal: 2000,
+      kg: 70,
+      target: 70,
+      bmi: 24,
+      cm: 170,
+    )!;
+    expect(h.dam, 112);
+    expect(h.bot, closeTo((2000 - 112 * 4) * 0.55 / 4, 0.06));
+    expect(h.beo, closeTo((2000 - 112 * 4) * 0.45 / 9, 0.06));
   });
 
   test('lua tap: gap 0 sang, bo 1-2 giu so, gap 3 luu noi', () {
