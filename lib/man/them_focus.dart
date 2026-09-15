@@ -72,23 +72,56 @@ class _ManThemFocusState extends State<ManThemFocus> {
     if (Ten.sach(_ten.text).isEmpty) return;
     if (!Ngay.ghiDuoc(_ngay, widget.kho.homNay)) return;
     if (_tuDat && _duration() == null) return;
-    final ok = _sua
-        ? await widget.kho.suaFocus(
-            id: widget.viec!.id,
-            title: _ten.text,
-            ngay: _ngay,
-            gioPhut: _gio,
-            durationMin: _duration(),
-          )
-        : (await widget.kho.themFocus(
-              title: _ten.text,
-              ngay: _ngay,
-              gioPhut: _gio,
-              durationMin: _duration(),
-            )) >
-            0;
+    final duration = _duration();
+    final bool ok;
+    if (_sua) {
+      ok = await widget.kho.suaFocus(
+        id: widget.viec!.id,
+        title: _ten.text,
+        ngay: _ngay,
+        gioPhut: _gio,
+        durationMin: duration,
+      );
+    } else {
+      final id = await widget.kho.themFocus(
+        title: _ten.text,
+        ngay: _ngay,
+        gioPhut: _gio,
+        durationMin: duration,
+      );
+      ok = id > 0;
+    }
     if (!mounted) return;
-    if (ok) Navigator.pop(context, true);
+    if (!ok) return;
+    await _hoiUuTien(duration);
+    if (!mounted) return;
+    Navigator.pop(context, true);
+  }
+
+  Future<void> _hoiUuTien(int? duration) async {
+    final trung = widget.kho.habitTrungChuaXuLy(
+      ngay: _ngay,
+      gioPhut: _gio,
+      durationMin: duration,
+    );
+    if (trung.isEmpty) return;
+    final uu = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(Chuoi.uuTienFocus),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(Chuoi.khong),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(Chuoi.co),
+          ),
+        ],
+      ),
+    );
+    if (uu == true) await widget.kho.ghiOverride(_ngay, trung);
   }
 
   Future<void> _moGio() async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../chuoi.dart';
+import '../habit_trang.dart';
 import '../kho.dart';
 import '../mau.dart';
 
@@ -30,6 +31,12 @@ class HangHabit extends StatefulWidget {
 class _HangHabitState extends State<HangHabit> {
   late bool _bat;
 
+  bool get _choTick {
+    if (widget.khoaGhi) return false;
+    final t = widget.hang.trang;
+    return t == HabitTrang.open || t == HabitTrang.done;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -39,13 +46,18 @@ class _HangHabitState extends State<HangHabit> {
   @override
   void didUpdateWidget(covariant HangHabit old) {
     super.didUpdateWidget(old);
-    if (old.hang.ticked != widget.hang.ticked) {
+    if (old.hang.ticked != widget.hang.ticked ||
+        old.hang.trang != widget.hang.trang) {
       _bat = widget.hang.ticked;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final trang = widget.hang.trang;
+    final gach =
+        trang == HabitTrang.doneOverride || trang == HabitTrang.lockedOverdue;
+    final quaGio = trang == HabitTrang.lockedOverdue;
     return HangVuot(
       choVuot: widget.choVuot && !widget.khoaGhi,
       onSua: widget.onSua,
@@ -53,37 +65,55 @@ class _HangHabitState extends State<HangHabit> {
       child: Material(
         color: Mau.beMat,
         child: InkWell(
-          onTap: widget.khoaGhi
-              ? null
-              : () {
+          onTap: _choTick
+              ? () {
                   HapticFeedback.selectionClick();
                   setState(() => _bat = !_bat);
                   widget.onTap();
-                },
+                }
+              : null,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  _NutTick(bat: _bat, mo: widget.khoaGhi),
+                  _NutTick(
+                    bat: _bat && trang != HabitTrang.lockedOverdue,
+                    mo: !_choTick,
+                  ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
                       children: [
                         Expanded(
-                          child: Text(
-                            widget.hang.habit.ten,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                              height: 1.2,
-                              color: Mau.muc,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                widget.hang.habit.ten,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.2,
+                                  color: gach ? Mau.mo : Mau.muc,
+                                  decoration: gach
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                ),
+                              ),
+                              if (quaGio)
+                                const Text(
+                                  Chuoi.quaGio,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Mau.canhBao,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                         SizedBox(
@@ -233,15 +263,15 @@ class _NutTick extends StatelessWidget {
       height: 22,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: bat ? (mo ? Mau.reu.withValues(alpha: 0.45) : Mau.reu) : Colors.transparent,
+        color: bat
+            ? (mo ? Mau.reu.withValues(alpha: 0.45) : Mau.reu)
+            : Colors.transparent,
         border: Border.all(
           color: bat ? Mau.reu : (mo ? Mau.vien : Mau.muc),
           width: 1.6,
         ),
       ),
-      child: bat
-          ? const Icon(Icons.check, size: 14, color: Mau.giay)
-          : null,
+      child: bat ? const Icon(Icons.check, size: 14, color: Mau.giay) : null,
     );
   }
 }

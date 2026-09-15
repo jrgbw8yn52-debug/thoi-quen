@@ -114,21 +114,35 @@ abstract final class Nhac {
     }
   }
 
-  static Future<void> dongBo(List<Habit> ds) async {
+  static Future<void> dongBo(
+    List<Habit> ds, {
+    Set<int> boHomNay = const {},
+  }) async {
     if (!_ok) return;
     try {
       await _p.cancelAll();
+      final thuHom = tz.TZDateTime.now(tz.local).weekday;
       for (final h in ds) {
         final g = h.gioNhac;
         if (g == null) continue;
         for (final thu in Thu.tach(h.thuBit)) {
-          await _dat(h, thu, g);
+          await _dat(
+            h,
+            thu,
+            g,
+            boHomNay: boHomNay.contains(h.id) && thu == thuHom,
+          );
         }
       }
     } catch (_) {}
   }
 
-  static Future<void> _dat(Habit h, int thu, int phut) async {
+  static Future<void> _dat(
+    Habit h,
+    int thu,
+    int phut, {
+    bool boHomNay = false,
+  }) async {
     const android = AndroidNotificationDetails(
       kenhId,
       kenhTen,
@@ -160,7 +174,7 @@ abstract final class Nhac {
       interruptionLevel: InterruptionLevel.active,
     );
     const details = NotificationDetails(android: android, iOS: ios);
-    final khi = _lanSau(thu, phut);
+    final khi = _lanSau(thu, phut, boHomNay: boHomNay);
     final id = h.id * 10 + thu;
     final payload = '${h.id}|$thu';
     try {
@@ -188,7 +202,11 @@ abstract final class Nhac {
     }
   }
 
-  static tz.TZDateTime _lanSau(int weekday, int phut) {
+  static tz.TZDateTime _lanSau(
+    int weekday,
+    int phut, {
+    bool boHomNay = false,
+  }) {
     final now = tz.TZDateTime.now(tz.local);
     var d = tz.TZDateTime(
       tz.local,
@@ -198,7 +216,13 @@ abstract final class Nhac {
       phut ~/ 60,
       phut % 60,
     );
-    while (d.weekday != weekday || !d.isAfter(now)) {
+    final hom = tz.TZDateTime(tz.local, now.year, now.month, now.day);
+    while (d.weekday != weekday ||
+        !d.isAfter(now) ||
+        (boHomNay &&
+            d.year == hom.year &&
+            d.month == hom.month &&
+            d.day == hom.day)) {
       d = d.add(const Duration(days: 1));
     }
     return d;

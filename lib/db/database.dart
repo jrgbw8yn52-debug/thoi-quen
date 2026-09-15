@@ -197,6 +197,18 @@ class FocusTasks extends Table {
   DateTimeColumn get createdAt => dateTime()();
 }
 
+class FocusHabitOverrides extends Table {
+  @override
+  String get tableName => 'focus_habit_override';
+
+  TextColumn get ngay => text()();
+  IntColumn get habitId =>
+      integer().references(Habits, #id, onDelete: KeyAction.cascade)();
+
+  @override
+  Set<Column> get primaryKey => {ngay, habitId};
+}
+
 @DriftDatabase(tables: [
   Habits,
   Ticks,
@@ -212,6 +224,7 @@ class FocusTasks extends Table {
   Foods,
   FoodLogs,
   FocusTasks,
+  FocusHabitOverrides,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
@@ -221,7 +234,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -324,6 +337,9 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
           }
           if (from < 16) {
             await m.createTable(focusTasks);
+          }
+          if (from < 17) {
+            await m.createTable(focusHabitOverrides);
           }
         },
         beforeOpen: (details) async {
@@ -870,9 +886,11 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     'foods',
     'food_log',
     'focus_tasks',
+    'focus_habit_override',
   ];
 
   static const _bangXoa = <String>[
+    'focus_habit_override',
     'food_log',
     'foods',
     'ticks',
@@ -1049,7 +1067,24 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     );
   }
 
+  Future<List<FocusHabitOverride>> dsOverride() {
+    return select(focusHabitOverrides).get();
+  }
+
+  Future<void> ghiOverride(String ngay, int habitId) async {
+    await into(focusHabitOverrides).insertOnConflictUpdate(
+      FocusHabitOverridesCompanion.insert(ngay: ngay, habitId: habitId),
+    );
+  }
+
+  Future<void> xoaOverride(String ngay, int habitId) async {
+    await (delete(focusHabitOverrides)
+          ..where((t) => t.ngay.equals(ngay) & t.habitId.equals(habitId)))
+        .go();
+  }
+
   Future<void> xoaHet() async {
+    await delete(focusHabitOverrides).go();
     await delete(ticks).go();
     await delete(loaiTruIns).go();
     await delete(habits).go();

@@ -22,6 +22,10 @@ abstract final class Chuoi {
   static const tuDat = 'Tự';
   static const tenViec = 'Tên việc';
   static const chuaCoViec = 'Chưa có việc.';
+  static const uuTienFocus = 'Ưu tiên Focus?';
+  static const quaGio = 'Quá giờ';
+  static const co = 'Có';
+  static const khong = 'Không';
   static const hetViecHomNay = 'Hết việc hôm nay';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';

@@ -35,6 +35,7 @@ void main() {
     expect(ten.contains('foods'), isTrue);
     expect(ten.contains('food_log'), isTrue);
     expect(ten.contains('focus_tasks'), isTrue);
+    expect(ten.contains('focus_habit_override'), isTrue);
     expect(ten.contains('aura_profile'), isFalse);
     expect(ten.contains('aura_quest_log'), isFalse);
     expect(ten.contains('aura_fragments'), isFalse);
@@ -46,8 +47,8 @@ void main() {
     expect(await db.canMoiNhat(), isNull);
   });
 
-  test('schemaVersion = 16', () {
-    expect(db.schemaVersion, 16);
+  test('schemaVersion = 17', () {
+    expect(db.schemaVersion, 17);
   });
 
   test('ticks UNIQUE (habit_id, ngay)', () async {

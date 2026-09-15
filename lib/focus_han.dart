@@ -27,4 +27,14 @@ abstract final class FocusHan {
       hetHan(ngay: ngay, gioPhut: gioPhut, durationMin: durationMin),
     );
   }
+
+  /// Habit.gioNhac nằm trong [gio Focus, hết hạn).
+  static bool trungGio({
+    required int habitGio,
+    required int gioPhut,
+    required int? durationMin,
+  }) {
+    final end = durationMin == null ? 24 * 60 : gioPhut + durationMin;
+    return habitGio >= gioPhut && habitGio < end;
+  }
 }

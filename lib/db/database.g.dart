@@ -5124,6 +5124,226 @@ class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
   }
 }
 
+class $FocusHabitOverridesTable extends FocusHabitOverrides
+    with TableInfo<$FocusHabitOverridesTable, FocusHabitOverride> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FocusHabitOverridesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _habitIdMeta = const VerificationMeta(
+    'habitId',
+  );
+  @override
+  late final GeneratedColumn<int> habitId = GeneratedColumn<int>(
+    'habit_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES habits (id) ON DELETE CASCADE',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [ngay, habitId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'focus_habit_override';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FocusHabitOverride> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    if (data.containsKey('habit_id')) {
+      context.handle(
+        _habitIdMeta,
+        habitId.isAcceptableOrUnknown(data['habit_id']!, _habitIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_habitIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ngay, habitId};
+  @override
+  FocusHabitOverride map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FocusHabitOverride(
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+      habitId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}habit_id'],
+      )!,
+    );
+  }
+
+  @override
+  $FocusHabitOverridesTable createAlias(String alias) {
+    return $FocusHabitOverridesTable(attachedDatabase, alias);
+  }
+}
+
+class FocusHabitOverride extends DataClass
+    implements Insertable<FocusHabitOverride> {
+  final String ngay;
+  final int habitId;
+  const FocusHabitOverride({required this.ngay, required this.habitId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ngay'] = Variable<String>(ngay);
+    map['habit_id'] = Variable<int>(habitId);
+    return map;
+  }
+
+  FocusHabitOverridesCompanion toCompanion(bool nullToAbsent) {
+    return FocusHabitOverridesCompanion(
+      ngay: Value(ngay),
+      habitId: Value(habitId),
+    );
+  }
+
+  factory FocusHabitOverride.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FocusHabitOverride(
+      ngay: serializer.fromJson<String>(json['ngay']),
+      habitId: serializer.fromJson<int>(json['habitId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ngay': serializer.toJson<String>(ngay),
+      'habitId': serializer.toJson<int>(habitId),
+    };
+  }
+
+  FocusHabitOverride copyWith({String? ngay, int? habitId}) =>
+      FocusHabitOverride(
+        ngay: ngay ?? this.ngay,
+        habitId: habitId ?? this.habitId,
+      );
+  FocusHabitOverride copyWithCompanion(FocusHabitOverridesCompanion data) {
+    return FocusHabitOverride(
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+      habitId: data.habitId.present ? data.habitId.value : this.habitId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FocusHabitOverride(')
+          ..write('ngay: $ngay, ')
+          ..write('habitId: $habitId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ngay, habitId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FocusHabitOverride &&
+          other.ngay == this.ngay &&
+          other.habitId == this.habitId);
+}
+
+class FocusHabitOverridesCompanion extends UpdateCompanion<FocusHabitOverride> {
+  final Value<String> ngay;
+  final Value<int> habitId;
+  final Value<int> rowid;
+  const FocusHabitOverridesCompanion({
+    this.ngay = const Value.absent(),
+    this.habitId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FocusHabitOverridesCompanion.insert({
+    required String ngay,
+    required int habitId,
+    this.rowid = const Value.absent(),
+  }) : ngay = Value(ngay),
+       habitId = Value(habitId);
+  static Insertable<FocusHabitOverride> custom({
+    Expression<String>? ngay,
+    Expression<int>? habitId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ngay != null) 'ngay': ngay,
+      if (habitId != null) 'habit_id': habitId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FocusHabitOverridesCompanion copyWith({
+    Value<String>? ngay,
+    Value<int>? habitId,
+    Value<int>? rowid,
+  }) {
+    return FocusHabitOverridesCompanion(
+      ngay: ngay ?? this.ngay,
+      habitId: habitId ?? this.habitId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (habitId.present) {
+      map['habit_id'] = Variable<int>(habitId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FocusHabitOverridesCompanion(')
+          ..write('ngay: $ngay, ')
+          ..write('habitId: $habitId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5141,6 +5361,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $FoodsTable foods = $FoodsTable(this);
   late final $FoodLogsTable foodLogs = $FoodLogsTable(this);
   late final $FocusTasksTable focusTasks = $FocusTasksTable(this);
+  late final $FocusHabitOverridesTable focusHabitOverrides =
+      $FocusHabitOverridesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5160,6 +5382,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     foods,
     foodLogs,
     focusTasks,
+    focusHabitOverrides,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -5183,6 +5406,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('food_log', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'habits',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('focus_habit_override', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -5250,6 +5480,30 @@ final class $$HabitsTableReferences
     ).filter((f) => f.habitId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_loaiTruInsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $FocusHabitOverridesTable,
+    List<FocusHabitOverride>
+  >
+  _focusHabitOverridesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.focusHabitOverrides,
+        aliasName: 'habits__id__focus_habit_override__habit_id',
+      );
+
+  $$FocusHabitOverridesTableProcessedTableManager get focusHabitOverridesRefs {
+    final manager = $$FocusHabitOverridesTableTableManager(
+      $_db,
+      $_db.focusHabitOverrides,
+    ).filter((f) => f.habitId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _focusHabitOverridesRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -5361,6 +5615,31 @@ class $$HabitsTableFilterComposer
           }) => $$LoaiTruInsTableFilterComposer(
             $db: $db,
             $table: $db.loaiTruIns,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> focusHabitOverridesRefs(
+    Expression<bool> Function($$FocusHabitOverridesTableFilterComposer f) f,
+  ) {
+    final $$FocusHabitOverridesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.focusHabitOverrides,
+      getReferencedColumn: (t) => t.habitId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FocusHabitOverridesTableFilterComposer(
+            $db: $db,
+            $table: $db.focusHabitOverrides,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -5531,6 +5810,32 @@ class $$HabitsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> focusHabitOverridesRefs<T extends Object>(
+    Expression<T> Function($$FocusHabitOverridesTableAnnotationComposer a) f,
+  ) {
+    final $$FocusHabitOverridesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.focusHabitOverrides,
+          getReferencedColumn: (t) => t.habitId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$FocusHabitOverridesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.focusHabitOverrides,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$HabitsTableTableManager
@@ -5546,7 +5851,11 @@ class $$HabitsTableTableManager
           $$HabitsTableUpdateCompanionBuilder,
           (Habit, $$HabitsTableReferences),
           Habit,
-          PrefetchHooks Function({bool ticksRefs, bool loaiTruInsRefs})
+          PrefetchHooks Function({
+            bool ticksRefs,
+            bool loaiTruInsRefs,
+            bool focusHabitOverridesRefs,
+          })
         > {
   $$HabitsTableTableManager(_$AppDatabase db, $HabitsTable table)
     : super(
@@ -5617,43 +5926,81 @@ class $$HabitsTableTableManager
                     (e.readTable(table), $$HabitsTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({ticksRefs = false, loaiTruInsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (ticksRefs) db.ticks,
-                if (loaiTruInsRefs) db.loaiTruIns,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (ticksRefs)
-                    await $_getPrefetchedData<Habit, $HabitsTable, Tick>(
-                      currentTable: table,
-                      referencedTable: $$HabitsTableReferences._ticksRefsTable(
-                        db,
-                      ),
-                      managerFromTypedResult: (p0) =>
-                          $$HabitsTableReferences(db, table, p0).ticksRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.habitId == item.id),
-                      typedResults: items,
-                    ),
-                  if (loaiTruInsRefs)
-                    await $_getPrefetchedData<Habit, $HabitsTable, LoaiTruIn>(
-                      currentTable: table,
-                      referencedTable: $$HabitsTableReferences
-                          ._loaiTruInsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$HabitsTableReferences(db, table, p0).loaiTruInsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.habitId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                ticksRefs = false,
+                loaiTruInsRefs = false,
+                focusHabitOverridesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (ticksRefs) db.ticks,
+                    if (loaiTruInsRefs) db.loaiTruIns,
+                    if (focusHabitOverridesRefs) db.focusHabitOverrides,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (ticksRefs)
+                        await $_getPrefetchedData<Habit, $HabitsTable, Tick>(
+                          currentTable: table,
+                          referencedTable: $$HabitsTableReferences
+                              ._ticksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$HabitsTableReferences(db, table, p0).ticksRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.habitId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (loaiTruInsRefs)
+                        await $_getPrefetchedData<
+                          Habit,
+                          $HabitsTable,
+                          LoaiTruIn
+                        >(
+                          currentTable: table,
+                          referencedTable: $$HabitsTableReferences
+                              ._loaiTruInsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$HabitsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).loaiTruInsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.habitId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (focusHabitOverridesRefs)
+                        await $_getPrefetchedData<
+                          Habit,
+                          $HabitsTable,
+                          FocusHabitOverride
+                        >(
+                          currentTable: table,
+                          referencedTable: $$HabitsTableReferences
+                              ._focusHabitOverridesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$HabitsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).focusHabitOverridesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.habitId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -5670,7 +6017,11 @@ typedef $$HabitsTableProcessedTableManager =
       $$HabitsTableUpdateCompanionBuilder,
       (Habit, $$HabitsTableReferences),
       Habit,
-      PrefetchHooks Function({bool ticksRefs, bool loaiTruInsRefs})
+      PrefetchHooks Function({
+        bool ticksRefs,
+        bool loaiTruInsRefs,
+        bool focusHabitOverridesRefs,
+      })
     >;
 typedef $$TicksTableCreateCompanionBuilder = TicksCompanion Function({
   required int habitId,
@@ -8535,6 +8886,281 @@ typedef $$FocusTasksTableProcessedTableManager =
       FocusTask,
       PrefetchHooks Function()
     >;
+typedef $$FocusHabitOverridesTableCreateCompanionBuilder =
+    FocusHabitOverridesCompanion Function({
+      required String ngay,
+      required int habitId,
+      Value<int> rowid,
+    });
+typedef $$FocusHabitOverridesTableUpdateCompanionBuilder =
+    FocusHabitOverridesCompanion Function({
+      Value<String> ngay,
+      Value<int> habitId,
+      Value<int> rowid,
+    });
+
+final class $$FocusHabitOverridesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $FocusHabitOverridesTable,
+          FocusHabitOverride
+        > {
+  $$FocusHabitOverridesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $HabitsTable _habitIdTable(_$AppDatabase db) =>
+      db.habits.createAlias('focus_habit_override__habit_id__habits__id');
+
+  $$HabitsTableProcessedTableManager get habitId {
+    final $_column = $_itemColumn<int>('habit_id')!;
+
+    final manager = $$HabitsTableTableManager(
+      $_db,
+      $_db.habits,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_habitIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$FocusHabitOverridesTableFilterComposer
+    extends Composer<_$AppDatabase, $FocusHabitOverridesTable> {
+  $$FocusHabitOverridesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$HabitsTableFilterComposer get habitId {
+    final $$HabitsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.habitId,
+      referencedTable: $db.habits,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HabitsTableFilterComposer(
+            $db: $db,
+            $table: $db.habits,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FocusHabitOverridesTableOrderingComposer
+    extends Composer<_$AppDatabase, $FocusHabitOverridesTable> {
+  $$FocusHabitOverridesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$HabitsTableOrderingComposer get habitId {
+    final $$HabitsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.habitId,
+      referencedTable: $db.habits,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HabitsTableOrderingComposer(
+            $db: $db,
+            $table: $db.habits,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FocusHabitOverridesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FocusHabitOverridesTable> {
+  $$FocusHabitOverridesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  $$HabitsTableAnnotationComposer get habitId {
+    final $$HabitsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.habitId,
+      referencedTable: $db.habits,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HabitsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.habits,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FocusHabitOverridesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FocusHabitOverridesTable,
+          FocusHabitOverride,
+          $$FocusHabitOverridesTableFilterComposer,
+          $$FocusHabitOverridesTableOrderingComposer,
+          $$FocusHabitOverridesTableAnnotationComposer,
+          $$FocusHabitOverridesTableCreateCompanionBuilder,
+          $$FocusHabitOverridesTableUpdateCompanionBuilder,
+          (FocusHabitOverride, $$FocusHabitOverridesTableReferences),
+          FocusHabitOverride,
+          PrefetchHooks Function({bool habitId})
+        > {
+  $$FocusHabitOverridesTableTableManager(
+    _$AppDatabase db,
+    $FocusHabitOverridesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FocusHabitOverridesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FocusHabitOverridesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$FocusHabitOverridesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> ngay = const Value.absent(),
+                Value<int> habitId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FocusHabitOverridesCompanion(
+                ngay: ngay,
+                habitId: habitId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String ngay,
+                required int habitId,
+                Value<int> rowid = const Value.absent(),
+              }) => FocusHabitOverridesCompanion.insert(
+                ngay: ngay,
+                habitId: habitId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$FocusHabitOverridesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({habitId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (habitId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.habitId,
+                        referencedTable: $$FocusHabitOverridesTableReferences
+                            ._habitIdTable(db),
+                        referencedColumn: $$FocusHabitOverridesTableReferences
+                            ._habitIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FocusHabitOverridesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FocusHabitOverridesTable,
+      FocusHabitOverride,
+      $$FocusHabitOverridesTableFilterComposer,
+      $$FocusHabitOverridesTableOrderingComposer,
+      $$FocusHabitOverridesTableAnnotationComposer,
+      $$FocusHabitOverridesTableCreateCompanionBuilder,
+      $$FocusHabitOverridesTableUpdateCompanionBuilder,
+      (FocusHabitOverride, $$FocusHabitOverridesTableReferences),
+      FocusHabitOverride,
+      PrefetchHooks Function({bool habitId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8567,4 +9193,6 @@ class $AppDatabaseManager {
       $$FoodLogsTableTableManager(_db, _db.foodLogs);
   $$FocusTasksTableTableManager get focusTasks =>
       $$FocusTasksTableTableManager(_db, _db.focusTasks);
+  $$FocusHabitOverridesTableTableManager get focusHabitOverrides =>
+      $$FocusHabitOverridesTableTableManager(_db, _db.focusHabitOverrides);
 }

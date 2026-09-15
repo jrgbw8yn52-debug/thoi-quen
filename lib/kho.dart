@@ -10,6 +10,7 @@ import 'chuoi.dart';
 import 'cong_thuc.dart';
 import 'db/database.dart';
 import 'focus_han.dart';
+import 'habit_trang.dart';
 import 'khung.dart';
 import 'ngay.dart';
 import 'nhac.dart';
@@ -22,15 +23,18 @@ class HangHabitView {
   const HangHabitView({
     required this.habit,
     required this.ticked,
+    this.trang = HabitTrang.open,
   });
 
   final Habit habit;
   final bool ticked;
+  final HabitTrang trang;
 
-  HangHabitView copyWith({bool? ticked, Habit? habit}) {
+  HangHabitView copyWith({bool? ticked, Habit? habit, HabitTrang? trang}) {
     return HangHabitView(
       habit: habit ?? this.habit,
       ticked: ticked ?? this.ticked,
+      trang: trang ?? this.trang,
     );
   }
 
@@ -39,11 +43,13 @@ class HangHabitView {
       other is HangHabitView &&
       other.habit.id == habit.id &&
       other.ticked == ticked &&
+      other.trang == trang &&
       other.habit.ten == habit.ten &&
       other.habit.gioNhac == habit.gioNhac;
 
   @override
-  int get hashCode => Object.hash(habit.id, ticked, habit.ten, habit.gioNhac);
+  int get hashCode =>
+      Object.hash(habit.id, ticked, trang, habit.ten, habit.gioNhac);
 }
 
 class ChamTuan {
@@ -189,6 +195,7 @@ class Kho extends ChangeNotifier {
   List<MocCan> dsMocBanDau = const [];
   List<MocCan> dsMocDich = const [];
   List<FocusTask> dsFocus = const [];
+  Map<String, Set<int>> overrideIso = {};
   bool dangTai = true;
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
@@ -259,7 +266,11 @@ class Kho extends ChangeNotifier {
     var n = 0;
     for (final h in dsHien) {
       if (!hienO(h, d)) continue;
-      if (ticksCua(h.id).contains(iso)) n++;
+      if (ticksCua(h.id).contains(iso)) {
+        n++;
+      } else if (overrideIso[iso]?.contains(h.id) ?? false) {
+        n++;
+      }
     }
     return n;
   }
@@ -868,6 +879,8 @@ class Kho extends ChangeNotifier {
     dsMocBanDau = await db.dsMoc(AppDatabase.loaiBanDau);
     dsMocDich = await db.dsMoc(AppDatabase.loaiDich);
     dsFocus = await db.dsFocus();
+    await _napOverride();
+    await nhaOverrideQuaHan();
     final lanDau = dangTai;
     dangTai = false;
     homeBan.ban();
@@ -876,16 +889,15 @@ class Kho extends ChangeNotifier {
     focusBan.ban();
     notifyListeners();
     if (lanDau) shellBan.ban();
-    await Nhac.dongBo(dsHien);
+    await Nhac.dongBo(dsHien, boHomNay: _boNotiHomNay);
     _dongWid();
   }
 
-  /// Hôm nay, chưa tick. Giờ nhắc tăng. Không giờ → cuối.
+  /// Hôm nay, chưa tick, còn cửa sổ, không override. Giờ nhắc tăng. Không giờ → cuối.
   List<HangHabitView> get hangCam {
-    final iso = Ngay.iso(homNay);
     final ds = [
       for (final h in dsHien)
-        if (hienO(h, homNay) && !ticksCua(h.id).contains(iso))
+        if (hienO(h, homNay) && trangCua(h, homNay) == HabitTrang.open)
           HangHabitView(habit: h, ticked: false),
     ];
     ds.sort(soSanhGioHang);
@@ -951,6 +963,10 @@ class Kho extends ChangeNotifier {
 
   Future<void> toggleNgay(Habit habit, DateTime ngay) {
     if (!Ngay.ghiDuoc(ngay, homNay)) return Future.value();
+    final st = trangCua(habit, ngay);
+    if (st == HabitTrang.lockedOverdue || st == HabitTrang.doneOverride) {
+      return Future.value();
+    }
     final iso = Ngay.iso(ngay);
     final set = ticksIso.putIfAbsent(habit.id, () => <String>{});
     final bat = !set.contains(iso);
@@ -983,7 +999,9 @@ class Kho extends ChangeNotifier {
         if (hienO(h, selected))
           HangHabitView(
             habit: h,
-            ticked: ticksCua(h.id).contains(isoSel),
+            ticked: ticksCua(h.id).contains(isoSel) ||
+                (overrideIso[isoSel]?.contains(h.id) ?? false),
+            trang: trangCua(h, selected),
           ),
     ];
     ds.sort(soSanhGioHang);
@@ -1160,6 +1178,112 @@ class Kho extends ChangeNotifier {
     );
   }
 
+  Set<int> get _boNotiHomNay =>
+      Set<int>.from(overrideIso[Ngay.iso(homNay)] ?? const {});
+
+  HabitTrang trangCua(Habit h, DateTime d) => habitState(
+        gioNhac: h.gioNhac,
+        ticked: ticksCua(h.id).contains(Ngay.iso(d)),
+        override: overrideIso[Ngay.iso(d)]?.contains(h.id) ?? false,
+        ngay: d,
+        now: bayGio,
+      );
+
+  Future<void> _napOverride() async {
+    overrideIso = {};
+    for (final x in await db.dsOverride()) {
+      overrideIso.putIfAbsent(x.ngay, () => <int>{}).add(x.habitId);
+    }
+  }
+
+  List<Habit> habitTrung({
+    required DateTime ngay,
+    required int gioPhut,
+    required int? durationMin,
+  }) {
+    return [
+      for (final h in dsHien)
+        if (h.gioNhac != null &&
+            hienO(h, ngay) &&
+            FocusHan.trungGio(
+              habitGio: h.gioNhac!,
+              gioPhut: gioPhut,
+              durationMin: durationMin,
+            ))
+          h,
+    ];
+  }
+
+  List<Habit> habitTrungChuaXuLy({
+    required DateTime ngay,
+    required int gioPhut,
+    required int? durationMin,
+  }) {
+    final iso = Ngay.iso(ngay);
+    return [
+      for (final h in habitTrung(
+        ngay: ngay,
+        gioPhut: gioPhut,
+        durationMin: durationMin,
+      ))
+        if (!ticksCua(h.id).contains(iso) &&
+            !(overrideIso[iso]?.contains(h.id) ?? false))
+          h,
+    ];
+  }
+
+  Future<void> ghiOverride(DateTime ngay, List<Habit> ds) async {
+    if (ds.isEmpty) return;
+    final iso = Ngay.iso(ngay);
+    for (final h in ds) {
+      await db.ghiOverride(iso, h.id);
+    }
+    await _napOverride();
+    _dongBoHangVaTuan();
+    homeBan.ban();
+    await Nhac.dongBo(dsHien, boHomNay: _boNotiHomNay);
+    _dongWid();
+  }
+
+  Future<bool> nhaOverrideCua(FocusTask t, {bool dongBo = true}) async {
+    final iso = t.ngay;
+    var doi = false;
+    for (final h in habitTrung(
+      ngay: Ngay.parse(t.ngay),
+      gioPhut: t.gioPhut,
+      durationMin: t.durationMin,
+    )) {
+      if (overrideIso[iso]?.contains(h.id) != true) continue;
+      await db.xoaOverride(iso, h.id);
+      doi = true;
+    }
+    if (doi) {
+      await _napOverride();
+      if (dongBo) {
+        _dongBoHangVaTuan();
+        homeBan.ban();
+        await Nhac.dongBo(dsHien, boHomNay: _boNotiHomNay);
+        _dongWid();
+      }
+    }
+    return doi;
+  }
+
+  Future<void> nhaOverrideQuaHan() async {
+    var doi = false;
+    for (final t in dsFocus) {
+      if (quaHanFocus(t)) {
+        doi = await nhaOverrideCua(t, dongBo: false) || doi;
+      }
+    }
+    if (doi) {
+      _dongBoHangVaTuan();
+      homeBan.ban();
+      await Nhac.dongBo(dsHien, boHomNay: _boNotiHomNay);
+      _dongWid();
+    }
+  }
+
   List<(String, List<FocusTask>)> get nhomFocus {
     final map = <String, List<FocusTask>>{};
     for (final t in dsFocus) {
@@ -1171,6 +1295,7 @@ class Kho extends ChangeNotifier {
 
   Future<void> _taiFocus() async {
     dsFocus = await db.dsFocus();
+    await nhaOverrideQuaHan();
     focusBan.ban();
   }
 
@@ -1200,6 +1325,13 @@ class Kho extends ChangeNotifier {
     int? durationMin,
   }) async {
     if (!Ngay.ghiDuoc(ngay, homNay)) return false;
+    FocusTask? cu;
+    for (final x in dsFocus) {
+      if (x.id == id) {
+        cu = x;
+        break;
+      }
+    }
     final ok = await db.suaFocus(
       id: id,
       title: title,
@@ -1207,7 +1339,10 @@ class Kho extends ChangeNotifier {
       gioPhut: gioPhut,
       durationMin: durationMin,
     );
-    if (ok) await _taiFocus();
+    if (ok) {
+      if (cu != null) await nhaOverrideCua(cu);
+      await _taiFocus();
+    }
     return ok;
   }
 
@@ -1220,6 +1355,7 @@ class Kho extends ChangeNotifier {
       }
     }
     if (t == null || !suaDuocFocus(t)) return;
+    await nhaOverrideCua(t);
     await db.xoaFocus(id);
     await _taiFocus();
   }
