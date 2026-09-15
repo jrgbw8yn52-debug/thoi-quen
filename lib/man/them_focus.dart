@@ -6,6 +6,7 @@ import '../db/database.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../ngay.dart';
+import '../nhac.dart';
 import '../ten.dart';
 import '../widget/o_ten.dart';
 
@@ -72,6 +73,8 @@ class _ManThemFocusState extends State<ManThemFocus> {
     if (Ten.sach(_ten.text).isEmpty) return;
     if (!Ngay.ghiDuoc(_ngay, widget.kho.homNay)) return;
     if (_tuDat && _duration() == null) return;
+    await Nhac.xinQuyen();
+    if (!mounted) return;
     final duration = _duration();
     final bool ok;
     if (_sua) {

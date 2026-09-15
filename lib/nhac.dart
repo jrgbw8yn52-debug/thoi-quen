@@ -5,6 +5,7 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'db/database.dart';
+import 'ngay.dart';
 import 'thu.dart';
 
 @pragma('vm:entry-point')
@@ -17,6 +18,17 @@ abstract final class Nhac {
   static const kenhId = 'habit_remind';
   static const kenhTen = 'Nhắc thói quen';
   static const kenhMoTa = 'Nhắc thói quen đúng giờ đã lưu.';
+  static const prefixFocus = 'f|';
+  static const idFocusGoc = 500000;
+
+  static String payloadFocus(int id) => '$prefixFocus$id';
+
+  static int? idFocusTu(String p) {
+    if (!p.startsWith(prefixFocus)) return null;
+    return int.tryParse(p.substring(prefixFocus.length));
+  }
+
+  static int notiIdFocus(int id) => idFocusGoc + id;
 
   static final _p = FlutterLocalNotificationsPlugin();
   static bool _ok = false;
@@ -117,6 +129,7 @@ abstract final class Nhac {
   static Future<void> dongBo(
     List<Habit> ds, {
     Set<int> boHomNay = const {},
+    List<FocusTask> focus = const [],
   }) async {
     if (!_ok) return;
     try {
@@ -133,6 +146,9 @@ abstract final class Nhac {
             boHomNay: boHomNay.contains(h.id) && thu == thuHom,
           );
         }
+      }
+      for (final t in focus) {
+        await _datFocus(t);
       }
     } catch (_) {}
   }
@@ -197,6 +213,73 @@ abstract final class Nhac {
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+        payload: payload,
+      );
+    }
+  }
+
+  static Future<void> _datFocus(FocusTask t) async {
+    if (t.done) return;
+    final d = Ngay.parse(t.ngay);
+    final khi = tz.TZDateTime(
+      tz.local,
+      d.year,
+      d.month,
+      d.day,
+      t.gioPhut ~/ 60,
+      t.gioPhut % 60,
+    );
+    if (!khi.isAfter(tz.TZDateTime.now(tz.local))) return;
+    const android = AndroidNotificationDetails(
+      kenhId,
+      kenhTen,
+      channelDescription: kenhMoTa,
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      visibility: NotificationVisibility.public,
+      category: AndroidNotificationCategory.reminder,
+      icon: '@drawable/ic_nhac',
+      color: Color(0xFFFF7A00),
+      fullScreenIntent: false,
+      actions: <AndroidNotificationAction>[
+        AndroidNotificationAction(
+          'xong',
+          'Xong',
+          showsUserInterface: true,
+          cancelNotification: true,
+        ),
+      ],
+    );
+    const ios = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentList: true,
+      presentSound: true,
+      sound: 'default',
+      interruptionLevel: InterruptionLevel.active,
+    );
+    const details = NotificationDetails(android: android, iOS: ios);
+    final payload = payloadFocus(t.id);
+    try {
+      await _p.zonedSchedule(
+        notiIdFocus(t.id),
+        t.title,
+        '',
+        khi,
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: payload,
+      );
+    } catch (_) {
+      await _p.zonedSchedule(
+        notiIdFocus(t.id),
+        t.title,
+        '',
+        khi,
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         payload: payload,
       );
     }

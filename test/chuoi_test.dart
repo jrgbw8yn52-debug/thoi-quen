@@ -49,6 +49,9 @@ void main() {
     expect(Chuoi.chuaLam, 'Chưa làm');
     expect(Chuoi.uuTienFocus, 'Ưu tiên Focus?');
     expect(Chuoi.quaGio, 'Quá giờ');
+    expect(Chuoi.pomo, 'Pomodoro');
+    expect(Chuoi.batDau, 'Bắt đầu');
+    expect(Chuoi.danhDauXong, 'Đánh dấu việc xong?');
     expect(Chuoi.thongKe, 'Thống kê');
     expect(Chuoi.xong, 'Xong');
   });

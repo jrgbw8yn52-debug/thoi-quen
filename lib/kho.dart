@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show Value;
@@ -197,6 +198,16 @@ class Kho extends ChangeNotifier {
   List<FocusTask> dsFocus = const [];
   Map<String, Set<int>> overrideIso = {};
   bool dangTai = true;
+
+  int pomoLam = 25;
+  int pomoNghi = 5;
+  bool pomoLamDang = true;
+  bool pomoChay = false;
+  int pomoConGiay = 25 * 60;
+  int? pomoViecId;
+  bool pomoHoiTick = false;
+  DateTime? _pomoHet;
+  Timer? _pomoTick;
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
   Map<int, Set<String>> ticksIso = {};
@@ -889,7 +900,7 @@ class Kho extends ChangeNotifier {
     focusBan.ban();
     notifyListeners();
     if (lanDau) shellBan.ban();
-    await Nhac.dongBo(dsHien, boHomNay: _boNotiHomNay);
+    await _dongNhac();
     _dongWid();
   }
 
@@ -1241,7 +1252,7 @@ class Kho extends ChangeNotifier {
     await _napOverride();
     _dongBoHangVaTuan();
     homeBan.ban();
-    await Nhac.dongBo(dsHien, boHomNay: _boNotiHomNay);
+    await _dongNhac();
     _dongWid();
   }
 
@@ -1262,7 +1273,7 @@ class Kho extends ChangeNotifier {
       if (dongBo) {
         _dongBoHangVaTuan();
         homeBan.ban();
-        await Nhac.dongBo(dsHien, boHomNay: _boNotiHomNay);
+        await _dongNhac();
         _dongWid();
       }
     }
@@ -1279,7 +1290,7 @@ class Kho extends ChangeNotifier {
     if (doi) {
       _dongBoHangVaTuan();
       homeBan.ban();
-      await Nhac.dongBo(dsHien, boHomNay: _boNotiHomNay);
+      await _dongNhac();
       _dongWid();
     }
   }
@@ -1297,6 +1308,15 @@ class Kho extends ChangeNotifier {
     dsFocus = await db.dsFocus();
     await nhaOverrideQuaHan();
     focusBan.ban();
+    await _dongNhac();
+  }
+
+  Future<void> _dongNhac() {
+    return Nhac.dongBo(
+      dsHien,
+      boHomNay: _boNotiHomNay,
+      focus: dsFocus,
+    );
   }
 
   Future<int> themFocus({
@@ -1360,7 +1380,7 @@ class Kho extends ChangeNotifier {
     await _taiFocus();
   }
 
-  Future<void> tickFocus(int id) async {
+  Future<void> tickFocus(int id, {bool chiBat = false}) async {
     FocusTask? t;
     for (final x in dsFocus) {
       if (x.id == id) {
@@ -1369,7 +1389,12 @@ class Kho extends ChangeNotifier {
       }
     }
     if (t == null || !tickDuocFocus(t)) return;
-    await db.datFocusDone(id, !t.done);
+    if (chiBat) {
+      if (t.done) return;
+      await db.datFocusDone(id, true);
+    } else {
+      await db.datFocusDone(id, !t.done);
+    }
     await _taiFocus();
   }
 
@@ -1390,6 +1415,12 @@ class Kho extends ChangeNotifier {
 
   /// Tap noti → Home, selectedDate = ngày noti (weekday gần nhất ≤ homNay).
   void moTuNoti(String payload) {
+    final fid = Nhac.idFocusTu(payload);
+    if (fid != null) {
+      tab = 3;
+      tabBan.ban();
+      return;
+    }
     final thu = int.tryParse(payload.split('|').last);
     if (thu == null || thu < 1 || thu > 7) return;
     var d = homNay;
@@ -1404,6 +1435,13 @@ class Kho extends ChangeNotifier {
   }
 
   Future<void> tickTuNoti(String payload) async {
+    final fid = Nhac.idFocusTu(payload);
+    if (fid != null) {
+      tab = 3;
+      tabBan.ban();
+      await tickFocus(fid, chiBat: true);
+      return;
+    }
     moTuNoti(payload);
     final id = int.tryParse(payload.split('|').first);
     if (id == null) return;
@@ -1898,5 +1936,103 @@ class Kho extends ChangeNotifier {
     selected = homNay;
     await tai();
   }
+
+  String get pomoChu {
+    final m = pomoConGiay ~/ 60;
+    final s = pomoConGiay % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  List<FocusTask> get viecPomo {
+    return [
+      for (final t in dsFocus)
+        if (tickDuocFocus(t) && !t.done) t,
+    ];
+  }
+
+  void doiPomoLam(int phut) {
+    if (pomoChay) return;
+    if (phut < 1 || phut > 90) return;
+    pomoLam = phut;
+    if (pomoLamDang) pomoConGiay = phut * 60;
+    focusBan.ban();
+  }
+
+  void doiPomoNghi(int phut) {
+    if (pomoChay) return;
+    if (phut < 1 || phut > 30) return;
+    pomoNghi = phut;
+    if (!pomoLamDang) pomoConGiay = phut * 60;
+    focusBan.ban();
+  }
+
+  void ganPomo(int? id) {
+    pomoViecId = id;
+    focusBan.ban();
+  }
+
+  void batPomo() {
+    if (pomoChay) return;
+    pomoChay = true;
+    _pomoHet = DateTime.now().add(Duration(seconds: pomoConGiay));
+    _pomoTick?.cancel();
+    _pomoTick = Timer.periodic(const Duration(seconds: 1), _nhipPomo);
+    focusBan.ban();
+  }
+
+  void dungPomo() {
+    if (!pomoChay) return;
+    _pomoTick?.cancel();
+    _pomoTick = null;
+    pomoChay = false;
+    if (_pomoHet != null) {
+      final con = _pomoHet!.difference(DateTime.now()).inSeconds;
+      pomoConGiay = con < 0 ? 0 : con;
+    }
+    _pomoHet = null;
+    focusBan.ban();
+  }
+
+  void datLaiPomo() {
+    _pomoTick?.cancel();
+    _pomoTick = null;
+    pomoChay = false;
+    _pomoHet = null;
+    pomoConGiay = (pomoLamDang ? pomoLam : pomoNghi) * 60;
+    pomoHoiTick = false;
+    focusBan.ban();
+  }
+
+  void _nhipPomo(Timer t) {
+    final het = _pomoHet;
+    if (het == null) return;
+    final con = het.difference(DateTime.now()).inSeconds;
+    if (con <= 0) {
+      t.cancel();
+      _pomoTick = null;
+      hetPomo();
+      return;
+    }
+    pomoConGiay = con;
+    focusBan.ban();
+  }
+
+  /// Hết phiên: hỏi tick nếu vừa Làm và có việc gắn.
+  void hetPomo() {
+    final laLam = pomoLamDang;
+    pomoChay = false;
+    _pomoHet = null;
+    pomoLamDang = !pomoLamDang;
+    pomoConGiay = (pomoLamDang ? pomoLam : pomoNghi) * 60;
+    if (laLam && pomoViecId != null) pomoHoiTick = true;
+    focusBan.ban();
+  }
+
+  @override
+  void dispose() {
+    _pomoTick?.cancel();
+    super.dispose();
+  }
 }
+
 

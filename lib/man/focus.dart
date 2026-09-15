@@ -30,7 +30,47 @@ class _ManFocusState extends State<ManFocus> {
   }
 
   void _ve() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
+    if (kho.pomoHoiTick) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _hoiTickPomo();
+      });
+    }
+  }
+
+  Future<void> _hoiTickPomo() async {
+    if (!kho.pomoHoiTick) return;
+    kho.pomoHoiTick = false;
+    final id = kho.pomoViecId;
+    if (id == null) return;
+    FocusTask? t;
+    for (final x in kho.dsFocus) {
+      if (x.id == id) {
+        t = x;
+        break;
+      }
+    }
+    if (t == null || !kho.tickDuocFocus(t) || t.done) return;
+    if (!mounted) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(Chuoi.danhDauXong),
+        content: Text(t!.title),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(Chuoi.khong),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(Chuoi.co),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) await kho.tickFocus(id, chiBat: true);
   }
 
   @override
@@ -98,6 +138,7 @@ class _ManFocusState extends State<ManFocus> {
                     child: const Text(Chuoi.viecQuanTrong),
                   ),
                 ),
+                _Pomo(kho: kho),
               ],
             ),
           ),
@@ -323,3 +364,191 @@ class _Tick extends StatelessWidget {
     );
   }
 }
+
+class _Pomo extends StatelessWidget {
+  const _Pomo({required this.kho});
+
+  final Kho kho;
+
+  @override
+  Widget build(BuildContext context) {
+    final viec = kho.viecPomo;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Mau.beMat,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                kho.pomoChu,
+                key: const Key('pomo-dong'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 2,
+                  color: Mau.muc,
+                  fontFeatures: [FontFeature.tabularFigures()],
+                ),
+              ),
+              Text(
+                kho.pomoLamDang ? Chuoi.lamViec : Chuoi.nghi,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 13, color: Mau.mo),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    key: const Key('pomo-bat'),
+                    onPressed: kho.pomoChay ? kho.dungPomo : kho.batPomo,
+                    child: Text(kho.pomoChay ? Chuoi.tamDung : Chuoi.batDau),
+                  ),
+                  TextButton(
+                    onPressed: kho.datLaiPomo,
+                    child: const Text(Chuoi.datLai),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: _PomoPhut(
+                      nhan: Chuoi.lamViec,
+                      phut: kho.pomoLam,
+                      onCong: () => kho.doiPomoLam(kho.pomoLam + 1),
+                      onTru: () => kho.doiPomoLam(kho.pomoLam - 1),
+                      congKey: 'pomo-lam-cong',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _PomoPhut(
+                      nhan: Chuoi.nghi,
+                      phut: kho.pomoNghi,
+                      onCong: () => kho.doiPomoNghi(kho.pomoNghi + 1),
+                      onTru: () => kho.doiPomoNghi(kho.pomoNghi - 1),
+                    ),
+                  ),
+                ],
+              ),
+              if (viec.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  Chuoi.ganViec,
+                  style: TextStyle(fontSize: 13, color: Mau.mo),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    _GanChip(
+                      chu: Chuoi.khongGan,
+                      bat: kho.pomoViecId == null,
+                      onTap: () => kho.ganPomo(null),
+                    ),
+                    for (final t in viec.take(6))
+                      _GanChip(
+                        chu: t.title,
+                        bat: kho.pomoViecId == t.id,
+                        onTap: () => kho.ganPomo(t.id),
+                      ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PomoPhut extends StatelessWidget {
+  const _PomoPhut({
+    required this.nhan,
+    required this.phut,
+    required this.onCong,
+    required this.onTru,
+    this.congKey,
+  });
+
+  final String nhan;
+  final int phut;
+  final VoidCallback onCong;
+  final VoidCallback onTru;
+  final String? congKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            '$nhan $phut',
+            style: const TextStyle(fontSize: 13, color: Mau.muc),
+          ),
+        ),
+        IconButton(
+          visualDensity: VisualDensity.compact,
+          onPressed: onTru,
+          icon: const Icon(Icons.remove, size: 18, color: Mau.mo),
+        ),
+        IconButton(
+          key: congKey == null ? null : Key(congKey!),
+          visualDensity: VisualDensity.compact,
+          onPressed: onCong,
+          icon: const Icon(Icons.add, size: 18, color: Mau.mo),
+        ),
+      ],
+    );
+  }
+}
+
+class _GanChip extends StatelessWidget {
+  const _GanChip({
+    required this.chu,
+    required this.bat,
+    required this.onTap,
+  });
+
+  final String chu;
+  final bool bat;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: bat ? Mau.chipBat : Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: bat ? Mau.reu : Mau.vien),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Text(
+            chu,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 13,
+              color: bat ? Mau.reu : Mau.mo,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

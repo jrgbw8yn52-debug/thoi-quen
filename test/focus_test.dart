@@ -142,13 +142,18 @@ void main() {
     expect(find.text(Chuoi.viecQuanTrong), findsOneWidget);
     expect(find.text('Họp sáng'), findsOneWidget);
     expect(find.text(Chuoi.chuaLam), findsOneWidget);
-    expect(find.text('Viết bài'), findsOneWidget);
+    expect(find.text('Viết bài'), findsWidgets);
 
     await tester.tap(find.text('Họp sáng'));
     await tester.pumpAndSettle();
     expect(kho.dsFocus.firstWhere((t) => t.title == 'Họp sáng').done, isFalse);
 
-    await tester.tap(find.text('Viết bài'));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(ListView),
+        matching: find.text('Viết bài'),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(kho.dsFocus.firstWhere((t) => t.title == 'Viết bài').done, isTrue);
 

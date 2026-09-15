@@ -26,6 +26,15 @@ abstract final class Chuoi {
   static const quaGio = 'Quá giờ';
   static const co = 'Có';
   static const khong = 'Không';
+  static const pomo = 'Pomodoro';
+  static const batDau = 'Bắt đầu';
+  static const tamDung = 'Tạm dừng';
+  static const datLai = 'Đặt lại';
+  static const lamViec = 'Làm';
+  static const nghi = 'Nghỉ';
+  static const ganViec = 'Gắn việc';
+  static const khongGan = 'Không gắn';
+  static const danhDauXong = 'Đánh dấu việc xong?';
   static const hetViecHomNay = 'Hết việc hôm nay';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';
