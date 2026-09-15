@@ -45,6 +45,8 @@ void main() {
     expect(Chuoi.nTrenM(3, 5), '3/5');
     expect(Chuoi.hetViecHomNay, 'Hết việc hôm nay');
     expect(Chuoi.focus, 'Focus');
+    expect(Chuoi.viecQuanTrong, 'Việc quan trọng');
+    expect(Chuoi.chuaLam, 'Chưa làm');
     expect(Chuoi.thongKe, 'Thống kê');
     expect(Chuoi.xong, 'Xong');
   });

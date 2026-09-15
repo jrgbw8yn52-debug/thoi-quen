@@ -16,6 +16,12 @@ abstract final class Chuoi {
   static const caiDat = 'Cài đặt';
   static const taiKhoan = 'Tài khoản';
   static const focus = 'Focus';
+  static const viecQuanTrong = 'Việc quan trọng';
+  static const chuaLam = 'Chưa làm';
+  static const thoiLuong = 'Thời lượng';
+  static const tuDat = 'Tự';
+  static const tenViec = 'Tên việc';
+  static const chuaCoViec = 'Chưa có việc.';
   static const hetViecHomNay = 'Hết việc hôm nay';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';
@@ -445,4 +451,6 @@ abstract final class Chuoi {
     if (h12 == 0) h12 = 12;
     return '$h12:$m ${chieu ? ch : sa}';
   }
+
+  static String luongPhut(int n) => '$n $phut';
 }

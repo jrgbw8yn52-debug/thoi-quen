@@ -4676,6 +4676,454 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLog> {
   }
 }
 
+class $FocusTasksTable extends FocusTasks
+    with TableInfo<$FocusTasksTable, FocusTask> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FocusTasksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ngayMeta = const VerificationMeta('ngay');
+  @override
+  late final GeneratedColumn<String> ngay = GeneratedColumn<String>(
+    'ngay',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _gioPhutMeta = const VerificationMeta(
+    'gioPhut',
+  );
+  @override
+  late final GeneratedColumn<int> gioPhut = GeneratedColumn<int>(
+    'gio_phut',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _durationMinMeta = const VerificationMeta(
+    'durationMin',
+  );
+  @override
+  late final GeneratedColumn<int> durationMin = GeneratedColumn<int>(
+    'duration_min',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _doneMeta = const VerificationMeta('done');
+  @override
+  late final GeneratedColumn<bool> done = GeneratedColumn<bool>(
+    'done',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("done" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    ngay,
+    gioPhut,
+    durationMin,
+    done,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'focus_tasks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FocusTask> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('ngay')) {
+      context.handle(
+        _ngayMeta,
+        ngay.isAcceptableOrUnknown(data['ngay']!, _ngayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ngayMeta);
+    }
+    if (data.containsKey('gio_phut')) {
+      context.handle(
+        _gioPhutMeta,
+        gioPhut.isAcceptableOrUnknown(data['gio_phut']!, _gioPhutMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_gioPhutMeta);
+    }
+    if (data.containsKey('duration_min')) {
+      context.handle(
+        _durationMinMeta,
+        durationMin.isAcceptableOrUnknown(
+          data['duration_min']!,
+          _durationMinMeta,
+        ),
+      );
+    }
+    if (data.containsKey('done')) {
+      context.handle(
+        _doneMeta,
+        done.isAcceptableOrUnknown(data['done']!, _doneMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FocusTask map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FocusTask(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      ngay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ngay'],
+      )!,
+      gioPhut: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gio_phut'],
+      )!,
+      durationMin: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_min'],
+      ),
+      done: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}done'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $FocusTasksTable createAlias(String alias) {
+    return $FocusTasksTable(attachedDatabase, alias);
+  }
+}
+
+class FocusTask extends DataClass implements Insertable<FocusTask> {
+  final int id;
+  final String title;
+  final String ngay;
+  final int gioPhut;
+  final int? durationMin;
+  final bool done;
+  final DateTime createdAt;
+  const FocusTask({
+    required this.id,
+    required this.title,
+    required this.ngay,
+    required this.gioPhut,
+    this.durationMin,
+    required this.done,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['title'] = Variable<String>(title);
+    map['ngay'] = Variable<String>(ngay);
+    map['gio_phut'] = Variable<int>(gioPhut);
+    if (!nullToAbsent || durationMin != null) {
+      map['duration_min'] = Variable<int>(durationMin);
+    }
+    map['done'] = Variable<bool>(done);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  FocusTasksCompanion toCompanion(bool nullToAbsent) {
+    return FocusTasksCompanion(
+      id: Value(id),
+      title: Value(title),
+      ngay: Value(ngay),
+      gioPhut: Value(gioPhut),
+      durationMin: durationMin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationMin),
+      done: Value(done),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory FocusTask.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FocusTask(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      ngay: serializer.fromJson<String>(json['ngay']),
+      gioPhut: serializer.fromJson<int>(json['gioPhut']),
+      durationMin: serializer.fromJson<int?>(json['durationMin']),
+      done: serializer.fromJson<bool>(json['done']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+      'ngay': serializer.toJson<String>(ngay),
+      'gioPhut': serializer.toJson<int>(gioPhut),
+      'durationMin': serializer.toJson<int?>(durationMin),
+      'done': serializer.toJson<bool>(done),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  FocusTask copyWith({
+    int? id,
+    String? title,
+    String? ngay,
+    int? gioPhut,
+    Value<int?> durationMin = const Value.absent(),
+    bool? done,
+    DateTime? createdAt,
+  }) => FocusTask(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    ngay: ngay ?? this.ngay,
+    gioPhut: gioPhut ?? this.gioPhut,
+    durationMin: durationMin.present ? durationMin.value : this.durationMin,
+    done: done ?? this.done,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  FocusTask copyWithCompanion(FocusTasksCompanion data) {
+    return FocusTask(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      ngay: data.ngay.present ? data.ngay.value : this.ngay,
+      gioPhut: data.gioPhut.present ? data.gioPhut.value : this.gioPhut,
+      durationMin: data.durationMin.present
+          ? data.durationMin.value
+          : this.durationMin,
+      done: data.done.present ? data.done.value : this.done,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FocusTask(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('ngay: $ngay, ')
+          ..write('gioPhut: $gioPhut, ')
+          ..write('durationMin: $durationMin, ')
+          ..write('done: $done, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, title, ngay, gioPhut, durationMin, done, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FocusTask &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.ngay == this.ngay &&
+          other.gioPhut == this.gioPhut &&
+          other.durationMin == this.durationMin &&
+          other.done == this.done &&
+          other.createdAt == this.createdAt);
+}
+
+class FocusTasksCompanion extends UpdateCompanion<FocusTask> {
+  final Value<int> id;
+  final Value<String> title;
+  final Value<String> ngay;
+  final Value<int> gioPhut;
+  final Value<int?> durationMin;
+  final Value<bool> done;
+  final Value<DateTime> createdAt;
+  const FocusTasksCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.ngay = const Value.absent(),
+    this.gioPhut = const Value.absent(),
+    this.durationMin = const Value.absent(),
+    this.done = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  FocusTasksCompanion.insert({
+    this.id = const Value.absent(),
+    required String title,
+    required String ngay,
+    required int gioPhut,
+    this.durationMin = const Value.absent(),
+    this.done = const Value.absent(),
+    required DateTime createdAt,
+  }) : title = Value(title),
+       ngay = Value(ngay),
+       gioPhut = Value(gioPhut),
+       createdAt = Value(createdAt);
+  static Insertable<FocusTask> custom({
+    Expression<int>? id,
+    Expression<String>? title,
+    Expression<String>? ngay,
+    Expression<int>? gioPhut,
+    Expression<int>? durationMin,
+    Expression<bool>? done,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (ngay != null) 'ngay': ngay,
+      if (gioPhut != null) 'gio_phut': gioPhut,
+      if (durationMin != null) 'duration_min': durationMin,
+      if (done != null) 'done': done,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  FocusTasksCompanion copyWith({
+    Value<int>? id,
+    Value<String>? title,
+    Value<String>? ngay,
+    Value<int>? gioPhut,
+    Value<int?>? durationMin,
+    Value<bool>? done,
+    Value<DateTime>? createdAt,
+  }) {
+    return FocusTasksCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      ngay: ngay ?? this.ngay,
+      gioPhut: gioPhut ?? this.gioPhut,
+      durationMin: durationMin ?? this.durationMin,
+      done: done ?? this.done,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (ngay.present) {
+      map['ngay'] = Variable<String>(ngay.value);
+    }
+    if (gioPhut.present) {
+      map['gio_phut'] = Variable<int>(gioPhut.value);
+    }
+    if (durationMin.present) {
+      map['duration_min'] = Variable<int>(durationMin.value);
+    }
+    if (done.present) {
+      map['done'] = Variable<bool>(done.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FocusTasksCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('ngay: $ngay, ')
+          ..write('gioPhut: $gioPhut, ')
+          ..write('durationMin: $durationMin, ')
+          ..write('done: $done, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4692,6 +5140,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $NapInsTable napIns = $NapInsTable(this);
   late final $FoodsTable foods = $FoodsTable(this);
   late final $FoodLogsTable foodLogs = $FoodLogsTable(this);
+  late final $FocusTasksTable focusTasks = $FocusTasksTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4710,6 +5159,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     napIns,
     foods,
     foodLogs,
+    focusTasks,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -7856,6 +8306,235 @@ typedef $$FoodLogsTableProcessedTableManager =
       FoodLog,
       PrefetchHooks Function({bool foodId})
     >;
+typedef $$FocusTasksTableCreateCompanionBuilder = FocusTasksCompanion Function({
+  Value<int> id,
+  required String title,
+  required String ngay,
+  required int gioPhut,
+  Value<int?> durationMin,
+  Value<bool> done,
+  required DateTime createdAt,
+});
+typedef $$FocusTasksTableUpdateCompanionBuilder = FocusTasksCompanion Function({
+  Value<int> id,
+  Value<String> title,
+  Value<String> ngay,
+  Value<int> gioPhut,
+  Value<int?> durationMin,
+  Value<bool> done,
+  Value<DateTime> createdAt,
+});
+
+class $$FocusTasksTableFilterComposer
+    extends Composer<_$AppDatabase, $FocusTasksTable> {
+  $$FocusTasksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get gioPhut => $composableBuilder(
+    column: $table.gioPhut,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get durationMin => $composableBuilder(
+    column: $table.durationMin,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get done => $composableBuilder(
+    column: $table.done,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FocusTasksTableOrderingComposer
+    extends Composer<_$AppDatabase, $FocusTasksTable> {
+  $$FocusTasksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ngay => $composableBuilder(
+    column: $table.ngay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get gioPhut => $composableBuilder(
+    column: $table.gioPhut,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get durationMin => $composableBuilder(
+    column: $table.durationMin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get done => $composableBuilder(
+    column: $table.done,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FocusTasksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FocusTasksTable> {
+  $$FocusTasksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get ngay =>
+      $composableBuilder(column: $table.ngay, builder: (column) => column);
+
+  GeneratedColumn<int> get gioPhut =>
+      $composableBuilder(column: $table.gioPhut, builder: (column) => column);
+
+  GeneratedColumn<int> get durationMin => $composableBuilder(
+    column: $table.durationMin,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get done =>
+      $composableBuilder(column: $table.done, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$FocusTasksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FocusTasksTable,
+          FocusTask,
+          $$FocusTasksTableFilterComposer,
+          $$FocusTasksTableOrderingComposer,
+          $$FocusTasksTableAnnotationComposer,
+          $$FocusTasksTableCreateCompanionBuilder,
+          $$FocusTasksTableUpdateCompanionBuilder,
+          (
+            FocusTask,
+            BaseReferences<_$AppDatabase, $FocusTasksTable, FocusTask>,
+          ),
+          FocusTask,
+          PrefetchHooks Function()
+        > {
+  $$FocusTasksTableTableManager(_$AppDatabase db, $FocusTasksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FocusTasksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FocusTasksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FocusTasksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> ngay = const Value.absent(),
+                Value<int> gioPhut = const Value.absent(),
+                Value<int?> durationMin = const Value.absent(),
+                Value<bool> done = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => FocusTasksCompanion(
+                id: id,
+                title: title,
+                ngay: ngay,
+                gioPhut: gioPhut,
+                durationMin: durationMin,
+                done: done,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String title,
+                required String ngay,
+                required int gioPhut,
+                Value<int?> durationMin = const Value.absent(),
+                Value<bool> done = const Value.absent(),
+                required DateTime createdAt,
+              }) => FocusTasksCompanion.insert(
+                id: id,
+                title: title,
+                ngay: ngay,
+                gioPhut: gioPhut,
+                durationMin: durationMin,
+                done: done,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FocusTasksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FocusTasksTable,
+      FocusTask,
+      $$FocusTasksTableFilterComposer,
+      $$FocusTasksTableOrderingComposer,
+      $$FocusTasksTableAnnotationComposer,
+      $$FocusTasksTableCreateCompanionBuilder,
+      $$FocusTasksTableUpdateCompanionBuilder,
+      (FocusTask, BaseReferences<_$AppDatabase, $FocusTasksTable, FocusTask>),
+      FocusTask,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7886,4 +8565,6 @@ class $AppDatabaseManager {
       $$FoodsTableTableManager(_db, _db.foods);
   $$FoodLogsTableTableManager get foodLogs =>
       $$FoodLogsTableTableManager(_db, _db.foodLogs);
+  $$FocusTasksTableTableManager get focusTasks =>
+      $$FocusTasksTableTableManager(_db, _db.focusTasks);
 }

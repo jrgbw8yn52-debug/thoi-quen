@@ -137,7 +137,7 @@ void main() {
     expect(tab, 3);
   });
 
-  testWidgets('tab Focus placeholder chu Focus, chua form', (tester) async {
+  testWidgets('tab Focus co nut Viec quan trong', (tester) async {
     tester.view.physicalSize = const Size(390, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -156,7 +156,7 @@ void main() {
     );
     expect(find.byKey(const Key('man-focus')), findsOneWidget);
     expect(find.text(Chuoi.focus), findsWidgets);
-    expect(find.text(Chuoi.luu), findsNothing);
+    expect(find.text(Chuoi.viecQuanTrong), findsOneWidget);
     expect(find.text(Chuoi.themThoiQuen), findsNothing);
   });
 

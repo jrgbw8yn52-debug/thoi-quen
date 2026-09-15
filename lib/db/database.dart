@@ -184,6 +184,19 @@ class FoodLogs extends Table {
   TextColumn get khung => text().withDefault(const Constant('sang'))();
 }
 
+class FocusTasks extends Table {
+  @override
+  String get tableName => 'focus_tasks';
+
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+  TextColumn get ngay => text()();
+  IntColumn get gioPhut => integer()();
+  IntColumn get durationMin => integer().nullable()();
+  BoolColumn get done => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime()();
+}
+
 @DriftDatabase(tables: [
   Habits,
   Ticks,
@@ -198,6 +211,7 @@ class FoodLogs extends Table {
   NapIns,
   Foods,
   FoodLogs,
+  FocusTasks,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _moKetNoi());
@@ -207,7 +221,7 @@ class AppDatabase extends _$AppDatabase {
   static const int phutVanDong = 30;
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   static QueryExecutor _moKetNoi() {
     return driftDatabase(
@@ -307,6 +321,9 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
             await customStatement('DROP TABLE IF EXISTS aura_fragments');
             await customStatement('DROP TABLE IF EXISTS aura_quest_log');
             await customStatement('DROP TABLE IF EXISTS aura_profile');
+          }
+          if (from < 16) {
+            await m.createTable(focusTasks);
           }
         },
         beforeOpen: (details) async {
@@ -852,6 +869,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     'nap_ins',
     'foods',
     'food_log',
+    'focus_tasks',
   ];
 
   static const _bangXoa = <String>[
@@ -868,6 +886,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     'tap_ins',
     'chi_so',
     'profile',
+    'focus_tasks',
   ];
 
   Future<String> duongBanSao() async {
@@ -936,6 +955,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
         'moc_can',
         'foods',
         'food_log',
+        'focus_tasks',
       ]) {
         try {
           await customStatement(
@@ -969,6 +989,66 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await khoiPhucTu(path);
   }
 
+  Future<List<FocusTask>> dsFocus() {
+    return (select(focusTasks)
+          ..orderBy([
+            (t) => OrderingTerm.asc(t.ngay),
+            (t) => OrderingTerm.asc(t.gioPhut),
+            (t) => OrderingTerm.asc(t.id),
+          ]))
+        .get();
+  }
+
+  Future<int> themFocus({
+    required String title,
+    required DateTime ngay,
+    required int gioPhut,
+    int? durationMin,
+    required DateTime createdAt,
+  }) async {
+    final ten = Ten.sach(title);
+    if (ten.isEmpty) return 0;
+    return into(focusTasks).insert(
+      FocusTasksCompanion.insert(
+        title: ten,
+        ngay: Ngay.iso(ngay),
+        gioPhut: gioPhut,
+        durationMin: Value(durationMin),
+        createdAt: createdAt,
+      ),
+    );
+  }
+
+  Future<bool> suaFocus({
+    required int id,
+    required String title,
+    required DateTime ngay,
+    required int gioPhut,
+    int? durationMin,
+  }) async {
+    final ten = Ten.sach(title);
+    if (ten.isEmpty) return false;
+    final n = await (update(focusTasks)..where((t) => t.id.equals(id))).write(
+      FocusTasksCompanion(
+        title: Value(ten),
+        ngay: Value(Ngay.iso(ngay)),
+        gioPhut: Value(gioPhut),
+        durationMin: Value(durationMin),
+      ),
+    );
+    return n > 0;
+  }
+
+  Future<void> xoaFocus(int id) async {
+    await (delete(focusTasks)..where((t) => t.id.equals(id))).go();
+  }
+
+  Future<void> datFocusDone(int id, bool done) async {
+    await (update(focusTasks)..where((t) => t.id.equals(id))).write(
+      FocusTasksCompanion(done: Value(done)),
+    );
+  }
+
   Future<void> xoaHet() async {
     await delete(ticks).go();
     await delete(loaiTruIns).go();
@@ -982,6 +1062,7 @@ CREATE TABLE IF NOT EXISTS tap_ins_moi (
     await delete(napIns).go();
     await delete(foodLogs).go();
     await delete(foods).go();
+    await delete(focusTasks).go();
     await (update(profiles)..where((p) => p.id.equals(1))).write(
       const ProfilesCompanion(
         sex: Value(null),

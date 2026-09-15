@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'chuoi.dart';
 import 'cong_thuc.dart';
 import 'db/database.dart';
+import 'focus_han.dart';
 import 'khung.dart';
 import 'ngay.dart';
 import 'nhac.dart';
@@ -156,6 +157,7 @@ class Kho extends ChangeNotifier {
   final BanNho homeBan = BanNho();
   final BanNho lichBan = BanNho();
   final BanNho tienDoBan = BanNho();
+  final BanNho focusBan = BanNho();
 
   List<HangHabitView> hang = const [];
   List<Habit> dsHien = const [];
@@ -186,6 +188,7 @@ class Kho extends ChangeNotifier {
   List<ChiSoIn> dsChiSo = const [];
   List<MocCan> dsMocBanDau = const [];
   List<MocCan> dsMocDich = const [];
+  List<FocusTask> dsFocus = const [];
   bool dangTai = true;
 
   /// iso yyyy-MM-dd đã tick, theo habitId.
@@ -864,11 +867,13 @@ class Kho extends ChangeNotifier {
     dsChiSo = await db.dsChiSo();
     dsMocBanDau = await db.dsMoc(AppDatabase.loaiBanDau);
     dsMocDich = await db.dsMoc(AppDatabase.loaiDich);
+    dsFocus = await db.dsFocus();
     final lanDau = dangTai;
     dangTai = false;
     homeBan.ban();
     lichBan.ban();
     tienDoBan.ban();
+    focusBan.ban();
     notifyListeners();
     if (lanDau) shellBan.ban();
     await Nhac.dongBo(dsHien);
@@ -1132,6 +1137,105 @@ class Kho extends ChangeNotifier {
   Future<void> xoaHabit(int id) => anKhoiDs(id);
 
   void moCaiDat() => chonTab(3);
+
+  bool quaHanFocus(FocusTask t) => FocusHan.quaHan(
+        done: t.done,
+        ngay: t.ngay,
+        gioPhut: t.gioPhut,
+        durationMin: t.durationMin,
+        now: bayGio,
+      );
+
+  bool suaDuocFocus(FocusTask t) =>
+      Ngay.ghiDuoc(Ngay.parse(t.ngay), homNay);
+
+  bool tickDuocFocus(FocusTask t) {
+    if (!suaDuocFocus(t)) return false;
+    return !bayGio.isAfter(
+      FocusHan.hetHan(
+        ngay: t.ngay,
+        gioPhut: t.gioPhut,
+        durationMin: t.durationMin,
+      ),
+    );
+  }
+
+  List<(String, List<FocusTask>)> get nhomFocus {
+    final map = <String, List<FocusTask>>{};
+    for (final t in dsFocus) {
+      map.putIfAbsent(t.ngay, () => []).add(t);
+    }
+    final keys = map.keys.toList()..sort();
+    return [for (final k in keys) (k, map[k]!)];
+  }
+
+  Future<void> _taiFocus() async {
+    dsFocus = await db.dsFocus();
+    focusBan.ban();
+  }
+
+  Future<int> themFocus({
+    required String title,
+    required DateTime ngay,
+    required int gioPhut,
+    int? durationMin,
+  }) async {
+    if (!Ngay.ghiDuoc(ngay, homNay)) return 0;
+    final id = await db.themFocus(
+      title: title,
+      ngay: ngay,
+      gioPhut: gioPhut,
+      durationMin: durationMin,
+      createdAt: bayGio,
+    );
+    if (id > 0) await _taiFocus();
+    return id;
+  }
+
+  Future<bool> suaFocus({
+    required int id,
+    required String title,
+    required DateTime ngay,
+    required int gioPhut,
+    int? durationMin,
+  }) async {
+    if (!Ngay.ghiDuoc(ngay, homNay)) return false;
+    final ok = await db.suaFocus(
+      id: id,
+      title: title,
+      ngay: ngay,
+      gioPhut: gioPhut,
+      durationMin: durationMin,
+    );
+    if (ok) await _taiFocus();
+    return ok;
+  }
+
+  Future<void> xoaFocus(int id) async {
+    FocusTask? t;
+    for (final x in dsFocus) {
+      if (x.id == id) {
+        t = x;
+        break;
+      }
+    }
+    if (t == null || !suaDuocFocus(t)) return;
+    await db.xoaFocus(id);
+    await _taiFocus();
+  }
+
+  Future<void> tickFocus(int id) async {
+    FocusTask? t;
+    for (final x in dsFocus) {
+      if (x.id == id) {
+        t = x;
+        break;
+      }
+    }
+    if (t == null || !tickDuocFocus(t)) return;
+    await db.datFocusDone(id, !t.done);
+    await _taiFocus();
+  }
 
   void moLich() => chonTab(1);
 
