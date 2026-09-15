@@ -23,18 +23,19 @@ import 'wid_home.dart';
 class HangHabitView {
   const HangHabitView({
     required this.habit,
-    required this.ticked,
-    this.trang = HabitTrang.open,
+    required this.trang,
   });
 
   final Habit habit;
-  final bool ticked;
   final HabitTrang trang;
 
-  HangHabitView copyWith({bool? ticked, Habit? habit, HabitTrang? trang}) {
+  bool get ticked => trang.tickThat;
+  bool get daLam => trang.daLam;
+  bool get choTick => trang.choTick;
+
+  HangHabitView copyWith({Habit? habit, HabitTrang? trang}) {
     return HangHabitView(
       habit: habit ?? this.habit,
-      ticked: ticked ?? this.ticked,
       trang: trang ?? this.trang,
     );
   }
@@ -43,14 +44,12 @@ class HangHabitView {
   bool operator ==(Object other) =>
       other is HangHabitView &&
       other.habit.id == habit.id &&
-      other.ticked == ticked &&
       other.trang == trang &&
       other.habit.ten == habit.ten &&
       other.habit.gioNhac == habit.gioNhac;
 
   @override
-  int get hashCode =>
-      Object.hash(habit.id, ticked, trang, habit.ten, habit.gioNhac);
+  int get hashCode => Object.hash(habit.id, trang, habit.ten, habit.gioNhac);
 }
 
 class ChamTuan {
@@ -216,7 +215,7 @@ class Kho extends ChangeNotifier {
   final Set<String> _dangThem = {};
   final Map<String, Future<void>> _ghiTick = {};
 
-  int get nTick => hang.where((h) => h.ticked).length;
+  int get nTick => hang.where((h) => h.daLam).length;
   int get mHabit => hang.length;
   bool get rong => dsHien.isEmpty;
   bool get xemHomNay => Ngay.cungNgay(selected, homNay);
@@ -924,7 +923,7 @@ class Kho extends ChangeNotifier {
     final ds = [
       for (final h in dsHien)
         if (hienO(h, homNay) && trangCua(h, homNay) == HabitTrang.open)
-          HangHabitView(habit: h, ticked: false),
+          HangHabitView(habit: h, trang: HabitTrang.open),
     ];
     ds.sort(soSanhGioHang);
     return ds;
@@ -1019,7 +1018,7 @@ class Kho extends ChangeNotifier {
   Future<void> toggleNgay(Habit habit, DateTime ngay) {
     if (!Ngay.ghiDuoc(ngay, homNay)) return Future.value();
     final st = trangCua(habit, ngay);
-    if (st == HabitTrang.lockedOverdue || st == HabitTrang.doneOverride) {
+    if (st.khoa) {
       return Future.value();
     }
     final iso = Ngay.iso(ngay);
@@ -1048,16 +1047,10 @@ class Kho extends ChangeNotifier {
   }
 
   void _xepHang() {
-    final isoSel = Ngay.iso(selected);
     final ds = [
       for (final h in dsHien)
         if (hienO(h, selected))
-          HangHabitView(
-            habit: h,
-            ticked: ticksCua(h.id).contains(isoSel) ||
-                (overrideIso[isoSel]?.contains(h.id) ?? false),
-            trang: trangCua(h, selected),
-          ),
+          HangHabitView(habit: h, trang: trangCua(h, selected)),
     ];
     ds.sort(soSanhGioHang);
     hang = ds;

@@ -76,6 +76,13 @@ void main() {
       ),
       HabitTrang.open,
     );
+    expect(HabitTrang.done.daLam, isTrue);
+    expect(HabitTrang.doneOverride.daLam, isTrue);
+    expect(HabitTrang.doneOverride.tickThat, isFalse);
+    expect(HabitTrang.doneOverride.choTick, isFalse);
+    expect(HabitTrang.lockedOverdue.gach, isTrue);
+    expect(HabitTrang.lockedOverdue.khoa, isTrue);
+    expect(HabitTrang.open.choTick, isTrue);
   });
 
   Future<Habit> _habit({String ten = 'Dậy 6 giờ', int? gio}) async {

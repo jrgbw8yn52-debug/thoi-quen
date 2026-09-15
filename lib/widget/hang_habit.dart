@@ -33,8 +33,7 @@ class _HangHabitState extends State<HangHabit> {
 
   bool get _choTick {
     if (widget.khoaGhi) return false;
-    final t = widget.hang.trang;
-    return t == HabitTrang.open || t == HabitTrang.done;
+    return widget.hang.choTick;
   }
 
   @override
@@ -55,9 +54,8 @@ class _HangHabitState extends State<HangHabit> {
   @override
   Widget build(BuildContext context) {
     final trang = widget.hang.trang;
-    final gach =
-        trang == HabitTrang.doneOverride || trang == HabitTrang.lockedOverdue;
-    final quaGio = trang == HabitTrang.lockedOverdue;
+    final gach = trang.gach;
+    final quaGio = trang.quaGio;
     return HangVuot(
       choVuot: widget.choVuot && !widget.khoaGhi,
       onSua: widget.onSua,
@@ -79,7 +77,7 @@ class _HangHabitState extends State<HangHabit> {
               child: Row(
                 children: [
                   _NutTick(
-                    bat: _bat && trang != HabitTrang.lockedOverdue,
+                    bat: _bat,
                     mo: !_choTick,
                   ),
                   const SizedBox(width: 14),

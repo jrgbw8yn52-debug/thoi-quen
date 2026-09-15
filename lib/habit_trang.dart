@@ -1,6 +1,24 @@
 enum HabitTrang { done, doneOverride, lockedOverdue, open }
 
-/// done | done_override | locked_overdue | open
+extension HabitTrangX on HabitTrang {
+  /// Tick thật hoặc override — tính vào n/m.
+  bool get daLam => this == HabitTrang.done || this == HabitTrang.doneOverride;
+
+  /// Chỉ tick tay — chuỗi lửa.
+  bool get tickThat => this == HabitTrang.done;
+
+  bool get choTick => this == HabitTrang.open || this == HabitTrang.done;
+
+  bool get gach =>
+      this == HabitTrang.doneOverride || this == HabitTrang.lockedOverdue;
+
+  bool get quaGio => this == HabitTrang.lockedOverdue;
+
+  bool get khoa =>
+      this == HabitTrang.lockedOverdue || this == HabitTrang.doneOverride;
+}
+
+/// Một hàm: done | done_override | locked_overdue | open.
 HabitTrang habitState({
   required int? gioNhac,
   required bool ticked,

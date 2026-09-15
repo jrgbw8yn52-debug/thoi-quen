@@ -122,7 +122,7 @@ class _ToNgayState extends State<ToNgay> {
                   key: const Key('khoi-thoi-quen'),
                   tieuDe: Chuoi.thoiQuen,
                   phu: Chuoi.nTrenM(
-                    kho.hang.where((h) => h.ticked).length,
+                    kho.hang.where((h) => h.daLam).length,
                     kho.hang.length,
                   ),
                   children: [
