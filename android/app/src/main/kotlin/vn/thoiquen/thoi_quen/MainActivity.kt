@@ -25,6 +25,8 @@ class MainActivity : FlutterActivity() {
                 p.putInt(HabisWidgetProvider.K_M, (call.argument<Number>("m"))?.toInt() ?: 0)
                 val hangRaw = (call.arguments as? Map<*, *>)?.get("hang") as? List<*>
                 HabisWidgetProvider.luuHang(p, hangRaw)
+                val focusRaw = (call.arguments as? Map<*, *>)?.get("focus") as? List<*>
+                HabisWidgetProvider.luuFocus(p, focusRaw)
                 p.apply()
                 HabisWidgetProvider.capNhatTatCa(this)
                 result.success(null)
@@ -44,6 +46,18 @@ class MainActivity : FlutterActivity() {
             Handler(Looper.getMainLooper()).post {
                 try {
                     ch.invokeMethod("tickWid", id)
+                } catch (_: Exception) {
+                }
+            }
+            return true
+        }
+
+        @JvmStatic
+        fun baoTickFocus(id: Int): Boolean {
+            val ch = kenh ?: return false
+            Handler(Looper.getMainLooper()).post {
+                try {
+                    ch.invokeMethod("tickFocus", id)
                 } catch (_: Exception) {
                 }
             }

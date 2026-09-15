@@ -930,6 +930,35 @@ class Kho extends ChangeNotifier {
     return ds;
   }
 
+  /// Focus còn hạn: hôm nay trước, rồi tối đa 1 tương lai. Đã xong / Chưa làm không hiện.
+  List<FocusTask> get hangFocus {
+    final hom = Ngay.iso(homNay);
+    final homNayDs = <FocusTask>[];
+    final tuongLai = <FocusTask>[];
+    for (final t in dsFocus) {
+      if (t.done || quaHanFocus(t)) continue;
+      if (t.ngay == hom) {
+        homNayDs.add(t);
+      } else if (t.ngay.compareTo(hom) > 0) {
+        tuongLai.add(t);
+      }
+    }
+    homNayDs.sort((a, b) => a.gioPhut.compareTo(b.gioPhut));
+    tuongLai.sort((a, b) {
+      final c = a.ngay.compareTo(b.ngay);
+      return c != 0 ? c : a.gioPhut.compareTo(b.gioPhut);
+    });
+    final ds = <FocusTask>[
+      ...homNayDs.take(WidHome.maxFocus),
+    ];
+    if (ds.length < WidHome.maxFocus && tuongLai.isNotEmpty) {
+      ds.add(tuongLai.first);
+    }
+    return ds;
+  }
+
+  Future<void> tickWidFocus(int id) => tickFocus(id, chiBat: true);
+
   Future<void> tickWid(int id, {DateTime? ngay}) async {
     final d = Ngay.cat(ngay ?? homNay);
     if (!Ngay.ghiDuoc(d, homNay)) return;
@@ -1049,19 +1078,20 @@ class Kho extends ChangeNotifier {
   }
 
   void _dongWid() {
-    final goi = kcalGoiYDoc ?? 0;
+    final goi = kcalGoiYDoc;
     final nap = kcalNapCuaNgay(homNay);
+    final hom = Ngay.iso(homNay);
     WidHome.capNhat(
       ngay: Chuoi.widNgay(homNay),
       habit: Chuoi.widHabit(nTickHom, mHom),
-      kcal: Chuoi.widKcal(nap, goi),
+      kcal: goi == null ? Chuoi.widKcalNgan(nap) : Chuoi.widKcal(nap, goi),
       lua: luaTapHom.so,
       habitNm: Chuoi.nTrenM(nTickHom, mHom),
       kcalNgan: Chuoi.widKcalNgan(nap),
       n: nTickHom,
       m: mHom,
       hang: [
-        for (final h in hangCam)
+        for (final h in hangCam.take(WidHome.maxO))
           {
             'id': h.habit.id,
             'ten': h.habit.ten,
@@ -1070,6 +1100,16 @@ class Kho extends ChangeNotifier {
                 : Chuoi.gioNhacChu(h.habit.gioNhac!),
             'phut': h.habit.phutMacDinh,
             'minutes': h.habit.gioNhac,
+          },
+      ],
+      focus: [
+        for (final t in hangFocus)
+          {
+            'id': t.id,
+            'ten': t.title,
+            'gio': t.ngay == hom
+                ? Chuoi.gioNhacChu(t.gioPhut)
+                : Chuoi.widNgayThu(Ngay.parse(t.ngay)),
           },
       ],
     );
@@ -1324,6 +1364,7 @@ class Kho extends ChangeNotifier {
     await nhaOverrideQuaHan();
     focusBan.ban();
     await _dongNhac();
+    _dongWid();
   }
 
   Future<void> _dongNhac() {

@@ -14,7 +14,7 @@ void main() {
   final db = AppDatabase();
   final kho = Kho(db);
   Nhac.khoiTao(bam: kho.moTuNoti, xong: kho.tickTuNoti);
-  WidHome.langNghe(kho.tickWid);
+  WidHome.langNghe(tick: kho.tickWid, tickFocus: kho.tickWidFocus);
   kho.tai().then((_) => Nhac.xuLyLanMo());
   runApp(ThoiQuenApp(kho: kho));
 }

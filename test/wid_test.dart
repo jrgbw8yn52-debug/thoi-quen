@@ -16,7 +16,7 @@ void main() {
   });
 
   test('hàng đợi Cam: chưa tick, sort giờ, không giờ cuối, tối đa 3 ô', () async {
-    final kho = Kho(db, bayGio: DateTime(2026, 9, 4, 13));
+    final kho = Kho(db, bayGio: DateTime(2026, 9, 4, 5));
     addTearDown(kho.dispose);
     await kho.tai();
     Future<void> them(String ten, int? gio) async {
@@ -65,7 +65,7 @@ void main() {
   });
 
   test('tickWid ghi tick hôm nay, không hoàn tác', () async {
-    final kho = Kho(db, bayGio: DateTime(2026, 9, 4, 13));
+    final kho = Kho(db, bayGio: DateTime(2026, 9, 4, 5));
     addTearDown(kho.dispose);
     await kho.tai();
     await kho.themPreset(ten: 'Sáu', gioNhac: 6 * 60);
@@ -76,5 +76,44 @@ void main() {
     expect(kho.hangCam, isEmpty);
     await kho.tickWid(h.habit.id);
     expect(kho.hang.single.ticked, isTrue);
+  });
+
+  test('hangFocus: hôm nay trước, tối đa 1 tương lai, bỏ xong/quá hạn', () async {
+    final kho = Kho(db, bayGio: DateTime(2026, 9, 4, 13));
+    addTearDown(kho.dispose);
+    await kho.tai();
+    await kho.themFocus(
+      title: 'Sáng',
+      ngay: DateTime(2026, 9, 4),
+      gioPhut: 8 * 60,
+      durationMin: 60,
+    );
+    await kho.themFocus(
+      title: 'Chiều',
+      ngay: DateTime(2026, 9, 4),
+      gioPhut: 15 * 60,
+    );
+    await kho.themFocus(
+      title: 'Tối',
+      ngay: DateTime(2026, 9, 4),
+      gioPhut: 19 * 60,
+    );
+    await kho.themFocus(
+      title: 'Mai',
+      ngay: DateTime(2026, 9, 5),
+      gioPhut: 9 * 60,
+      durationMin: 30,
+    );
+    // 13h: Sáng đã quá hạn. Chiều+Tối hôm nay → không lấy Mai.
+    expect(kho.hangFocus.map((t) => t.title).toList(), ['Chiều', 'Tối']);
+
+    await kho.tickFocus(kho.hangFocus.first.id, chiBat: true);
+    expect(kho.hangFocus.map((t) => t.title).toList(), ['Tối', 'Mai']);
+
+    final kho2 = Kho(db, bayGio: DateTime(2026, 9, 4, 23, 59, 1));
+    addTearDown(kho2.dispose);
+    await kho2.tai();
+    expect(kho2.hangFocus.map((t) => t.title).toList(), ['Mai']);
+    expect(Chuoi.hetFocus, 'Hết focus');
   });
 }

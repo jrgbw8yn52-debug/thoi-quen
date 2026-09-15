@@ -44,6 +44,8 @@ void main() {
     expect(Chuoi.widKcalNgan(2250), '2250 kcal');
     expect(Chuoi.nTrenM(3, 5), '3/5');
     expect(Chuoi.hetViecHomNay, 'Hết việc hôm nay');
+    expect(Chuoi.hetFocus, 'Hết focus');
+    expect(Chuoi.widNgayThu(DateTime(2026, 9, 16)), 'T4 16/9');
     expect(Chuoi.focus, 'Focus');
     expect(Chuoi.viecQuanTrong, 'Việc quan trọng');
     expect(Chuoi.chuaLam, 'Chưa làm');

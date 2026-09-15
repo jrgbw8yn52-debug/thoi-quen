@@ -30,193 +30,61 @@
             android:layout_height="match_parent"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="6dp"
-            android:layout_marginEnd="6dp"
+            android:layout_marginEnd="8dp"
             android:adjustViewBounds="true"
             android:contentDescription="@null"
             android:scaleType="fitCenter"
             android:src="@drawable/widget_mark" />
 
         <LinearLayout
-            android:id="@+id/wid_hang"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/wid_o1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:minHeight="22dp"
-                android:orientation="horizontal"
-                android:paddingTop="1dp"
-                android:paddingBottom="1dp">
-
-                <TextView
-                    android:id="@+id/wid_o1_gio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="6:00 SA"
-                    android:textColor="@color/muc_toi"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/wid_o1_ten"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="Dậy sớm"
-                    android:textColor="@color/muc_toi"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/wid_o1_xong"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/wid_nut_xong"
-                    android:includeFontPadding="false"
-                    android:paddingStart="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="3dp"
-                    android:text="@string/xong"
-                    android:textColor="@color/cam"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/wid_o2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:minHeight="22dp"
-                android:orientation="horizontal"
-                android:paddingTop="1dp"
-                android:paddingBottom="1dp">
-
-                <TextView
-                    android:id="@+id/wid_o2_gio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="8:00 SA"
-                    android:textColor="@color/muc_toi"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/wid_o2_ten"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="Tập"
-                    android:textColor="@color/muc_toi"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/wid_o2_xong"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/wid_nut_xong"
-                    android:includeFontPadding="false"
-                    android:paddingStart="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="3dp"
-                    android:text="@string/xong"
-                    android:textColor="@color/cam"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/wid_o3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:minHeight="22dp"
-                android:orientation="horizontal"
-                android:paddingTop="1dp"
-                android:paddingBottom="1dp">
-
-                <TextView
-                    android:id="@+id/wid_o3_gio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="12:00 CH"
-                    android:textColor="@color/muc_toi"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/wid_o3_ten"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="Ăn trưa"
-                    android:textColor="@color/muc_toi"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/wid_o3_xong"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/wid_nut_xong"
-                    android:includeFontPadding="false"
-                    android:paddingStart="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="3dp"
-                    android:text="@string/xong"
-                    android:textColor="@color/cam"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
             <TextView
-                android:id="@+id/wid_het"
-                android:layout_width="match_parent"
+                android:id="@+id/wid_ngay"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:includeFontPadding="false"
-                android:maxLines="2"
-                android:text="@string/het_viec"
+                android:maxLines="1"
+                android:text="Thứ Tư 2/9"
                 android:textColor="@color/muc_toi"
                 android:textSize="15sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/wid_habit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="3/5 thói quen"
+                android:textColor="@color/muc_toi"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/wid_kcal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="2250 / 2920 kcal"
+                android:textColor="@color/muc_toi"
+                android:textSize="15sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="4dp">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/wid_lua"

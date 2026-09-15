@@ -1,16 +1,21 @@
 import 'package:flutter/services.dart';
 
-/// Widget Android Cam 4×2 + Đêm 2×2. iOS / test: nuốt lỗi thiếu plugin.
+/// Widget Android: Cam · Đêm · Việc · Focus. iOS / test: nuốt lỗi thiếu plugin.
 abstract final class WidHome {
   static const _ch = MethodChannel('habis/widget');
   static const maxO = 3;
+  static const maxFocus = 2;
 
-  static void langNghe(Future<void> Function(int id) tick) {
+  static void langNghe({
+    required Future<void> Function(int id) tick,
+    required Future<void> Function(int id) tickFocus,
+  }) {
     _ch.setMethodCallHandler((c) async {
-      if (c.method != 'tickWid') return;
       final a = c.arguments;
       final id = a is int ? a : (a is num ? a.toInt() : int.tryParse('$a'));
-      if (id != null) await tick(id);
+      if (id == null) return;
+      if (c.method == 'tickWid') await tick(id);
+      if (c.method == 'tickFocus') await tickFocus(id);
     });
   }
 
@@ -24,6 +29,7 @@ abstract final class WidHome {
     required int n,
     required int m,
     required List<Map<String, Object?>> hang,
+    required List<Map<String, Object?>> focus,
   }) async {
     try {
       await _ch.invokeMethod<void>('capNhat', {
@@ -36,6 +42,7 @@ abstract final class WidHome {
         'n': n,
         'm': m,
         'hang': hang,
+        'focus': focus,
       });
     } catch (_) {}
   }

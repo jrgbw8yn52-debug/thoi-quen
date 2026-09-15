@@ -17,15 +17,6 @@ import java.util.Calendar
 import java.util.Locale
 
 class HabisWidgetProvider : AppWidgetProvider() {
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == ACTION_XONG) {
-            val id = intent.getIntExtra(EXTRA_ID, -1)
-            if (id > 0) xuLyXong(context, id)
-            return
-        }
-        super.onReceive(context, intent)
-    }
-
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         for (id in ids) capNhatMot(context, manager, id)
     }
@@ -39,10 +30,22 @@ class HabisWidgetProvider : AppWidgetProvider() {
         const val K_HABIT_NM = "habitNm"
         const val K_KCAL_NGAN = "kcalNgan"
         const val K_HANG = "hang"
+        const val K_FOCUS = "focus"
         const val K_N = "n"
         const val K_M = "m"
         const val ACTION_XONG = "vn.thoiquen.thoi_quen.WID_XONG"
         const val EXTRA_ID = "habitId"
+        const val EXTRA_LOAI = "loai"
+        const val LOAI_H = "h"
+        const val LOAI_F = "f"
+
+        data class HangO(
+            val id: Int,
+            val ten: String,
+            val gio: String,
+            val minutes: Int?,
+            val phut: Int?,
+        )
 
         fun homePi(context: Context, req: Int): PendingIntent {
             val intent = Intent(context, MainActivity::class.java).apply {
@@ -58,15 +61,17 @@ class HabisWidgetProvider : AppWidgetProvider() {
             )
         }
 
-        fun xongPi(context: Context, habitId: Int): PendingIntent {
-            val intent = Intent(context, HabisWidgetProvider::class.java).apply {
+        fun xongPi(context: Context, id: Int, loai: String, cls: Class<*>): PendingIntent {
+            val intent = Intent(context, cls).apply {
                 action = ACTION_XONG
-                putExtra(EXTRA_ID, habitId)
-                data = Uri.parse("habis://xong/$habitId")
+                putExtra(EXTRA_ID, id)
+                putExtra(EXTRA_LOAI, loai)
+                data = Uri.parse("habis://xong/$loai/$id")
             }
+            val req = if (loai == LOAI_F) 200_000 + id else 100_000 + id
             return PendingIntent.getBroadcast(
                 context,
-                habitId,
+                req,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
@@ -79,9 +84,11 @@ class HabisWidgetProvider : AppWidgetProvider() {
             )
             for (id in ids) capNhatMot(context, manager, id)
             HabisDemWidgetProvider.capNhatTatCa(context)
+            HabisViecWidgetProvider.capNhatTatCa(context)
+            HabisFocusWidgetProvider.capNhatTatCa(context)
         }
 
-        fun luuHang(p: android.content.SharedPreferences.Editor, hang: List<*>?) {
+        fun luuDs(p: android.content.SharedPreferences.Editor, key: String, hang: List<*>?) {
             val arr = JSONArray()
             if (hang != null) {
                 for (x in hang) {
@@ -97,40 +104,35 @@ class HabisWidgetProvider : AppWidgetProvider() {
                     arr.put(o)
                 }
             }
-            p.putString(K_HANG, arr.toString())
+            p.putString(key, arr.toString())
+        }
+
+        fun luuHang(p: android.content.SharedPreferences.Editor, hang: List<*>?) {
+            luuDs(p, K_HANG, hang)
+        }
+
+        fun luuFocus(p: android.content.SharedPreferences.Editor, hang: List<*>?) {
+            luuDs(p, K_FOCUS, hang)
         }
 
         fun capNhatMot(context: Context, manager: AppWidgetManager, id: Int) {
             val p = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
             val views = RemoteViews(context.packageName, R.layout.habis_widget)
+            views.setTextViewText(R.id.wid_ngay, p.getString(K_NGAY, "Thứ Hai 1/1") ?: "Thứ Hai 1/1")
+            views.setTextViewText(R.id.wid_habit, p.getString(K_HABIT, "0/0 thói quen") ?: "0/0 thói quen")
+            views.setTextViewText(R.id.wid_kcal, p.getString(K_KCAL, "0 kcal") ?: "0 kcal")
             views.setTextViewText(R.id.wid_so, p.getInt(K_LUA, 0).toString())
-            val hang = docHang(p.getString(K_HANG, "[]"))
-            bindO(context, views, 0, hang)
-            bindO(context, views, 1, hang)
-            bindO(context, views, 2, hang)
-            if (hang.isEmpty()) {
-                views.setViewVisibility(R.id.wid_het, View.VISIBLE)
-            } else {
-                views.setViewVisibility(R.id.wid_het, View.GONE)
-            }
             val pi = homePi(context, 0)
             views.setOnClickPendingIntent(R.id.wid_root, pi)
             views.setOnClickPendingIntent(R.id.wid_dai, pi)
             manager.updateAppWidget(id, views)
         }
 
-        private val oIds = intArrayOf(R.id.wid_o1, R.id.wid_o2, R.id.wid_o3)
-        private val gioIds = intArrayOf(R.id.wid_o1_gio, R.id.wid_o2_gio, R.id.wid_o3_gio)
-        private val tenIds = intArrayOf(R.id.wid_o1_ten, R.id.wid_o2_ten, R.id.wid_o3_ten)
-        private val xongIds = intArrayOf(R.id.wid_o1_xong, R.id.wid_o2_xong, R.id.wid_o3_xong)
-
-        private data class HangO(
-            val id: Int,
-            val ten: String,
-            val gio: String,
-            val minutes: Int?,
-            val phut: Int?,
-        )
+        fun metaChu(p: android.content.SharedPreferences): String {
+            val ngay = p.getString(K_NGAY, "") ?: ""
+            val nm = p.getString(K_HABIT_NM, "0/0") ?: "0/0"
+            return if (ngay.isEmpty()) nm else "$ngay · $nm"
+        }
 
         private fun soPhut(v: Any?): Int? {
             if (v == null || v == JSONObject.NULL) return null
@@ -139,7 +141,7 @@ class HabisWidgetProvider : AppWidgetProvider() {
             return null
         }
 
-        private fun docHang(raw: String?): List<HangO> {
+        fun docHang(raw: String?): List<HangO> {
             val arr = JSONArray(raw ?: "[]")
             val ds = ArrayList<HangO>(arr.length())
             var coMinutes = false
@@ -170,7 +172,18 @@ class HabisWidgetProvider : AppWidgetProvider() {
             return ds
         }
 
-        private fun bindO(context: Context, views: RemoteViews, i: Int, hang: List<HangO>) {
+        fun bindO(
+            context: Context,
+            views: RemoteViews,
+            i: Int,
+            hang: List<HangO>,
+            oIds: IntArray,
+            gioIds: IntArray,
+            tenIds: IntArray,
+            xongIds: IntArray,
+            loai: String,
+            cls: Class<*>,
+        ) {
             if (i >= hang.size) {
                 views.setViewVisibility(oIds[i], View.GONE)
                 return
@@ -185,27 +198,33 @@ class HabisWidgetProvider : AppWidgetProvider() {
             }
             views.setTextViewText(tenIds[i], o.ten)
             if (o.id > 0) {
-                views.setOnClickPendingIntent(xongIds[i], xongPi(context, o.id))
+                views.setOnClickPendingIntent(xongIds[i], xongPi(context, o.id, loai, cls))
             }
         }
 
-        fun xuLyXong(context: Context, habitId: Int) {
-            ghiTickSqlite(context, habitId)
-            boO(context, habitId)
-            tangN(context)
+        fun xuLyXong(context: Context, id: Int, loai: String) {
+            if (id <= 0) return
+            if (loai == LOAI_F) {
+                ghiFocusSqlite(context, id)
+                boO(context, K_FOCUS, id)
+            } else {
+                ghiTickSqlite(context, id)
+                boO(context, K_HANG, id)
+                tangN(context)
+            }
             capNhatTatCa(context)
-            MainActivity.baoTick(habitId)
+            if (loai == LOAI_F) MainActivity.baoTickFocus(id) else MainActivity.baoTick(id)
         }
 
-        private fun boO(context: Context, habitId: Int) {
+        private fun boO(context: Context, key: String, id: Int) {
             val p = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
-            val arr = JSONArray(p.getString(K_HANG, "[]") ?: "[]")
+            val arr = JSONArray(p.getString(key, "[]") ?: "[]")
             val moi = JSONArray()
             for (i in 0 until arr.length()) {
                 val o = arr.getJSONObject(i)
-                if (o.optInt("id") != habitId) moi.put(o)
+                if (o.optInt("id") != id) moi.put(o)
             }
-            p.edit().putString(K_HANG, moi.toString()).apply()
+            p.edit().putString(key, moi.toString()).apply()
         }
 
         private fun tangN(context: Context) {
@@ -260,6 +279,30 @@ class HabisWidgetProvider : AppWidgetProvider() {
                     stmt.bindString(2, ngay)
                     if (phut == null) stmt.bindNull(3) else stmt.bindLong(3, phut.toLong())
                     stmt.executeInsert()
+                } finally {
+                    stmt.close()
+                }
+            } catch (_: Exception) {
+            } finally {
+                db?.close()
+            }
+        }
+
+        private fun ghiFocusSqlite(context: Context, focusId: Int) {
+            val f = File(context.filesDir, "thoi_quen.sqlite")
+            if (!f.exists()) return
+            var db: SQLiteDatabase? = null
+            try {
+                db = SQLiteDatabase.openDatabase(
+                    f.absolutePath,
+                    null,
+                    SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
+                )
+                val sql = "UPDATE focus_tasks SET done = 1 WHERE id = ?"
+                val stmt = db.compileStatement(sql)
+                try {
+                    stmt.bindLong(1, focusId.toLong())
+                    stmt.executeUpdateDelete()
                 } finally {
                     stmt.close()
                 }

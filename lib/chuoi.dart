@@ -36,6 +36,7 @@ abstract final class Chuoi {
   static const khongGan = 'Không gắn';
   static const danhDauXong = 'Đánh dấu việc xong?';
   static const hetViecHomNay = 'Hết việc hôm nay';
+  static const hetFocus = 'Hết focus';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';
   static const xong = 'Xong';
@@ -271,6 +272,9 @@ abstract final class Chuoi {
   /// Widget 4×2: «Thứ Tư 2/9» — thứ + d/m, không năm.
   static String widNgay(DateTime d) =>
       '${thu[d.weekday - 1]} ${d.day}/${d.month}';
+
+  static String widNgayThu(DateTime d) =>
+      '${thuNgan[d.weekday - 1]} ${d.day}/${d.month}';
 
   static String widHabit(int n, int m) => '$n/$m thói quen';
 
