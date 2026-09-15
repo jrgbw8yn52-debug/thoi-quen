@@ -133,16 +133,26 @@ abstract final class Chuoi {
   static const ghi = 'Ghi';
   static const luuHoSo = 'Lưu hồ sơ';
   static const tap = 'Tập';
-  static const diBo = 'Đi bộ';
-  static const chay = 'Chạy';
+  static const diBo = 'Đi bộ nhẹ';
+  static const diBoNgoaiTroi = 'Đi bộ ngoài trời';
+  static const diBoNhanh = 'Đi bộ nhanh';
+  static const cardioMay = 'Cardio máy';
+  static const chayNhe = 'Chạy bộ nhẹ';
+  static const chay = 'Chạy bộ';
+  static const dapXeNhe = 'Đạp xe nhẹ';
   static const dapXe = 'Đạp xe';
-  static const khangLuc = 'Kháng lực';
-  static const yoga = 'Yoga';
-  static const boi = 'Bơi';
-  static const daBong = 'Đá bóng';
-  static const cauLong = 'Cầu lông';
+  static const leoNui = 'Leo núi';
+  static const cauThang = 'Cầu thang';
   static const nhayDay = 'Nhảy dây';
-  static const gianCo = 'Giãn cơ';
+  static const boi = 'Bơi';
+  static const yoga = 'Yoga';
+  static const gianCo = 'Căng cơ';
+  static const khangLucNhe = 'Kháng lực nhẹ';
+  static const khangLuc = 'Kháng lực';
+  static const hiit = 'HIIT';
+  static const daBong = 'Bóng đá';
+  static const bongRo = 'Bóng rổ';
+  static const cauLong = 'Cầu lông';
   static const canBanDau = 'Cân ban đầu';
   static const anUong = 'Ăn uống';
   static const nhatKy = 'Nhật ký';
@@ -356,24 +366,44 @@ abstract final class Chuoi {
     switch (loai) {
       case 'di_bo':
         return diBo;
+      case 'di_bo_ngoai_troi':
+        return diBoNgoaiTroi;
+      case 'di_bo_nhanh':
+        return diBoNhanh;
+      case 'cardio_may':
+        return cardioMay;
+      case 'chay_nhe':
+        return chayNhe;
       case 'chay':
         return chay;
+      case 'dap_xe_nhe':
+        return dapXeNhe;
       case 'dap_xe':
         return dapXe;
-      case 'khang_luc':
-        return khangLuc;
-      case 'yoga':
-        return yoga;
-      case 'boi':
-        return boi;
-      case 'da_bong':
-        return daBong;
-      case 'cau_long':
-        return cauLong;
+      case 'leo_nui':
+        return leoNui;
+      case 'cau_thang':
+        return cauThang;
       case 'nhay_day':
         return nhayDay;
+      case 'boi':
+        return boi;
+      case 'yoga':
+        return yoga;
       case 'gian_co':
         return gianCo;
+      case 'khang_luc_nhe':
+        return khangLucNhe;
+      case 'khang_luc':
+        return khangLuc;
+      case 'hiit':
+        return hiit;
+      case 'da_bong':
+        return daBong;
+      case 'bong_ro':
+        return bongRo;
+      case 'cau_long':
+        return cauLong;
       default:
         return loai;
     }

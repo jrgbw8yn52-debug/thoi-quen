@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:thoi_quen/chuoi.dart';
 import 'package:thoi_quen/cong_thuc.dart';
 import 'package:thoi_quen/ngay.dart';
 import 'package:thoi_quen/so.dart';
@@ -45,17 +46,35 @@ void main() {
     expect(CongThuc.moDeurenberg(bmi: null, tuoi: 30, sex: 'nam'), isNull);
   });
 
-  test('MET 10 mon', () {
+  test('MET 20 mon, ten khong trung, kcal 0.0175×MET×kg×phut', () {
+    expect(CongThuc.mon.length, 20);
+    expect({for (final m in CongThuc.mon) m.loai}.length, 20);
+    expect({for (final m in CongThuc.mon) Chuoi.tenMon(m.loai)}.length, 20);
     expect(CongThuc.metCua(CongThuc.loaiDiBo), 3.5);
-    expect(CongThuc.metCua(CongThuc.loaiChay), 8);
+    expect(CongThuc.metCua(CongThuc.loaiDiBoNgoaiTroi), 4.3);
+    expect(CongThuc.metCua(CongThuc.loaiDiBoNhanh), 5.0);
+    expect(CongThuc.metCua(CongThuc.loaiCardioMay), 6.0);
+    expect(CongThuc.metCua(CongThuc.loaiChayNhe), 7.0);
+    expect(CongThuc.metCua(CongThuc.loaiChay), 8.3);
+    expect(CongThuc.metCua(CongThuc.loaiDapXeNhe), 4.0);
     expect(CongThuc.metCua(CongThuc.loaiDapXe), 6.8);
-    expect(CongThuc.metCua(CongThuc.loaiKhangLuc), 5);
-    expect(CongThuc.metCua(CongThuc.loaiYoga), 3);
-    expect(CongThuc.metCua(CongThuc.loaiBoi), 6);
-    expect(CongThuc.metCua(CongThuc.loaiDaBong), 7);
+    expect(CongThuc.metCua(CongThuc.loaiLeoNui), 6.0);
+    expect(CongThuc.metCua(CongThuc.loaiCauThang), 8.8);
+    expect(CongThuc.metCua(CongThuc.loaiNhayDay), 10.0);
+    expect(CongThuc.metCua(CongThuc.loaiBoi), 6.0);
+    expect(CongThuc.metCua(CongThuc.loaiYoga), 3.0);
+    expect(CongThuc.metCua(CongThuc.loaiGianCo), 2.5);
+    expect(CongThuc.metCua(CongThuc.loaiKhangLucNhe), 3.5);
+    expect(CongThuc.metCua(CongThuc.loaiKhangLuc), 6.0);
+    expect(CongThuc.metCua(CongThuc.loaiHiit), 8.0);
+    expect(CongThuc.metCua(CongThuc.loaiDaBong), 7.0);
+    expect(CongThuc.metCua(CongThuc.loaiBongRo), 6.5);
     expect(CongThuc.metCua(CongThuc.loaiCauLong), 5.5);
-    expect(CongThuc.metCua(CongThuc.loaiNhayDay), 8.8);
-    expect(CongThuc.metCua(CongThuc.loaiGianCo), 2.3);
+    expect(CongThuc.metCua('xyz'), isNull);
+    expect(
+      CongThuc.kcalTap(met: 8.3, kg: 70, phut: 20),
+      closeTo(0.0175 * 8.3 * 70 * 20, 0.01),
+    );
   });
 
   test('nhip hop le 0-1 buoc 0,1', () {

@@ -12,25 +12,45 @@ abstract final class CongThuc {
 
   static const heSo = [1.2, 1.375, 1.55, 1.725, 1.9];
   static const metDiBo = 3.5;
-  static const metChay = 8.0;
+  static const metDiBoNgoaiTroi = 4.3;
+  static const metDiBoNhanh = 5.0;
+  static const metCardioMay = 6.0;
+  static const metChayNhe = 7.0;
+  static const metChay = 8.3;
+  static const metDapXeNhe = 4.0;
   static const metDapXe = 6.8;
-  static const metKhangLuc = 5.0;
-  static const metYoga = 3.0;
+  static const metLeoNui = 6.0;
+  static const metCauThang = 8.8;
+  static const metNhayDay = 10.0;
   static const metBoi = 6.0;
+  static const metYoga = 3.0;
+  static const metGianCo = 2.5;
+  static const metKhangLucNhe = 3.5;
+  static const metKhangLuc = 6.0;
+  static const metHiit = 8.0;
   static const metDaBong = 7.0;
+  static const metBongRo = 6.5;
   static const metCauLong = 5.5;
-  static const metNhayDay = 8.8;
-  static const metGianCo = 2.3;
   static const loaiDiBo = 'di_bo';
+  static const loaiDiBoNgoaiTroi = 'di_bo_ngoai_troi';
+  static const loaiDiBoNhanh = 'di_bo_nhanh';
+  static const loaiCardioMay = 'cardio_may';
+  static const loaiChayNhe = 'chay_nhe';
   static const loaiChay = 'chay';
+  static const loaiDapXeNhe = 'dap_xe_nhe';
   static const loaiDapXe = 'dap_xe';
-  static const loaiKhangLuc = 'khang_luc';
-  static const loaiYoga = 'yoga';
-  static const loaiBoi = 'boi';
-  static const loaiDaBong = 'da_bong';
-  static const loaiCauLong = 'cau_long';
+  static const loaiLeoNui = 'leo_nui';
+  static const loaiCauThang = 'cau_thang';
   static const loaiNhayDay = 'nhay_day';
+  static const loaiBoi = 'boi';
+  static const loaiYoga = 'yoga';
   static const loaiGianCo = 'gian_co';
+  static const loaiKhangLucNhe = 'khang_luc_nhe';
+  static const loaiKhangLuc = 'khang_luc';
+  static const loaiHiit = 'hiit';
+  static const loaiDaBong = 'da_bong';
+  static const loaiBongRo = 'bong_ro';
+  static const loaiCauLong = 'cau_long';
 
   /// Protein g/kg_ref. Phần kcal còn: bột 55% · béo 45%.
   static const tyLeDam = 0.30;
@@ -44,15 +64,25 @@ abstract final class CongThuc {
 
   static const mon = [
     (loai: loaiDiBo, met: metDiBo),
+    (loai: loaiDiBoNgoaiTroi, met: metDiBoNgoaiTroi),
+    (loai: loaiDiBoNhanh, met: metDiBoNhanh),
+    (loai: loaiCardioMay, met: metCardioMay),
+    (loai: loaiChayNhe, met: metChayNhe),
     (loai: loaiChay, met: metChay),
+    (loai: loaiDapXeNhe, met: metDapXeNhe),
     (loai: loaiDapXe, met: metDapXe),
-    (loai: loaiKhangLuc, met: metKhangLuc),
-    (loai: loaiYoga, met: metYoga),
-    (loai: loaiBoi, met: metBoi),
-    (loai: loaiDaBong, met: metDaBong),
-    (loai: loaiCauLong, met: metCauLong),
+    (loai: loaiLeoNui, met: metLeoNui),
+    (loai: loaiCauThang, met: metCauThang),
     (loai: loaiNhayDay, met: metNhayDay),
+    (loai: loaiBoi, met: metBoi),
+    (loai: loaiYoga, met: metYoga),
     (loai: loaiGianCo, met: metGianCo),
+    (loai: loaiKhangLucNhe, met: metKhangLucNhe),
+    (loai: loaiKhangLuc, met: metKhangLuc),
+    (loai: loaiHiit, met: metHiit),
+    (loai: loaiDaBong, met: metDaBong),
+    (loai: loaiBongRo, met: metBongRo),
+    (loai: loaiCauLong, met: metCauLong),
   ];
 
   static double? metCua(String? loai) {

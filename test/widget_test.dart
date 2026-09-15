@@ -689,7 +689,7 @@ void main() {
       find.text(Chuoi.dongPhien(
         Chuoi.chay,
         20,
-        CongThuc.kcalTap(met: 8.0, kg: 70, phut: 20)!.round(),
+        CongThuc.kcalTap(met: 8.3, kg: 70, phut: 20)!.round(),
       )),
       findsOneWidget,
     );
@@ -1082,7 +1082,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('nut-them-mon')), findsOneWidget);
     expect(find.descendant(of: to, matching: find.textContaining('Phở')), findsOneWidget);
-    expect(find.descendant(of: to, matching: find.textContaining('Đi bộ ·')), findsOneWidget);
+    expect(find.descendant(of: to, matching: find.textContaining('Đi bộ nhẹ ·')), findsOneWidget);
     expect(find.byKey(const Key('nap-tieu')), findsOneWidget);
     expect(find.text(Chuoi.napTieu(400, k.kcalTapCuaNgay(DateTime(2026, 8, 25)))), findsOneWidget);
     expect(find.descendant(of: to, matching: find.text(Chuoi.sua)), findsWidgets);

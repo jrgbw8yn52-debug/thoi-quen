@@ -8,35 +8,40 @@ Future<String?> moPickerMon(BuildContext context, String hien) {
   return showModalBottomSheet<String>(
     context: context,
     backgroundColor: Mau.beMat,
+    isScrollControlled: true,
     builder: (ctx) {
       return SafeArea(
-        child: ListView(
-          key: const Key('ds-mon-tap'),
-          shrinkWrap: true,
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
-          children: [
-            for (final m in CongThuc.mon)
-              Material(
-                color: m.loai == hien ? Mau.chipBat : Colors.transparent,
-                child: InkWell(
-                  key: Key('chon-mon-${m.loai}'),
-                  onTap: () => Navigator.pop(ctx, m.loai),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 44),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          Chuoi.tenMon(m.loai),
-                          style: const TextStyle(fontSize: 16, color: Mau.muc),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(ctx).height * 0.62,
+          ),
+          child: ListView(
+            key: const Key('ds-mon-tap'),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
+            children: [
+              for (final m in CongThuc.mon)
+                Material(
+                  color: m.loai == hien ? Mau.chipBat : Colors.transparent,
+                  child: InkWell(
+                    key: Key('chon-mon-${m.loai}'),
+                    onTap: () => Navigator.pop(ctx, m.loai),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 44),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            Chuoi.tenMon(m.loai),
+                            style: const TextStyle(fontSize: 16, color: Mau.muc),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       );
     },
