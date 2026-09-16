@@ -24,6 +24,10 @@ class MainActivity : FlutterActivity() {
                 p.putInt(HabisWidgetProvider.K_LUA, lua)
                 p.putInt(HabisWidgetProvider.K_N, (call.argument<Number>("n"))?.toInt() ?: 0)
                 p.putInt(HabisWidgetProvider.K_M, (call.argument<Number>("m"))?.toInt() ?: 0)
+                p.putString(
+                    HabisWidgetProvider.K_HET_VIEC,
+                    call.argument<String>("hetViec") ?: getString(R.string.het_viec),
+                )
                 val hangRaw = (call.arguments as? Map<*, *>)?.get("hang") as? List<*>
                 HabisWidgetProvider.luuHang(p, hangRaw)
                 val focusRaw = (call.arguments as? Map<*, *>)?.get("focus") as? List<*>

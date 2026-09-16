@@ -31,6 +31,7 @@ class HabisWidgetProvider : AppWidgetProvider() {
         const val K_KCAL_NGAN = "kcalNgan"
         const val K_HANG = "hang"
         const val K_FOCUS = "focus"
+        const val K_HET_VIEC = "hetViec"
         const val K_N = "n"
         const val K_M = "m"
         const val ACTION_XONG = "vn.thoiquen.thoi_quen.WID_XONG"
@@ -228,13 +229,16 @@ class HabisWidgetProvider : AppWidgetProvider() {
                 if (o.id > 0) {
                     views.setOnClickPendingIntent(xongIds[i], xongPi(context, o.id, loai, cls))
                 }
+                views.setOnClickPendingIntent(oIds[i], homePi(context, 500_000 + o.id))
             } else {
                 views.setViewVisibility(xongIds[i], View.GONE)
                 if (o.id > 0) {
-                    views.setOnClickPendingIntent(
-                        oIds[i],
-                        tabPi(context, 2, 400_000 + o.id),
-                    )
+                    val pi = if (loai == LOAI_F) {
+                        tabPi(context, 2, 400_000 + o.id)
+                    } else {
+                        homePi(context, 500_000 + o.id)
+                    }
+                    views.setOnClickPendingIntent(oIds[i], pi)
                 }
             }
         }

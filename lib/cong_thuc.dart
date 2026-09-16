@@ -205,6 +205,7 @@ abstract final class CongThuc {
         return 1.8;
       case MucTieuCan.giam:
         if (bmi == null || bmi < mocA23) return 1.8;
+        if (bmi < mocA275) return 2.0;
         if (bmi < mocA325) return 2.0;
         return 2.2;
     }

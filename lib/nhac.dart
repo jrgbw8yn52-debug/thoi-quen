@@ -15,7 +15,7 @@ void nhacNen(NotificationResponse r) {
 
 /// Nhắc local: chuông + màn khóa. Không AlarmKit, không server, không full-screen.
 abstract final class Nhac {
-  static const kenhId = 'habit_remind';
+  static const kenhId = 'habit_remind_v2';
   static const kenhTen = 'Nhắc thói quen';
   static const kenhMoTa = 'Nhắc thói quen đúng giờ đã lưu.';
   static const prefixFocus = 'f|';

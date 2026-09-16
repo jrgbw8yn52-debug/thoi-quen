@@ -73,6 +73,9 @@ class HabisLichWidgetProvider : AppWidgetProvider() {
             )
             if (hang.isEmpty()) {
                 views.setViewVisibility(R.id.wid_het_v, View.VISIBLE)
+                val chu = p.getString(HabisWidgetProvider.K_HET_VIEC, null)
+                    ?: context.getString(R.string.het_viec)
+                views.setTextViewText(R.id.wid_het_v, chu)
             } else {
                 views.setViewVisibility(R.id.wid_het_v, View.GONE)
             }

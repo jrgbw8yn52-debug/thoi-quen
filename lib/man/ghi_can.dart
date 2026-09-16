@@ -5,6 +5,7 @@ import '../cong_thuc.dart';
 import '../kho.dart';
 import '../mau.dart';
 import '../so.dart';
+import 'snack_kcal.dart';
 
 class ManGhiCan extends StatefulWidget {
   const ManGhiCan({super.key, required this.kho});
@@ -58,7 +59,11 @@ class _ManGhiCanState extends State<ManGhiCan> {
     _tuSo();
     if (_kg <= 0) return;
     await widget.kho.ghiCanKg(_kg);
-    if (mounted) Navigator.pop(context);
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    nav.pop();
+    hienSnackKcal(messenger: messenger, nav: nav, kho: widget.kho);
   }
 
   double? get _kgHien =>

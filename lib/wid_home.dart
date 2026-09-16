@@ -37,6 +37,7 @@ abstract final class WidHome {
     required int m,
     required List<Map<String, Object?>> hang,
     required List<Map<String, Object?>> focus,
+    String? hetViec,
   }) async {
     try {
       await _ch.invokeMethod<void>('capNhat', {
@@ -50,6 +51,7 @@ abstract final class WidHome {
         'm': m,
         'hang': hang,
         'focus': focus,
+        'hetViec': ?hetViec,
       });
     } catch (_) {}
   }

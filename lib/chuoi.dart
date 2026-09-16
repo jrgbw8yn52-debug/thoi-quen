@@ -36,6 +36,7 @@ abstract final class Chuoi {
   static const khongGan = 'Không gắn';
   static const danhDauXong = 'Đánh dấu việc xong?';
   static const hetViecHomNay = 'Hết việc hôm nay';
+  static const conViecTrongApp = 'Còn việc trong app';
   static const hetFocus = 'Hết focus';
   static const thoiQuen = 'Thói quen';
   static const themCan = 'Thêm cân';
@@ -534,6 +535,9 @@ abstract final class Chuoi {
       'Đạm ${So.kg(dam)} · Bột ${So.kg(bot)} · Béo ${So.kg(beo)}';
 
   static String napTrenGoi(int nap, int goi) => '$nap / $goi';
+
+  static String homNayAbKcal(int nap, int? goi) =>
+      '$homNay $nap/${goi ?? '—'} kcal';
 
   static String dongPhien(String mon, int soPhut, int? kcal) {
     if (kcal == null) return '$mon · $soPhut $phut · $thieuDuLieu';

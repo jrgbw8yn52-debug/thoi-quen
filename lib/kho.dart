@@ -52,6 +52,13 @@ class HangHabitView {
   int get hashCode => Object.hash(habit.id, trang, habit.ten, habit.gioNhac);
 }
 
+class HangWidViec {
+  const HangWidViec({required this.hang, required this.choXong});
+
+  final HangHabitView hang;
+  final bool choXong;
+}
+
 class ChamTuan {
   const ChamTuan({
     required this.ngay,
@@ -1090,22 +1097,45 @@ class Kho extends ChangeNotifier {
     _dongWid();
   }
 
-  /// Hôm nay, có giờ, trong [giờ−2h, giờ+1h], chưa tick, không override.
-  List<HangHabitView> get hangCam {
-    final ds = [
-      for (final h in dsHien)
-        if (h.gioNhac != null &&
-            hienO(h, homNay) &&
-            trangCua(h, homNay) == HabitTrang.open &&
-            trongCuaSoWid(
-              gioPhut: h.gioNhac!,
-              ngay: homNay,
-              now: bayGio,
-            ))
-          HangHabitView(habit: h, trang: HabitTrang.open),
-    ];
-    ds.sort(soSanhGioHang);
+  /// Việc widget: trong cửa sổ + [Xong]; 1 việc hôm nay chưa tới — không nút.
+  /// Quá giờ+1h ẩn. Không giờ ẩn. Tối đa [WidHome.maxO].
+  List<HangWidViec> get hangWidViec {
+    final trong = <HangHabitView>[];
+    final sap = <HangHabitView>[];
+    for (final h in dsHien) {
+      if (h.gioNhac == null) continue;
+      if (!hienO(h, homNay)) continue;
+      if (trangCua(h, homNay) != HabitTrang.open) continue;
+      final v = HangHabitView(habit: h, trang: HabitTrang.open);
+      if (trongCuaSoWid(gioPhut: h.gioNhac!, ngay: homNay, now: bayGio)) {
+        trong.add(v);
+      } else if (chuaToiCuaSoWid(
+        gioPhut: h.gioNhac!,
+        ngay: homNay,
+        now: bayGio,
+      )) {
+        sap.add(v);
+      }
+    }
+    trong.sort(soSanhGioHang);
+    sap.sort(soSanhGioHang);
+    final ds = [for (final h in trong) HangWidViec(hang: h, choXong: true)];
+    if (ds.length < WidHome.maxO && sap.isNotEmpty) {
+      ds.add(HangWidViec(hang: sap.first, choXong: false));
+    }
+    if (ds.length > WidHome.maxO) return ds.sublist(0, WidHome.maxO);
     return ds;
+  }
+
+  List<HangHabitView> get hangCam => [for (final x in hangWidViec) x.hang];
+
+  /// «Hết việc hôm nay» chỉ khi mọi habit hôm nay đã tick (kể cả không giờ).
+  String get chuHetViec {
+    for (final h in dsHien) {
+      if (!hienO(h, homNay)) continue;
+      if (!trangCua(h, homNay).daLam) return Chuoi.conViecTrongApp;
+    }
+    return Chuoi.hetViecHomNay;
   }
 
   /// Focus còn hạn: 1 hôm nay + 1 tương lai gần nhất. Đã xong / Chưa làm không hiện.
@@ -1296,18 +1326,19 @@ class Kho extends ChangeNotifier {
       n: nTickHom,
       m: mHom,
       hang: [
-        for (final h in hangCam.take(WidHome.maxO))
+        for (final x in hangWidViec)
           {
-            'id': h.habit.id,
-            'ten': h.habit.ten,
-            'gio': h.habit.gioNhac == null
+            'id': x.hang.habit.id,
+            'ten': x.hang.habit.ten,
+            'gio': x.hang.habit.gioNhac == null
                 ? ''
-                : Chuoi.gioNhacChu(h.habit.gioNhac!),
-            'phut': h.habit.phutMacDinh,
-            'minutes': h.habit.gioNhac,
-            'choXong': true,
+                : Chuoi.gioNhacChu(x.hang.habit.gioNhac!),
+            'phut': x.hang.habit.phutMacDinh,
+            'minutes': x.hang.habit.gioNhac,
+            'choXong': x.choXong,
           },
       ],
+      hetViec: chuHetViec,
       focus: [
         if (homF.isNotEmpty)
           {

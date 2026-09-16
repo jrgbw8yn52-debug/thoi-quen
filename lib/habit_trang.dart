@@ -18,17 +18,29 @@ extension HabitTrangX on HabitTrang {
       this == HabitTrang.lockedOverdue || this == HabitTrang.doneOverride;
 }
 
+DateTime _mocWid(int gioPhut, DateTime ngay) =>
+    DateTime(ngay.year, ngay.month, ngay.day).add(Duration(minutes: gioPhut));
+
 /// Widget Việc: now ∈ [giờ − 2 giờ, giờ + 1 giờ].
 bool trongCuaSoWid({
   required int gioPhut,
   required DateTime ngay,
   required DateTime now,
 }) {
-  final moc = DateTime(ngay.year, ngay.month, ngay.day)
-      .add(Duration(minutes: gioPhut));
+  final moc = _mocWid(gioPhut, ngay);
   final a = moc.subtract(const Duration(hours: 2));
   final b = moc.add(const Duration(hours: 1));
   return !now.isBefore(a) && !now.isAfter(b);
+}
+
+/// Hôm nay, trước cửa sổ [giờ − 2h, giờ + 1h].
+bool chuaToiCuaSoWid({
+  required int gioPhut,
+  required DateTime ngay,
+  required DateTime now,
+}) {
+  final a = _mocWid(gioPhut, ngay).subtract(const Duration(hours: 2));
+  return now.isBefore(a);
 }
 
 /// Một hàm: done | done_override | locked_overdue | open.

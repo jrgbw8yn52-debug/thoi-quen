@@ -82,6 +82,12 @@ abstract final class Mau {
       ),
       dialogTheme: const DialogThemeData(backgroundColor: beMat),
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: beMat),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: beMat,
+        contentTextStyle: TextStyle(color: muc, fontSize: 14),
+        actionTextColor: reu,
+        behavior: SnackBarBehavior.fixed,
+      ),
     );
   }
 }

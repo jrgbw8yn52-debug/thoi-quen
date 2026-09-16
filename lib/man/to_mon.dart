@@ -11,6 +11,7 @@ import '../ngay.dart';
 import '../so.dart';
 import '../widget/o_ten.dart';
 import '../widget/xem_them.dart';
+import 'snack_kcal.dart';
 
 Future<void> _unfocusRoi() async {
   FocusManager.instance.primaryFocus?.unfocus();
@@ -404,6 +405,9 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
     final beo = So.parseMacro(_beo.text);
     final van = _dan.text.trim();
     final ngay = _ngay;
+    final kho = widget.kho;
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context, rootNavigator: true);
     Navigator.pop(context);
     await kho.luuMon(
       ten: ten,
@@ -417,6 +421,9 @@ class _ToTaoCongThucState extends State<ToTaoCongThuc> {
       ngay: ngay,
       khung: widget.khung,
     );
+    if (vaoNgay) {
+      hienSnackKcal(messenger: messenger, nav: nav, kho: kho);
+    }
   }
 
   @override
@@ -597,6 +604,12 @@ class _ToMonDaLuuState extends State<ToMonDaLuu> {
   Future<void> _chon(Food f) async {
     if (_khoa) return;
     await kho.chonMon(f.id, ngay: _ngay, khung: widget.khung);
+    if (!mounted) return;
+    hienSnackKcal(
+      messenger: ScaffoldMessenger.of(context),
+      nav: Navigator.of(context, rootNavigator: true),
+      kho: kho,
+    );
   }
 
   Widget _hangMon(Food f, {required String keyPrefix, required bool nut}) {
