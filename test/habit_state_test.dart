@@ -54,6 +54,16 @@ void main() {
         ngay: ngay,
         now: now,
       ),
+      HabitTrang.open,
+    );
+    expect(
+      habitState(
+        gioNhac: 8 * 60,
+        ticked: false,
+        override: false,
+        ngay: ngay,
+        now: DateTime(2026, 8, 31),
+      ),
       HabitTrang.lockedOverdue,
     );
     expect(
@@ -95,16 +105,22 @@ void main() {
     return kho.dsHien.firstWhere((h) => h.id == id);
   }
 
-  test('habit co gio: het +30 khoa Quá giờ, khong tick bu', () async {
+  test('habit co gio: cung ngay van tick, qua 0h hom sau khoa Quá giờ', () async {
     final h = await _habit(gio: 6 * 60);
-    expect(kho.trangCua(h, kho.homNay), HabitTrang.lockedOverdue);
-    expect(kho.nTick, 0);
+    expect(kho.trangCua(h, kho.homNay), HabitTrang.open);
     await kho.toggleNgay(h, kho.homNay);
-    expect(kho.ticksCua(h.id), isEmpty);
-    expect(kho.hang.single.trang, HabitTrang.lockedOverdue);
+    expect(kho.ticksCua(h.id), isNotEmpty);
+    await kho.toggleNgay(h, kho.homNay);
+
+    final sau = Kho(db, bayGio: DateTime(2026, 8, 31, 0, 0, 1));
+    addTearDown(sau.dispose);
+    await sau.tai();
+    expect(sau.trangCua(h, DateTime(2026, 8, 30)), HabitTrang.lockedOverdue);
+    await sau.toggleNgay(h, DateTime(2026, 8, 30));
+    expect(sau.ticksCua(h.id), isEmpty);
   });
 
-  test('habit khong gio: khong khoa 30 phut', () async {
+  test('habit khong gio: khong khoa qua 0h', () async {
     final h = await _habit(ten: 'Đọc 20 trang');
     expect(kho.trangCua(h, kho.homNay), HabitTrang.open);
     await kho.toggleNgay(h, kho.homNay);
@@ -124,7 +140,7 @@ void main() {
     expect(kho.luaTapHom.so, 0);
   });
 
-  test('xoa Focus nha override, habit mo lai neu con +30', () async {
+  test('xoa Focus nha override, habit mo lai cung ngay', () async {
     final h = await _habit(ten: 'Viết', gio: 15 * 60);
     final id = await kho.themFocus(
       title: 'Họp',
@@ -138,7 +154,7 @@ void main() {
     expect(kho.trangCua(h, kho.homNay), HabitTrang.open);
   });
 
-  test('Focus qua han nha override; het +30 van khoa', () async {
+  test('Focus qua han nha override; cung ngay van mo', () async {
     final h = await _habit(gio: 8 * 60);
     await kho.themFocus(
       title: 'Họp sáng',
@@ -149,7 +165,7 @@ void main() {
     await kho.ghiOverride(kho.homNay, [h]);
     expect(kho.trangCua(h, kho.homNay), HabitTrang.doneOverride);
     await kho.nhaOverrideQuaHan();
-    expect(kho.trangCua(h, kho.homNay), HabitTrang.lockedOverdue);
+    expect(kho.trangCua(h, kho.homNay), HabitTrang.open);
   });
 
   testWidgets('dialog Uu tien Focus khi trung gio', (tester) async {
@@ -177,12 +193,22 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     await _habit(gio: 6 * 60);
+    final hom = DateTime(2026, 8, 30);
     await tester.pumpWidget(
       MaterialApp(
         theme: Mau.theme(),
         home: Scaffold(
           body: HangHabit(
-            hang: kho.hang.single,
+            hang: HangHabitView(
+              habit: kho.dsHien.single,
+              trang: habitState(
+                gioNhac: 6 * 60,
+                ticked: false,
+                override: false,
+                ngay: hom,
+                now: DateTime(2026, 8, 31, 0, 1),
+              ),
+            ),
             onTap: () {},
             onSua: () {},
             onXoa: () {},

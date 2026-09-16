@@ -82,21 +82,16 @@ class HabisLichWidgetProvider : AppWidgetProvider() {
             manager.updateAppWidget(id, views)
         }
 
-        /// Ngày · n/m bên trái (được cắt). a/b kcal wrap, không cắt giữa số.
+        /// 1–2 dòng: «Thứ Tư 16/9 · 3/4 · 1333/2592 kcal». Không cắt giữa từ/số.
         internal fun ganMeta(views: RemoteViews, p: android.content.SharedPreferences) {
             val ngay = p.getString(HabisWidgetProvider.K_NGAY, "") ?: ""
             val nm = p.getString(HabisWidgetProvider.K_HABIT_NM, "0/0") ?: "0/0"
-            views.setTextViewText(
-                R.id.wid_l_meta,
-                if (ngay.isEmpty()) nm else "$ngay · $nm",
-            )
             val kcal = gonKcal(p.getString(HabisWidgetProvider.K_KCAL, "") ?: "")
-            if (kcal.isEmpty()) {
-                views.setViewVisibility(R.id.wid_l_kcal, View.GONE)
-            } else {
-                views.setViewVisibility(R.id.wid_l_kcal, View.VISIBLE)
-                views.setTextViewText(R.id.wid_l_kcal, " · $kcal")
-            }
+            val ds = ArrayList<String>(3)
+            if (ngay.isNotEmpty()) ds.add(ngay)
+            if (nm.isNotEmpty()) ds.add(nm)
+            if (kcal.isNotEmpty()) ds.add(kcal)
+            views.setTextViewText(R.id.wid_l_meta, ds.joinToString(" · "))
         }
 
         /** «2425 / 2600 kcal» → «2425/2600 kcal» — số không bị cắt giữa. */

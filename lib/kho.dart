@@ -1090,11 +1090,18 @@ class Kho extends ChangeNotifier {
     _dongWid();
   }
 
-  /// Hôm nay, chưa tick, còn cửa sổ, không override. Giờ nhắc tăng. Không giờ → cuối.
+  /// Hôm nay, có giờ, trong [giờ−2h, giờ+1h], chưa tick, không override.
   List<HangHabitView> get hangCam {
     final ds = [
       for (final h in dsHien)
-        if (hienO(h, homNay) && trangCua(h, homNay) == HabitTrang.open)
+        if (h.gioNhac != null &&
+            hienO(h, homNay) &&
+            trangCua(h, homNay) == HabitTrang.open &&
+            trongCuaSoWid(
+              gioPhut: h.gioNhac!,
+              ngay: homNay,
+              now: bayGio,
+            ))
           HangHabitView(habit: h, trang: HabitTrang.open),
     ];
     ds.sort(soSanhGioHang);

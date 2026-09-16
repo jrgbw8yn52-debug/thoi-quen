@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:thoi_quen/chuoi.dart';
 import 'package:thoi_quen/db/database.dart';
+import 'package:thoi_quen/habit_trang.dart';
 import 'package:thoi_quen/kho.dart';
 
 void main() {
@@ -15,8 +16,28 @@ void main() {
     await db.close();
   });
 
-  test('hàng đợi Cam: chưa tick, sort giờ, không giờ cuối, tối đa 3 ô', () async {
-    final kho = Kho(db, bayGio: DateTime(2026, 9, 4, 5));
+  test('trongCuaSoWid: [gio − 2h, gio + 1h]', () {
+    final ngay = DateTime(2026, 9, 4);
+    expect(
+      trongCuaSoWid(gioPhut: 8 * 60, ngay: ngay, now: DateTime(2026, 9, 4, 6)),
+      isTrue,
+    );
+    expect(
+      trongCuaSoWid(gioPhut: 8 * 60, ngay: ngay, now: DateTime(2026, 9, 4, 9)),
+      isTrue,
+    );
+    expect(
+      trongCuaSoWid(gioPhut: 8 * 60, ngay: ngay, now: DateTime(2026, 9, 4, 5, 59)),
+      isFalse,
+    );
+    expect(
+      trongCuaSoWid(gioPhut: 8 * 60, ngay: ngay, now: DateTime(2026, 9, 4, 9, 1)),
+      isFalse,
+    );
+  });
+
+  test('hangCam: cửa sổ giờ, không giờ ẩn, sort, tối đa 2 ô widget', () async {
+    final kho = Kho(db, bayGio: DateTime(2026, 9, 4, 7));
     addTearDown(kho.dispose);
     await kho.tai();
     Future<void> them(String ten, int? gio) async {
@@ -26,35 +47,18 @@ void main() {
     await them('Sáu', 6 * 60);
     await them('Tám', 8 * 60);
     await them('Mười hai', 12 * 60);
-    await them('Mười bốn', 14 * 60);
-    await them('Mười tám', 18 * 60);
     await them('Không giờ', null);
 
-    // themPreset tự tick ngày tạo. Gỡ tick để còn hàng đợi.
     for (final h in List.of(kho.hang)) {
       if (h.ticked) await kho.toggle(h);
     }
-    expect(kho.hangCam.map((h) => h.habit.ten).toList(), [
-      'Sáu',
-      'Tám',
-      'Mười hai',
-      'Mười bốn',
-      'Mười tám',
-      'Không giờ',
-    ]);
-    expect(kho.hangCam.take(3).map((h) => h.habit.ten).toList(), [
-      'Sáu',
-      'Tám',
-      'Mười hai',
-    ]);
+    // 7h: Sáu [4–7] + Tám [6–9]. 12h và không giờ ẩn.
+    expect(kho.hangCam.map((h) => h.habit.ten).toList(), ['Sáu', 'Tám']);
+    expect(kho.hangCam.take(2).length, 2);
 
     final tam = kho.hangCam.firstWhere((h) => h.habit.ten == 'Tám');
     await kho.toggle(tam);
-    expect(kho.hangCam.take(3).map((h) => h.habit.ten).toList(), [
-      'Sáu',
-      'Mười hai',
-      'Mười bốn',
-    ]);
+    expect(kho.hangCam.map((h) => h.habit.ten).toList(), ['Sáu']);
 
     for (final h in List.of(kho.hangCam)) {
       await kho.toggle(h);
