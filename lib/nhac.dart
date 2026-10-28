@@ -30,6 +30,58 @@ abstract final class Nhac {
 
   static int notiIdFocus(int id) => idFocusGoc + id;
 
+  /// Một habit: id×10 + thứ (1–7).
+  static List<int> notiIdsHabit(int habitId) =>
+      [for (var thu = 1; thu <= 7; thu++) habitId * 10 + thu];
+
+  /// Payload habit «id|thứ». Focus «f|id» → null.
+  static int? idHabitPayload(String? p) {
+    if (p == null || p.isEmpty || p.startsWith(prefixFocus)) return null;
+    final dau = p.split('|').first;
+    return int.tryParse(dau);
+  }
+
+  /// Pending mà habit không còn được nhắc.
+  static List<int> idCanHuy(
+    Iterable<({int id, String? payload})> pending,
+    Set<int> conSong,
+  ) {
+    final out = <int>[];
+    for (final r in pending) {
+      final hid = idHabitPayload(r.payload);
+      if (hid != null && !conSong.contains(hid)) out.add(r.id);
+    }
+    return out;
+  }
+
+  /// Lần kế tiếp đúng thứ, bỏ ngày loại trừ. Không lặp tuần nếu ngày đó bị xoá.
+  static DateTime lanNhac({
+    required DateTime now,
+    required int weekday,
+    required int phut,
+    bool boHomNay = false,
+    Set<String> boNgay = const {},
+  }) {
+    final gio = phut ~/ 60;
+    final ph = phut % 60;
+    var d = DateTime(now.year, now.month, now.day, gio, ph);
+    final hom = DateTime(now.year, now.month, now.day);
+    while (d.weekday != weekday ||
+        !d.isAfter(now) ||
+        (boHomNay &&
+            d.year == hom.year &&
+            d.month == hom.month &&
+            d.day == hom.day) ||
+        boNgay.contains(Ngay.iso(d))) {
+      d = d.add(const Duration(days: 1));
+      d = DateTime(d.year, d.month, d.day, gio, ph);
+    }
+    return d;
+  }
+
+  /// Ghi khi plugin chưa sẵn — test «xoá habit → không còn noti».
+  static final List<int> huyTest = [];
+
   static final _p = FlutterLocalNotificationsPlugin();
   static bool _ok = false;
   static void Function(String payload)? onBam;
@@ -130,6 +182,7 @@ abstract final class Nhac {
     List<Habit> ds, {
     Set<int> boHomNay = const {},
     List<FocusTask> focus = const [],
+    Map<int, Set<String>> boNgay = const {},
   }) async {
     if (!_ok) return;
     try {
@@ -144,6 +197,7 @@ abstract final class Nhac {
             thu,
             g,
             boHomNay: boHomNay.contains(h.id) && thu == thuHom,
+            boNgay: boNgay[h.id] ?? const {},
           );
         }
       }
@@ -153,11 +207,47 @@ abstract final class Nhac {
     } catch (_) {}
   }
 
+  /// Huỷ mọi pending gắn habit này (mọi phạm vi xoá).
+  static Future<void> huyHabit(int habitId) async {
+    final ids = notiIdsHabit(habitId);
+    if (!_ok) {
+      huyTest.addAll(ids);
+      return;
+    }
+    try {
+      for (final id in ids) {
+        await _p.cancel(id);
+      }
+      final ds = await _p.pendingNotificationRequests();
+      for (final r in ds) {
+        if (idHabitPayload(r.payload) == habitId) {
+          await _p.cancel(r.id);
+        }
+      }
+    } catch (_) {}
+  }
+
+  /// Mở / resume: habit không còn được nhắc → cancel.
+  static Future<void> quetMoCoi(Set<int> conSong) async {
+    if (!_ok) return;
+    try {
+      final ds = await _p.pendingNotificationRequests();
+      final huy = idCanHuy(
+        [for (final r in ds) (id: r.id, payload: r.payload)],
+        conSong,
+      );
+      for (final id in huy) {
+        await _p.cancel(id);
+      }
+    } catch (_) {}
+  }
+
   static Future<void> _dat(
     Habit h,
     int thu,
     int phut, {
     bool boHomNay = false,
+    Set<String> boNgay = const {},
   }) async {
     const android = AndroidNotificationDetails(
       kenhId,
@@ -190,7 +280,21 @@ abstract final class Nhac {
       interruptionLevel: InterruptionLevel.active,
     );
     const details = NotificationDetails(android: android, iOS: ios);
-    final khi = _lanSau(thu, phut, boHomNay: boHomNay);
+    final khiDt = lanNhac(
+      now: tz.TZDateTime.now(tz.local),
+      weekday: thu,
+      phut: phut,
+      boHomNay: boHomNay,
+      boNgay: boNgay,
+    );
+    final khi = tz.TZDateTime(
+      tz.local,
+      khiDt.year,
+      khiDt.month,
+      khiDt.day,
+      khiDt.hour,
+      khiDt.minute,
+    );
     final id = h.id * 10 + thu;
     final payload = '${h.id}|$thu';
     try {
@@ -283,31 +387,5 @@ abstract final class Nhac {
         payload: payload,
       );
     }
-  }
-
-  static tz.TZDateTime _lanSau(
-    int weekday,
-    int phut, {
-    bool boHomNay = false,
-  }) {
-    final now = tz.TZDateTime.now(tz.local);
-    var d = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      phut ~/ 60,
-      phut % 60,
-    );
-    final hom = tz.TZDateTime(tz.local, now.year, now.month, now.day);
-    while (d.weekday != weekday ||
-        !d.isAfter(now) ||
-        (boHomNay &&
-            d.year == hom.year &&
-            d.month == hom.month &&
-            d.day == hom.day)) {
-      d = d.add(const Duration(days: 1));
-    }
-    return d;
   }
 }

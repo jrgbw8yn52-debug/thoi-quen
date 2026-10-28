@@ -1095,6 +1095,7 @@ class Kho extends ChangeNotifier {
     if (lanDau) shellBan.ban();
     await _dongNhac();
     _dongWid();
+    await quetNotiMoCoi();
   }
 
   /// Việc widget: trong cửa sổ + [Xong]; 1 việc hôm nay chưa tới — không nút.
@@ -1429,8 +1430,10 @@ class Kho extends ChangeNotifier {
 
   Future<void> anKhoiDs(int id) async {
     if (!Ngay.ghiDuoc(selected, homNay)) return;
+    await Nhac.huyHabit(id);
     await db.anTuNgay(id, homNay);
     await tai();
+    await Nhac.huyHabit(id);
   }
 
   Future<void> xoaKhoiNgay(Habit h, DateTime ngay) async {
@@ -1439,6 +1442,8 @@ class Kho extends ChangeNotifier {
     _dongBoHangVaTuan();
     homeBan.ban();
     await db.ghiLoaiTru(h.id, ngay);
+    await Nhac.huyHabit(h.id);
+    await _dongNhac();
   }
 
   Future<void> xoaKhoiTuanSau(Habit h) async {
@@ -1451,6 +1456,8 @@ class Kho extends ChangeNotifier {
     }
     _dongBoHangVaTuan();
     homeBan.ban();
+    await Nhac.huyHabit(h.id);
+    await _dongNhac();
   }
 
   Future<void> xoaKhoiThangSau(Habit h) async {
@@ -1463,6 +1470,8 @@ class Kho extends ChangeNotifier {
     }
     _dongBoHangVaTuan();
     homeBan.ban();
+    await Nhac.huyHabit(h.id);
+    await _dongNhac();
   }
 
   Future<void> xoaHabit(int id) => anKhoiDs(id);
@@ -1616,11 +1625,28 @@ class Kho extends ChangeNotifier {
     _dongWid();
   }
 
+  bool _conNhac(Habit h) {
+    if (h.gioNhac == null) return false;
+    if (h.anTu != null && !Ngay.truoc(homNay, Ngay.parse(h.anTu!))) return false;
+    return true;
+  }
+
+  Set<int> get _habitConNhac =>
+      {for (final h in dsHien) if (_conNhac(h)) h.id};
+
+  /// Resume / mở: noti mà habit không còn trong lịch → huỷ.
+  Future<void> quetNotiMoCoi() async {
+    if (dangTai) return;
+    await Nhac.quetMoCoi(_habitConNhac);
+  }
+
   Future<void> _dongNhac() {
+    final ds = [for (final h in dsHien) if (_conNhac(h)) h];
     return Nhac.dongBo(
-      dsHien,
+      ds,
       boHomNay: _boNotiHomNay,
       focus: dsFocus,
+      boNgay: loaiTru,
     );
   }
 
@@ -1886,6 +1912,26 @@ class Kho extends ChangeNotifier {
       dam: f.dam,
       bot: f.bot,
       beo: f.beo,
+      khung: Khung.chuan(khung),
+    );
+    await tai();
+    return true;
+  }
+
+  /// Sao chép một log sang buổi đang chọn, cùng ngày. Không mở kho.
+  Future<bool> saoChepLog(FoodLog goc, {String? khung}) async {
+    final d = Ngay.cat(selected);
+    if (!Ngay.ghiDuoc(d, homNay)) return false;
+    if (goc.ten.trim().isEmpty) return false;
+    await db.ghiLog(
+      d,
+      foodId: goc.foodId,
+      ten: goc.ten,
+      kcal: goc.kcal,
+      gram: goc.gram,
+      dam: goc.dam,
+      bot: goc.bot,
+      beo: goc.beo,
       khung: Khung.chuan(khung),
     );
     await tai();

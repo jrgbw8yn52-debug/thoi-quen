@@ -172,6 +172,7 @@ abstract final class Chuoi {
   static const quaThap = 'Quá thấp so với chỉ tiêu';
   static const taoCongThuc = 'Tạo công thức';
   static const monDaLuu = 'Món đã lưu';
+  static const saoChepBuoiTruoc = 'Sao chép buổi trước';
   static const thucDon = 'Thực đơn';
   static const thucDonHomNay = 'Thực đơn hôm nay';
   static const danChuGrok = 'Dán chữ Grok';

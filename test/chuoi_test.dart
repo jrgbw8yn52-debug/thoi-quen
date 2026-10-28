@@ -25,6 +25,8 @@ void main() {
     expect(Chuoi.chaoTheoGio(DateTime(2026, 8, 30, 20, 59)), Chuoi.chaoToi);
     expect(Chuoi.chaoTheoGio(DateTime(2026, 8, 30, 21)), Chuoi.chaoDem);
     expect(Chuoi.chaoTheoGio(DateTime(2026, 8, 30, 4, 59)), Chuoi.chaoDem);
+    expect(Chuoi.monDaLuu, 'Món đã lưu');
+    expect(Chuoi.saoChepBuoiTruoc, 'Sao chép buổi trước');
     expect(Chuoi.timMon, 'Tìm món');
     expect(Chuoi.kcalConLai, 'kcal còn lại');
     expect(Chuoi.kcalVuot, 'kcal vượt');

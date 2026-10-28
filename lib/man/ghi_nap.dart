@@ -53,6 +53,59 @@ class _ManGhiNapState extends State<ManGhiNap> {
     setState(() => _moKhung = _khung);
   }
 
+  Future<void> _saoChep() async {
+    if (kho.khoaGhi) return;
+    final ds = kho.logNgay(kho.selected);
+    if (ds.isEmpty) return;
+    final chon = await showModalBottomSheet<FoodLog>(
+      context: context,
+      backgroundColor: Mau.beMat,
+      builder: (ctx) {
+        return SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            children: [
+              const Text(
+                Chuoi.saoChepBuoiTruoc,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Mau.muc),
+              ),
+              const SizedBox(height: 12),
+              for (final l in ds)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Material(
+                    color: Mau.giay,
+                    child: InkWell(
+                      key: Key('sao-log-${l.id}'),
+                      onTap: () => Navigator.pop(ctx, l),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 44),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              Chuoi.dongMon(l.ten, l.kcal, g: l.gram),
+                              style: const TextStyle(fontSize: 15, color: Mau.muc),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+    if (!mounted || chon == null) return;
+    await kho.saoChepLog(chon, khung: _khung);
+    if (!mounted) return;
+    setState(() => _moKhung = _khung);
+  }
+
   Widget _hangLog(FoodLog l) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -183,6 +236,18 @@ class _ManGhiNapState extends State<ManGhiNap> {
                     ),
                   ],
                 ),
+                if (logs.isNotEmpty && !kho.khoaGhi) ...[
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 44,
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      key: const Key('nut-sao-chep-buoi'),
+                      onPressed: _saoChep,
+                      child: const Text(Chuoi.saoChepBuoiTruoc),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 20),
                 VongKcalNgay(
                   nap: nap,

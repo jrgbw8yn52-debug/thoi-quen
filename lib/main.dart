@@ -56,12 +56,13 @@ class _VoCoSplash extends StatefulWidget {
   State<_VoCoSplash> createState() => _VoCoSplashState();
 }
 
-class _VoCoSplashState extends State<_VoCoSplash> {
+class _VoCoSplashState extends State<_VoCoSplash> with WidgetsBindingObserver {
   bool _het = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     Future<void>.delayed(const Duration(milliseconds: 900), () {
       if (mounted) setState(() => _het = true);
     });
@@ -74,8 +75,16 @@ class _VoCoSplashState extends State<_VoCoSplash> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     widget.kho.shellBan.removeListener(_ve);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      widget.kho.quetNotiMoCoi();
+    }
   }
 
   @override

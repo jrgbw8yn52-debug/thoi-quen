@@ -56,6 +56,42 @@ void main() {
     expect(find.text(Chuoi.dam), findsOneWidget);
   });
 
+  testWidgets('sao chep mon trong ngay vao buoi hien tai', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: Mau.theme(),
+        home: ManGhiNap(kho: kho),
+      ),
+    );
+    await tester.pump();
+    expect(find.byKey(const Key('nut-sao-chep-buoi')), findsNothing);
+    await kho.luuMon(
+      ten: 'Cơm',
+      kcal: 400,
+      gram: 200,
+      vaoNgay: true,
+      khung: 'sang',
+    );
+    await tester.pump();
+    expect(find.text(Chuoi.saoChepBuoiTruoc), findsOneWidget);
+    await tester.tap(find.text(Chuoi.chieu));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('nut-sao-chep-buoi')));
+    await tester.pumpAndSettle();
+    final goc = kho.logNgay(kho.selected).single;
+    expect(find.text(Chuoi.dongMon('Cơm', 400, g: 200)), findsWidgets);
+    await tester.tap(find.byKey(Key('sao-log-${goc.id}')));
+    await tester.pumpAndSettle();
+    final logs = kho.logNgay(kho.selected);
+    expect(logs.length, 2);
+    expect(logs.where((l) => l.khung == 'chieu').single.kcal, 400);
+    expect(logs.where((l) => l.khung == 'chieu').single.foodId, goc.foodId);
+    expect(logs.where((l) => l.khung == 'chieu').single.gram, 200);
+  });
+
   testWidgets('kho mon ABC va goi y realtime', (tester) async {
     tester.view.physicalSize = const Size(390, 900);
     tester.view.devicePixelRatio = 1;
