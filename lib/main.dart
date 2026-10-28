@@ -83,7 +83,7 @@ class _VoCoSplashState extends State<_VoCoSplash> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      widget.kho.quetNotiMoCoi();
+      widget.kho.lamMoiNoti();
     }
   }
 

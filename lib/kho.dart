@@ -1631,13 +1631,23 @@ class Kho extends ChangeNotifier {
     return true;
   }
 
-  Set<int> get _habitConNhac =>
-      {for (final h in dsHien) if (_conNhac(h)) h.id};
-
-  /// Resume / mở: noti mà habit không còn trong lịch → huỷ.
+  /// Resume / mở: noti mà habit không còn trong bảng, hoặc đã ẩn → huỷ.
   Future<void> quetNotiMoCoi() async {
     if (dangTai) return;
-    await Nhac.quetMoCoi(_habitConNhac);
+    final bang = await db.dsHabitTatCa();
+    final trongBang = bang.map((h) => h.id).toSet();
+    final con = <int>{
+      for (final h in bang)
+        if (_conNhac(h)) h.id,
+    };
+    await Nhac.quetMoCoi(con, trongBang: trongBang);
+  }
+
+  /// Mở lại app: đặt lại lịch một lần, rồi quét noti mồ côi.
+  Future<void> lamMoiNoti() async {
+    if (dangTai) return;
+    await _dongNhac();
+    await quetNotiMoCoi();
   }
 
   Future<void> _dongNhac() {

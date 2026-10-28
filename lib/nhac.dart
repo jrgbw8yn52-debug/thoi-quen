@@ -30,9 +30,21 @@ abstract final class Nhac {
 
   static int notiIdFocus(int id) => idFocusGoc + id;
 
-  /// Một habit: id×10 + thứ (1–7).
-  static List<int> notiIdsHabit(int habitId) =>
-      [for (var thu = 1; thu <= 7; thu++) habitId * 10 + thu];
+  /// 8 lần tới mỗi thứ — một lần, không lặp tuần (matchDateTimeComponents để lại noti mồ côi).
+  static const soTuan = 8;
+
+  /// id cũ: habit×10+thứ (chỉ để huỷ). id một lần: 2_000_000+habit×64+tuần×7+(thứ−1).
+  /// Cách xa id cũ và Focus (500_000+) để huỷ habit này không xoá noti habit khác.
+  static const idGocLan = 2000000;
+
+  static int idLan(int habitId, int tuan, int thu) =>
+      idGocLan + habitId * 64 + tuan * 7 + (thu - 1);
+
+  static List<int> notiIdsHabit(int habitId) => [
+        for (var thu = 1; thu <= 7; thu++) habitId * 10 + thu,
+        for (var tuan = 0; tuan < soTuan; tuan++)
+          for (var thu = 1; thu <= 7; thu++) idLan(habitId, tuan, thu),
+      ];
 
   /// Payload habit «id|thứ». Focus «f|id» → null.
   static int? idHabitPayload(String? p) {
@@ -81,6 +93,48 @@ abstract final class Nhac {
 
   /// Ghi khi plugin chưa sẵn — test «xoá habit → không còn noti».
   static final List<int> huyTest = [];
+
+  /// Lịch sẽ đặt, kể cả khi plugin tắt. Xoá habit thì habit đó không còn dòng.
+  static final List<({int habitId, String ngay})> lichTest = [];
+
+  /// Tối đa [soTuan] lần mỗi thứ, bỏ ngày loại trừ. Không đặt lịch lặp.
+  static List<({int habitId, String ten, int thu, int tuan, DateTime khi})>
+      keHoach({
+    required List<({int id, String ten, int? gioNhac, String thuBit})> ds,
+    required DateTime now,
+    Set<int> boHomNay = const {},
+    Map<int, Set<String>> boNgay = const {},
+  }) {
+    final out = <({int habitId, String ten, int thu, int tuan, DateTime khi})>[];
+    for (final h in ds) {
+      final g = h.gioNhac;
+      if (g == null) continue;
+      final bo = boNgay[h.id] ?? const <String>{};
+      for (final thu in Thu.tach(h.thuBit)) {
+        var moc = now;
+        for (var tuan = 0; tuan < soTuan; tuan++) {
+          final khi = lanNhac(
+            now: moc,
+            weekday: thu,
+            phut: g,
+            boHomNay: tuan == 0 &&
+                boHomNay.contains(h.id) &&
+                thu == now.weekday,
+            boNgay: bo,
+          );
+          out.add((
+            habitId: h.id,
+            ten: h.ten,
+            thu: thu,
+            tuan: tuan,
+            khi: khi,
+          ));
+          moc = khi;
+        }
+      }
+    }
+    return out;
+  }
 
   static final _p = FlutterLocalNotificationsPlugin();
   static bool _ok = false;
@@ -184,22 +238,41 @@ abstract final class Nhac {
     List<FocusTask> focus = const [],
     Map<int, Set<String>> boNgay = const {},
   }) async {
+    final now = _ok ? tz.TZDateTime.now(tz.local) : DateTime.now();
+    final muc = keHoach(
+      ds: [
+        for (final h in ds)
+          (id: h.id, ten: h.ten, gioNhac: h.gioNhac, thuBit: h.thuBit),
+      ],
+      now: now,
+      boHomNay: boHomNay,
+      boNgay: boNgay,
+    );
+    lichTest
+      ..clear()
+      ..addAll([
+        for (final m in muc) (habitId: m.habitId, ngay: Ngay.iso(m.khi)),
+      ]);
     if (!_ok) return;
     try {
+      final pending = await _p.pendingNotificationRequests();
+      for (final r in pending) {
+        await _p.cancel(r.id);
+      }
       await _p.cancelAll();
-      final thuHom = tz.TZDateTime.now(tz.local).weekday;
+      final daHuy = <int>{};
       for (final h in ds) {
-        final g = h.gioNhac;
-        if (g == null) continue;
-        for (final thu in Thu.tach(h.thuBit)) {
-          await _dat(
-            h,
-            thu,
-            g,
-            boHomNay: boHomNay.contains(h.id) && thu == thuHom,
-            boNgay: boNgay[h.id] ?? const {},
-          );
+        for (final id in notiIdsHabit(h.id)) {
+          if (daHuy.add(id)) await _p.cancel(id);
         }
+      }
+      for (final m in muc) {
+        await _datMot(
+          id: idLan(m.habitId, m.tuan, m.thu),
+          ten: m.ten,
+          payload: '${m.habitId}|${m.thu}',
+          khiDt: m.khi,
+        );
       }
       for (final t in focus) {
         await _datFocus(t);
@@ -227,10 +300,18 @@ abstract final class Nhac {
     } catch (_) {}
   }
 
-  /// Mở / resume: habit không còn được nhắc → cancel.
-  static Future<void> quetMoCoi(Set<int> conSong) async {
+  /// Mở / resume: không còn trong bảng, hoặc không còn được nhắc → cancel.
+  static Future<void> quetMoCoi(
+    Set<int> conSong, {
+    Set<int> trongBang = const {},
+  }) async {
     if (!_ok) return;
     try {
+      for (final idHabit in trongBang.difference(conSong)) {
+        for (final id in notiIdsHabit(idHabit)) {
+          await _p.cancel(id);
+        }
+      }
       final ds = await _p.pendingNotificationRequests();
       final huy = idCanHuy(
         [for (final r in ds) (id: r.id, payload: r.payload)],
@@ -242,12 +323,11 @@ abstract final class Nhac {
     } catch (_) {}
   }
 
-  static Future<void> _dat(
-    Habit h,
-    int thu,
-    int phut, {
-    bool boHomNay = false,
-    Set<String> boNgay = const {},
+  static Future<void> _datMot({
+    required int id,
+    required String ten,
+    required String payload,
+    required DateTime khiDt,
   }) async {
     const android = AndroidNotificationDetails(
       kenhId,
@@ -280,13 +360,6 @@ abstract final class Nhac {
       interruptionLevel: InterruptionLevel.active,
     );
     const details = NotificationDetails(android: android, iOS: ios);
-    final khiDt = lanNhac(
-      now: tz.TZDateTime.now(tz.local),
-      weekday: thu,
-      phut: phut,
-      boHomNay: boHomNay,
-      boNgay: boNgay,
-    );
     final khi = tz.TZDateTime(
       tz.local,
       khiDt.year,
@@ -295,28 +368,24 @@ abstract final class Nhac {
       khiDt.hour,
       khiDt.minute,
     );
-    final id = h.id * 10 + thu;
-    final payload = '${h.id}|$thu';
     try {
       await _p.zonedSchedule(
         id,
-        h.ten,
+        ten,
         '',
         khi,
         details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
         payload: payload,
       );
     } catch (_) {
       await _p.zonedSchedule(
         id,
-        h.ten,
+        ten,
         '',
         khi,
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
         payload: payload,
       );
     }
